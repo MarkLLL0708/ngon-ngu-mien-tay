@@ -1,24 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PersonaCard } from "./PersonaCard";
 import { useRegionTheme } from "./RegionTheme";
 import { useLang } from "./Language";
+import { SaveAccountBanner, SaveAccountModal, useGuestAccount } from "./SaveAccount";
 import { personas, type Persona } from "@/lib/tangpt-data";
 import { readReplyLanguage, saveReplyLanguage, useProfile } from "@/lib/tangpt-profile";
 import type { ReplyLanguage } from "@/lib/tangpt-api";
 import { supabase } from "@/integrations/supabase/client";
-
-type CompanionRow = { id: string; name: string; personality: string; mode: string; created_at: string };
+import { companionGenderMix, listTitle, relativeTime, useCompanions } from "@/lib/tangpt-companions";
 
 export function CompanionTab() {
   const { region } = useRegionTheme();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const profile = useProfile();
   const navigate = useNavigate();
+  const { rows } = useCompanions();
+  const guest = useGuestAccount();
+  const [saveOpen, setSaveOpen] = useState(false);
   const [selected, setSelected] = useState<Persona | null>(null);
-  const [rows, setRows] = useState<CompanionRow[]>([]);
+  const [adding, setAdding] = useState(false);
   const [personality, setPersonality] = useState("Dịu dàng");
   const [chatLanguage, setChatLanguage] = useState<ReplyLanguage>("vi");
   const [mode, setMode] = useState("Trò chuyện");
@@ -28,13 +31,12 @@ export function CompanionTab() {
   const filtered = useMemo(() => personas.filter((p) => p.region === region), [region]);
 
   useEffect(() => { setChatLanguage(readReplyLanguage()); }, []);
-  useEffect(() => {
-    if (!profile?.userId) return;
-    let active = true;
-    supabase.from("companions").select("id, name, personality, mode, created_at").order("created_at", { ascending: false })
-      .then(({ data }) => { if (active && data) setRows(data as CompanionRow[]); });
-    return () => { active = false; };
-  }, [profile?.userId]);
+
+  const list = rows ?? [];
+  const hasCompanions = list.length > 0;
+  const mix = companionGenderMix(list.map((row) => row.persona_gender));
+  const vi = lang === "vi";
+  const showPicker = !hasCompanions || adding;
 
   async function start() {
     if (!selected || !profile?.userId || saving) return;
@@ -53,17 +55,27 @@ export function CompanionTab() {
   }
 
   return <section className="tab-page">
-    {rows.length > 0 && <>
-      <div className="page-title"><span>{t("CUỘC TRÒ CHUYỆN", "CONVERSATIONS")}</span><h1>{t("Bạn gái AI", "AI girlfriend")}</h1></div>
-      <div className="chat-list">{rows.map((row) => <button type="button" key={row.id} onClick={() => navigate({ to: "/app/chat/$companionId", params: { companionId: row.id } })}>
+    {guest.anonymous && <SaveAccountBanner onOpen={() => setSaveOpen(true)} />}
+    <SaveAccountModal open={saveOpen} onClose={() => setSaveOpen(false)} onSaved={(email) => guest.setSaved(email)} />
+
+    {hasCompanions && <>
+      <div className="row-title">
+        <div className="page-title"><span>{t("CUỘC TRÒ CHUYỆN", "CONVERSATIONS")}</span><h1>{listTitle(mix, vi)}</h1></div>
+        <Button variant="gradient" size="icon" aria-label={t("Thêm nhân vật", "Add a companion")} onClick={() => setAdding((x) => !x)}><Plus /></Button>
+      </div>
+      <div className="chat-list">{list.map((row) => <button type="button" key={row.id} onClick={() => navigate({ to: "/app/chat/$companionId", params: { companionId: row.id } })}>
         <div className="avatar-orbit small"><span>{row.name[0]}</span></div>
-        <div><strong>{row.name}</strong><p>{row.personality} · {row.mode}</p></div>
-        <time>{new Date(row.created_at).toLocaleDateString("vi-VN")}</time>
+        <div><strong>{row.name}</strong><p>{row.last_message_preview || `${row.personality} · ${row.mode}`}</p></div>
+        <time>{relativeTime(row.last_message_at ?? row.created_at, vi)}</time>
       </button>)}</div>
     </>}
-    <div className="page-title"><span>{t("TRÒ CHUYỆN TỰ NHIÊN", "NATURAL CONVERSATION")}</span><h1>{t("Chọn người bạn trò chuyện", "Choose who you chat with")}</h1><p>{t("Cứ là chính mình. Đây là không gian để bạn trò chuyện và luyện tập.", "Just be yourself. This is a space to chat and practise.")}</p></div>
-    <div className="persona-grid">{filtered.map((p) => <PersonaCard key={p.id} persona={p} selected={selected?.id === p.id} onSelect={() => setSelected(p)} />)}</div>
-    {selected && <div className="confirm-sheet fade-up">
+
+    {showPicker && <>
+      <div className="page-title"><span>{t("TRÒ CHUYỆN TỰ NHIÊN", "NATURAL CONVERSATION")}</span><h1>{t("Chọn người bạn trò chuyện", "Choose who you chat with")}</h1><p>{t("Cứ là chính mình. Đây là không gian để bạn trò chuyện và luyện tập.", "Just be yourself. This is a space to chat and practise.")}</p></div>
+      <div className="persona-grid">{filtered.map((p) => <PersonaCard key={p.id} persona={p} selected={selected?.id === p.id} onSelect={() => setSelected(p)} />)}</div>
+    </>}
+
+    {showPicker && selected && <div className="confirm-sheet fade-up">
       <div className="sheet-handle" />
       <div className="flex items-center gap-3"><div className="avatar-orbit small"><span>{selected.name[0]}</span></div><div><h2>{selected.name}, {selected.age}</h2><p>{selected.job} · {selected.city}</p></div></div>
       <label>{t("Tính cách", "Personality")}</label>
