@@ -4,7 +4,7 @@ import { Sparkle, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RegionPicker } from "./RegionPicker";
 import { useRegionTheme } from "./RegionTheme";
-import { useLang } from "./Language";
+import { LangToggle, useLang } from "./Language";
 import { supabase } from "@/integrations/supabase/client";
 import type { AgeGroup } from "@/lib/tangpt-data";
 
@@ -50,6 +50,7 @@ export function OnboardingFlow() {
     <header>
       <span className="brand"><span>Tán</span>GPT<i /></span>
       <div className="progress-dots">{[0, 1, 2].map((i) => <i key={i} className={i <= step ? "active" : ""} />)}</div>
+      <LangToggle />
     </header>
     <section className="onboarding-card fade-up">
       {step === 0 && <>

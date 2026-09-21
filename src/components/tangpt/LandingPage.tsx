@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { regions, type RegionKey } from "@/lib/tangpt-data";
 import { useRegionTheme } from "./RegionTheme";
 import { useSessionUser } from "@/lib/tangpt-session";
+import { LangToggle } from "./Language";
 
 const demos: { key: RegionKey; label: string; reply: string }[] = [
   { key: "bac", label: "Bắc", reply: "Vất vả quá nhỉ, về nhà nghỉ ngơi đi nhé. Đã ăn gì chưa đấy?" },
@@ -22,7 +23,7 @@ export function LandingPage() {
   useEffect(() => { setRegion(current.key); }, [current, setRegion]);
   function pickRegion(key: RegionKey) { setRegion(key); setCity(regions[key].cities[0] ?? regions[key].city); navigate({ to: "/login", search: { mode: "signup" } }); }
   return <main className="marketing-shell">
-    <header className="marketing-nav"><Link to="/" className="brand"><span>Tán</span>GPT<i /></Link>{userId ? <Button asChild variant="outline"><Link to="/app">Vào ứng dụng</Link></Button> : <Button asChild variant="outline"><Link to="/login" search={{ mode: "login" }}>Đăng nhập</Link></Button>}</header>
+    <header className="marketing-nav"><Link to="/" className="brand"><span>Tán</span>GPT<i /></Link><div className="nav-side"><LangToggle />{userId ? <Button asChild variant="outline"><Link to="/app">Vào ứng dụng</Link></Button> : <Button asChild variant="outline"><Link to="/login" search={{ mode: "login" }}>Đăng nhập</Link></Button>}</div></header>
     <section className="hero-band">
       <div className="hero-copy fade-up">
         <div className="eyebrow"><MapPin className="size-4" /> Đúng giọng. Đúng duyên.</div>
