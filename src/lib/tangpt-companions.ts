@@ -53,6 +53,7 @@ export function dayLabel(value: string, vi: boolean): string {
 /** Adaptive labels based on the persona genders the user actually created. */
 export function companionGenderMix(genders: string[]): "female" | "male" | "mixed" {
   const unique = Array.from(new Set(genders));
+  if (unique.length === 0) return "female";
   if (unique.length === 1 && unique[0] === "female") return "female";
   if (unique.length === 1 && unique[0] === "male") return "male";
   return "mixed";
