@@ -22,7 +22,7 @@ const ROBOTIC = ["tất nhiên", "tôi hiểu", "dưới đây là", "là một 
 const RETRY_LINE = "Viết lại tự nhiên hơn, như người thật nhắn tin, không giọng trợ lý.";
 
 export class RizzError extends Error {
-  constructor(public code: "limit_reached" | "bad_ai_response" | "missing_key" | "ai_unavailable") { super(code); }
+  constructor(public code: "limit_reached" | "bad_ai_response" | "missing_key" | "ai_unavailable" | "rate_limited" | "credits") { super(code); }
 }
 
 function buildUserMessage(input: RizzInput) {
@@ -115,7 +115,7 @@ export const generateRizz = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: RizzInput) => data)
   .handler(async ({ data, context }): Promise<RizzPayload> => {
-    const apiKey = process.env["ANTHROPIC_API_KEY"];
+    const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new RizzError("missing_key");
     const { supabase, userId } = context;
 
@@ -132,11 +132,11 @@ export const generateRizz = createServerFn({ method: "POST" })
     }
 
     const baseMessage = buildUserMessage(data);
-    let payload = parsePayload(await askClaude(apiKey, baseMessage));
-    if (!payload) payload = parsePayload(await askClaude(apiKey, baseMessage));
+    let payload = parsePayload(await askModel(apiKey, baseMessage));
+    if (!payload) payload = parsePayload(await askModel(apiKey, baseMessage));
     if (!payload) throw new RizzError("bad_ai_response");
     if (isRobotic(payload)) {
-      const retry = parsePayload(await askClaude(apiKey, `${baseMessage}\n${RETRY_LINE}`));
+      const retry = parsePayload(await askModel(apiKey, `${baseMessage}\n${RETRY_LINE}`));
       if (retry) payload = retry;
     }
 
