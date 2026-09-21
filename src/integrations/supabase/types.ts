@@ -63,6 +63,7 @@ export type Database = {
           created_at: string
           default_city: string | null
           default_region: string | null
+          gender: string
           id: string
           reply_language: string
           subscription_status: string
@@ -75,6 +76,7 @@ export type Database = {
           created_at?: string
           default_city?: string | null
           default_region?: string | null
+          gender?: string
           id: string
           reply_language?: string
           subscription_status?: string
@@ -87,6 +89,7 @@ export type Database = {
           created_at?: string
           default_city?: string | null
           default_region?: string | null
+          gender?: string
           id?: string
           reply_language?: string
           subscription_status?: string

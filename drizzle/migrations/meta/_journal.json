@@ -15,6 +15,13 @@
       "when": 1789976350685,
       "tag": "0001_add_language_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789976876281,
+      "tag": "0002_add_profile_gender",
+      "breakpoints": true
     }
   ]
 }
