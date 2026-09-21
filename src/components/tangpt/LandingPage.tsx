@@ -42,7 +42,7 @@ export function LandingPage() {
         <div className="eyebrow"><MapPin className="size-4" /> {t("Đúng giọng. Đúng duyên.", "Right dialect. Right charm.")}</div>
         <h1>{t("Nhắn tin duyên dáng, đúng chất vùng miền của em ấy", "Text with charm, in the dialect she knows best")}</h1>
         <p>{t("Trợ lý AI giúp bạn nhắn tin tự nhiên như người bản xứ: Bắc, Trung, Nam hay Miền Tây.", "An AI assistant that helps you text like a local — Northern, Central, Southern or Mekong style.")}</p>
-        <div className="flex flex-col gap-3 sm:flex-row"><Button asChild variant="gradient" size="lg">{userId ? <Link to="/app">{t("Dùng thử miễn phí", "Try it free")} <ArrowRight /></Link> : <Link to="/login" search={{ mode: "signup" }}>{t("Dùng thử miễn phí", "Try it free")} <ArrowRight /></Link>}</Button><Button variant="outline" size="lg" onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}>{t("Xem demo", "See demo")}</Button></div>
+        <div className="flex flex-col gap-3 sm:flex-row"><Button asChild variant="gradient" size="lg">{TEST_GUEST_MODE || userId ? <Link to={appTarget}>{t("Dùng thử miễn phí", "Try it free")} <ArrowRight /></Link> : <Link to="/login" search={{ mode: "signup" }}>{t("Dùng thử miễn phí", "Try it free")} <ArrowRight /></Link>}</Button><Button variant="outline" size="lg" onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}>{t("Xem demo", "See demo")}</Button></div>
         <div className="trust-note"><ShieldCheck /> {t("Chân thành trước. Mánh khóe để sau.", "Sincerity first. Tricks later.")}</div>
       </div>
       <div id="demo" className="phone-stage fade-up-delay">
