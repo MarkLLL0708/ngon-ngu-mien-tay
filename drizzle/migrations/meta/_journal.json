@@ -29,6 +29,13 @@
       "when": 1789977194459,
       "tag": "0003_companion_persona_fields_and_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789987934730,
+      "tag": "0004_companion_memories",
+      "breakpoints": true
     }
   ]
 }

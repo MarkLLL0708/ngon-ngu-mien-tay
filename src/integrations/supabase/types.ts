@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      companion_memories: {
+        Row: {
+          category: string
+          companion_id: string
+          created_at: string
+          fact: string
+          id: string
+          pinned: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          companion_id: string
+          created_at?: string
+          fact: string
+          id?: string
+          pinned?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          companion_id?: string
+          created_at?: string
+          fact?: string
+          id?: string
+          pinned?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companion_memories_companion_id_fkey"
+            columns: ["companion_id"]
+            isOneToOne: false
+            referencedRelation: "companions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companion_messages: {
         Row: {
           companion_id: string
@@ -59,6 +100,8 @@ export type Database = {
           created_at: string
           id: string
           job: string
+          last_message_at: string | null
+          last_message_preview: string
           memory_summary: string
           mode: string
           name: string
@@ -67,6 +110,7 @@ export type Database = {
           personality: string
           region: string
           user_id: string
+          welcome_enabled: boolean
         }
         Insert: {
           address_other?: string
@@ -77,6 +121,8 @@ export type Database = {
           created_at?: string
           id?: string
           job?: string
+          last_message_at?: string | null
+          last_message_preview?: string
           memory_summary?: string
           mode: string
           name: string
@@ -85,6 +131,7 @@ export type Database = {
           personality: string
           region: string
           user_id: string
+          welcome_enabled?: boolean
         }
         Update: {
           address_other?: string
@@ -95,6 +142,8 @@ export type Database = {
           created_at?: string
           id?: string
           job?: string
+          last_message_at?: string | null
+          last_message_preview?: string
           memory_summary?: string
           mode?: string
           name?: string
@@ -103,6 +152,7 @@ export type Database = {
           personality?: string
           region?: string
           user_id?: string
+          welcome_enabled?: boolean
         }
         Relationships: []
       }
