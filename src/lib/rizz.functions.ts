@@ -26,6 +26,7 @@ export type RizzOption = { style: string; text: string; why: string };
 export type RizzPayload = { options: RizzOption[]; tip: string };
 
 const FREE_DAILY_LIMIT = 5;
+const TEST_DAILY_LIMIT = 50;
 const ROBOTIC = ["tất nhiên", "tôi hiểu", "dưới đây là", "là một ai", "as an ai", "certainly", "i understand", "here are"];
 const RETRY_LINE = "Viết lại tự nhiên hơn, như người thật nhắn tin, không giọng trợ lý.";
 
@@ -159,7 +160,8 @@ export const generateRizz = createServerFn({ method: "POST" })
         .select("id", { count: "exact", head: true })
         .eq("user_id", userId)
         .gte("created_at", since.toISOString());
-      if ((count ?? 0) >= FREE_DAILY_LIMIT) throw new RizzError("limit_reached");
+      const dailyLimit = process.env["TEST_MODE"] === "true" ? TEST_DAILY_LIMIT : FREE_DAILY_LIMIT;
+      if ((count ?? 0) >= dailyLimit) throw new RizzError("limit_reached");
     }
 
     const baseMessage = buildUserMessage(data);
