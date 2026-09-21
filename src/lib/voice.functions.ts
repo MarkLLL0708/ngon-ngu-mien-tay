@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { buildStyleInstruction, regionFallbacks, type PersonaGender, type Region } from "./voice-style";
+import { ACTIVE_VOICE_PROVIDERS } from "./tangpt-config";
 
 export type VoiceTtsInput = {
   text: string;
