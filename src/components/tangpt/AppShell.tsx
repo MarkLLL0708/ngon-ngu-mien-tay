@@ -41,7 +41,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <LangToggle />
         </div>
       </header>
-      {picker && <div className="picker-popover fade-up"><RegionPicker /></div>}
+      {picker && <>
+        <button type="button" className="picker-backdrop" aria-label="close" onClick={() => setPicker(false)} />
+        <div className="picker-popover fade-up"><RegionPicker onSelect={() => setPicker(false)} onCity={() => setPicker(false)} /></div>
+      </>}
       <div className="app-content">{children}</div>
       <nav className="bottom-nav">
         {items.map((item) => {
