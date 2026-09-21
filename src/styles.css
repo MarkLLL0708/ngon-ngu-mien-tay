@@ -50,3 +50,41 @@
 .chat-menu{margin:10px 14px;padding:14px;border:1px solid var(--border);border-radius:18px;background:var(--surface);display:grid;gap:10px}.chat-menu p{font-size:.78rem;color:var(--muted-foreground);margin:0}.chat-menu .chip{display:inline-flex;align-items:center;gap:6px}
 
 .guest-loading{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted-foreground);font-size:.9rem}.guest-loading i{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--primary);animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+
+.save-banner{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid color-mix(in oklab,var(--primary) 34%,transparent);border-radius:18px;background:color-mix(in oklab,var(--primary) 9%,var(--surface))}
+.save-banner svg{width:18px;color:var(--primary);flex:none}
+.save-banner p{font-size:.78rem;line-height:1.45;margin:0;flex:1}
+.save-banner>button:last-child{background:transparent;border:0;color:var(--muted-foreground)}
+.save-banner>button:last-child svg{width:15px}
+.modal-backdrop{position:fixed;inset:0;z-index:60;background:#000b;backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px}
+.modal-card{width:min(420px,100%);display:grid;gap:12px;padding:22px;border:1px solid var(--border);border-radius:24px;background:var(--surface-raised)}
+.modal-card h2{font-size:1.2rem;margin:0}
+.modal-card p{font-size:.8rem;color:var(--muted-foreground);margin:0}
+.modal-card input{height:48px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--foreground);padding:0 14px;outline:none}
+.modal-card input:focus{border-color:var(--primary)}
+.form-error{color:#ff6b6b;font-size:.75rem}
+.link-btn{background:transparent;border:0;color:var(--primary);font-size:.78rem;text-align:center;padding:6px}
+.date-sep{display:grid;place-items:center;margin:14px 0}
+.date-sep span{font-size:.65rem;color:var(--muted-foreground);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 12px}
+.thread-loader{display:grid;place-items:center;padding:10px;color:var(--muted-foreground)}
+.thread-loader svg{width:18px}
+.menu-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.8rem;padding-top:6px}
+.menu-item{display:flex;align-items:center;gap:10px;min-height:48px;background:transparent;border:0;color:var(--foreground);font-size:.82rem;text-align:left}
+.menu-item svg{width:17px;color:var(--primary)}
+.memory-sheet{position:fixed;inset:0;z-index:70;background:var(--background);display:grid;grid-template-rows:auto minmax(0,1fr)}
+.memory-sheet>header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px max(16px,env(safe-area-inset-left));border-bottom:1px solid var(--border)}
+.memory-sheet h2{font-size:1.05rem;margin:0}
+.memory-body{overflow-y:auto;padding:18px;display:grid;gap:16px;align-content:start;padding-bottom:calc(30px + env(safe-area-inset-bottom))}
+.memory-note{font-size:.72rem;color:var(--muted-foreground);line-height:1.5;margin:0}
+.memory-add{display:flex;gap:8px}
+.memory-add input{flex:1;height:48px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--foreground);padding:0 14px;outline:none}
+.memory-group{display:grid;gap:8px}
+.memory-group h3{font-size:.72rem;color:var(--primary);margin:0;text-transform:uppercase;letter-spacing:.06em}
+.memory-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.memory-row p,.memory-row input{flex:1;margin:0;font-size:.82rem;line-height:1.45;background:transparent;border:0;color:var(--foreground);outline:none}
+.memory-row button{background:transparent;border:0;color:var(--muted-foreground);min-width:34px;min-height:34px;display:grid;place-items:center}
+.memory-row button svg{width:16px}
+.memory-row button.pinned{color:var(--primary)}
+.memory-danger{display:grid;gap:8px;margin-top:8px}
+.memory-confirm{display:grid;gap:10px;padding:14px;border:1px solid var(--border);border-radius:16px;background:var(--surface-raised)}
+.memory-confirm p{font-size:.8rem;margin:0}
