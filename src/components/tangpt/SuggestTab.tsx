@@ -68,8 +68,10 @@ export function SuggestTab() {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       if (message.includes("limit_reached")) setPaywall(true);
-      else if (message.includes("missing_key"))
-        toast.error(t("Chưa kết nối AI. Cần thêm khóa AI trong phần cài đặt dự án.", "AI is not connected yet. The AI key still needs to be saved."));
+      else if (message.includes("credits"))
+        toast.error(t("Hết lượt AI của dự án rồi. Nạp thêm trong phần Plans & credits nha.", "The project's AI credits ran out. Top up in Plans & credits."));
+      else if (message.includes("rate_limited"))
+        toast.error(t("AI đang bận, chờ vài giây rồi thử lại nha.", "The AI is busy, give it a few seconds and try again."));
       else if (message.includes("bad_ai_response"))
         toast.error(t("AI trả lời hơi lạ, bạn thử lại giúp mình nha.", "The AI reply came back malformed, please try again."));
       else toast.error(t("Chưa gợi ý được lúc này. Thử lại sau chút nha.", "Couldn't generate right now. Please try again shortly."));
