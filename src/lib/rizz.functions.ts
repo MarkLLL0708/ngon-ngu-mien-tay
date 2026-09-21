@@ -5,6 +5,9 @@ import { SYSTEM_PROMPT } from "./rizz.prompt";
 export type RizzMode = "reply" | "opener";
 export type RizzRegion = "north" | "south" | "central" | "mekong";
 export type RizzAgeGroup = "18-26" | "27-35" | "36+";
+export type RizzUserGender = "male" | "female" | "nonbinary" | "unspecified";
+export type RizzTargetGender = "female" | "male" | "nonbinary";
+export type RizzRelativeAge = "older" | "similar" | "younger";
 export type RizzInput = {
   mode: RizzMode;
   region: RizzRegion;
@@ -13,6 +16,11 @@ export type RizzInput = {
   input_text: string;
   ui_language: "vi" | "en";
   reply_language: "vi" | "en" | "mix";
+  user_gender?: RizzUserGender;
+  target_gender?: RizzTargetGender;
+  relative_age?: RizzRelativeAge;
+  address_self?: string;
+  address_other?: string;
 };
 export type RizzOption = { style: string; text: string; why: string };
 export type RizzPayload = { options: RizzOption[]; tip: string };
