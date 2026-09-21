@@ -65,7 +65,8 @@ export function VoiceLab() {
         .select("id, label, provider, voice_id, style_prompt")
         .eq("active", true)
         .eq("region", region)
-        .eq("persona_gender", gender);
+        .eq("persona_gender", gender)
+        .in("provider", ACTIVE_VOICE_PROVIDERS);
       if (cancelled) return;
       setProfiles(shuffle((data ?? []) as Profile[]));
       setRevealed({});

@@ -77,6 +77,7 @@ export const voiceTts = createServerFn({ method: "POST" })
             .select("*")
             .eq("id", companion.voice_profile_id)
             .eq("active", true)
+            .in("provider", ACTIVE_VOICE_PROVIDERS)
             .maybeSingle();
           profile = (row as ProfileRow | null) ?? null;
         }
@@ -84,7 +85,7 @@ export const voiceTts = createServerFn({ method: "POST" })
     }
 
     if (!profile && data.profile_id) {
-      const { data: row } = await supabase.from("voice_profiles").select("*").eq("id", data.profile_id).maybeSingle();
+      const { data: row } = await supabase.from("voice_profiles").select("*").eq("id", data.profile_id).in("provider", ACTIVE_VOICE_PROVIDERS).maybeSingle();
       profile = (row as ProfileRow | null) ?? null;
     }
 
@@ -95,7 +96,8 @@ export const voiceTts = createServerFn({ method: "POST" })
         .select("*")
         .eq("active", true)
         .eq("persona_gender", gender)
-        .in("region", regions);
+        .in("region", regions)
+        .in("provider", ACTIVE_VOICE_PROVIDERS);
       const list = (rows ?? []) as ProfileRow[];
       const usable = list.filter((row) => row.voice_id && row.voice_id !== "REPLACE_WITH_VOICE_ID");
       const pool = usable.length ? usable : list;
