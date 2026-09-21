@@ -34,7 +34,7 @@ export function LandingPage() {
       <div id="demo" className="phone-stage fade-up-delay">
         <div className="phone-glow" /><div className="phone"><div className="phone-top"><span className="avatar-mini">L</span><span><b>Linh</b><small>Đang hoạt động</small></span></div>
           <div className="demo-tabs">{demos.map((item, index) => <button type="button" key={item.key} onClick={() => setDemo(index)} className={demo === index ? "active" : ""}>{item.label}</button>)}</div>
-          <div className="phone-chat"><div className="her-bubble">Nay đi làm về mệt quá à</div><div key={demo} className="ai-bubble"><small>Gợi ý kiểu {demos[demo].label}</small>{demos[demo].reply}<button type="button" aria-label="Sao chép"><Copy /></button></div><div className="typing"><i /><i /><i /></div></div>
+          <div className="phone-chat"><div className="her-bubble">Nay đi làm về mệt quá à</div><div key={demo} className="ai-bubble"><small>Gợi ý kiểu {current.label}</small>{current.reply}<button type="button" aria-label="Sao chép"><Copy /></button></div><div className="typing"><i /><i /><i /></div></div>
           <div className="phone-input">Nhắn tin...<MessageCircle /></div>
         </div>
       </div>
