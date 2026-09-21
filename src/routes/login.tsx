@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LoginPage } from "@/components/tangpt/LoginPage";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search: Record<string, unknown>) => ({ mode: search.mode === "signup" ? ("signup" as const) : ("login" as const) }),
+  validateSearch: (search: Record<string, unknown>): { mode?: "login" | "signup" } =>
+    search['mode'] === "signup" ? { mode: "signup" } : {},
   head: () => ({ meta: [
     { title: "Đăng nhập — TánGPT" },
     { name: "description", content: "Đăng nhập hoặc tạo tài khoản TánGPT." },
@@ -16,5 +17,5 @@ export const Route = createFileRoute("/login")({
 
 function LoginRoute() {
   const { mode } = Route.useSearch();
-  return <LoginPage initialMode={mode} />;
+  return <LoginPage initialMode={mode ?? "login"} />;
 }
