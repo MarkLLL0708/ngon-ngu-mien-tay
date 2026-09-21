@@ -6,6 +6,7 @@ import { useRegionTheme } from "./RegionTheme";
 import { LangToggle, useLang } from "./Language";
 import { BackButton } from "./BackButton";
 import { regions } from "@/lib/tangpt-data";
+import { companionGenderMix, navLabel, useCompanions } from "@/lib/tangpt-companions";
 
 const items = [
   { to: "/app", icon: Lightbulb, vi: "Gợi ý", en: "Ideas", exact: true },
@@ -18,6 +19,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [picker, setPicker] = useState(false);
   const { region, city } = useRegionTheme();
   const { lang } = useLang();
+  const { rows } = useCompanions();
+  const mix = companionGenderMix((rows ?? []).map((row) => row.persona_gender));
+  const label = (item: (typeof items)[number]) => (item.to === "/app/ai" ? navLabel(mix, lang === "vi") : lang === "vi" ? item.vi : item.en);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const bare = pathname.startsWith("/app/chat");
   if (bare) return <>{children}</>;
@@ -26,7 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Link to="/app" className="brand"><span>Tán</span>GPT<i /></Link>
       {items.map((item) => {
         const Icon = item.icon;
-        return <Link key={item.to} to={item.to} activeOptions={{ exact: item.exact }} activeProps={{ className: "active" }}><Icon /><span>{lang === "vi" ? item.vi : item.en}</span></Link>;
+        return <Link key={item.to} to={item.to} activeOptions={{ exact: item.exact }} activeProps={{ className: "active" }}><Icon /><span>{label(item)}</span></Link>;
       })}
     </aside>
     <main className="app-shell">
@@ -42,7 +46,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav className="bottom-nav">
         {items.map((item) => {
           const Icon = item.icon;
-          return <Link key={item.to} to={item.to} activeOptions={{ exact: item.exact }} activeProps={{ className: "active" }}><Icon /><span>{lang === "vi" ? item.vi : item.en}</span></Link>;
+          return <Link key={item.to} to={item.to} activeOptions={{ exact: item.exact }} activeProps={{ className: "active" }}><Icon /><span>{label(item)}</span></Link>;
         })}
       </nav>
     </main>
