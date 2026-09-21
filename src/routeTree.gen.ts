@@ -12,6 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppAiRouteImport } from './routes/app.ai'
+import { Route as AppHistoryRouteImport } from './routes/app.history'
+import { Route as AppMeRouteImport } from './routes/app.me'
 import { Route as AppChatCompanionIdRouteImport } from './routes/app.chat.$companionId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +34,31 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAiRoute = AppAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMeRoute = AppMeRouteImport.update({
+  id: '/me',
+  path: '/me',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppChatCompanionIdRoute = AppChatCompanionIdRouteImport.update({
   id: '/chat/$companionId',
   path: '/chat/$companionId',
@@ -39,12 +69,21 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
+  '/app/ai': typeof AppAiRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/me': typeof AppMeRoute
+  '/app/': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
+  '/app/ai': typeof AppAiRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/me': typeof AppMeRoute
+  '/app': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
 }
 export interface FileRoutesById {
@@ -52,20 +91,53 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
+  '/app/ai': typeof AppAiRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/me': typeof AppMeRoute
+  '/app/': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/login' | '/app/chat/$companionId'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/login'
+    | '/onboarding'
+    | '/app/ai'
+    | '/app/history'
+    | '/app/me'
+    | '/app/'
+    | '/app/chat/$companionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/login' | '/app/chat/$companionId'
-  id: '__root__' | '/' | '/app' | '/login' | '/app/chat/$companionId'
+  to:
+    | '/'
+    | '/login'
+    | '/onboarding'
+    | '/app/ai'
+    | '/app/history'
+    | '/app/me'
+    | '/app'
+    | '/app/chat/$companionId'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/login'
+    | '/onboarding'
+    | '/app/ai'
+    | '/app/history'
+    | '/app/me'
+    | '/app/'
+    | '/app/chat/$companionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  OnboardingRoute: typeof OnboardingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -91,6 +163,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ai': {
+      id: '/app/ai'
+      path: '/ai'
+      fullPath: '/app/ai'
+      preLoaderRoute: typeof AppAiRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/history': {
+      id: '/app/history'
+      path: '/history'
+      fullPath: '/app/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/me': {
+      id: '/app/me'
+      path: '/me'
+      fullPath: '/app/me'
+      preLoaderRoute: typeof AppMeRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/chat/$companionId': {
       id: '/app/chat/$companionId'
       path: '/chat/$companionId'
@@ -102,10 +209,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAiRoute: typeof AppAiRoute
+  AppHistoryRoute: typeof AppHistoryRoute
+  AppMeRoute: typeof AppMeRoute
+  AppIndexRoute: typeof AppIndexRoute
   AppChatCompanionIdRoute: typeof AppChatCompanionIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAiRoute: AppAiRoute,
+  AppHistoryRoute: AppHistoryRoute,
+  AppMeRoute: AppMeRoute,
+  AppIndexRoute: AppIndexRoute,
   AppChatCompanionIdRoute: AppChatCompanionIdRoute,
 }
 
@@ -115,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  OnboardingRoute: OnboardingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
