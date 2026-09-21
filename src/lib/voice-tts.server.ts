@@ -135,7 +135,8 @@ const cartesia: VoiceAdapter = {
         "Cartesia-Version": "2025-04-16",
       },
       body: JSON.stringify({
-        model_id: "sonic-2",
+        // sonic-3 is the model that supports Vietnamese; sonic-2/turbo reject language "vi".
+        model_id: "sonic-3",
         transcript: text,
         voice: { mode: "id", id: voice_id },
         language: "vi",
