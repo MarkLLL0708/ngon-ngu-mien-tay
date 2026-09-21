@@ -14,42 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      companion_messages: {
+        Row: {
+          companion_id: string
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          companion_id: string
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          companion_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companion_messages_companion_id_fkey"
+            columns: ["companion_id"]
+            isOneToOne: false
+            referencedRelation: "companions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companions: {
         Row: {
+          address_other: string
+          address_self: string
           age_vibe: string
           chat_language: string
           city: string
           created_at: string
           id: string
+          job: string
           memory_summary: string
           mode: string
           name: string
+          persona_gender: string
+          persona_style: string
           personality: string
           region: string
           user_id: string
         }
         Insert: {
+          address_other?: string
+          address_self?: string
           age_vibe: string
           chat_language?: string
           city?: string
           created_at?: string
           id?: string
+          job?: string
           memory_summary?: string
           mode: string
           name: string
+          persona_gender?: string
+          persona_style?: string
           personality: string
           region: string
           user_id: string
         }
         Update: {
+          address_other?: string
+          address_self?: string
           age_vibe?: string
           chat_language?: string
           city?: string
           created_at?: string
           id?: string
+          job?: string
           memory_summary?: string
           mode?: string
           name?: string
+          persona_gender?: string
+          persona_style?: string
           personality?: string
           region?: string
           user_id?: string

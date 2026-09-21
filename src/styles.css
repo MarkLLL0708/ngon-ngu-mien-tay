@@ -46,3 +46,5 @@
 .chat-composer{position:sticky;bottom:0;display:flex;align-items:center;gap:9px;padding:14px;padding-bottom:max(14px,env(safe-area-inset-bottom));background:color-mix(in oklab,var(--surface) 92%,transparent);backdrop-filter:blur(18px);border-top:1px solid var(--border)}
 .chat-composer input{flex:1;min-height:48px;border-radius:999px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground);padding:0 18px;font-size:.9rem}
 .chat-composer input:focus{outline:none;border-color:var(--primary)}
+
+.chat-menu{margin:10px 14px;padding:14px;border:1px solid var(--border);border-radius:18px;background:var(--surface);display:grid;gap:10px}.chat-menu p{font-size:.78rem;color:var(--muted-foreground);margin:0}.chat-menu .chip{display:inline-flex;align-items:center;gap:6px}
