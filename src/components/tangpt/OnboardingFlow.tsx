@@ -8,6 +8,7 @@ import { LangToggle, useLang } from "./Language";
 import { BackButton } from "./BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import type { AgeGroup } from "@/lib/tangpt-data";
+import type { UserGender } from "@/lib/tangpt-profile";
 
 export function OnboardingFlow() {
   const [step, setStep] = useState(0);
