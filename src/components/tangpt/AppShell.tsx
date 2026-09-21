@@ -4,6 +4,7 @@ import { History, Lightbulb, MessageCircle, Settings2, UserRound } from "lucide-
 import { RegionPicker } from "./RegionPicker";
 import { useRegionTheme } from "./RegionTheme";
 import { LangToggle, useLang } from "./Language";
+import { BackButton } from "./BackButton";
 import { regions } from "@/lib/tangpt-data";
 
 const items = [
@@ -30,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     </aside>
     <main className="app-shell">
       <header className="app-top">
-        <Link to="/app" className="brand"><span>Tán</span>GPT<i /></Link>
+        <div className="nav-side"><BackButton /><Link to="/app" className="brand"><span>Tán</span>GPT<i /></Link></div>
         <div className="top-actions">
           <button type="button" onClick={() => setPicker(!picker)} className="region-pill"><i />{regions[region].short} · {city}<Settings2 /></button>
           <LangToggle />
