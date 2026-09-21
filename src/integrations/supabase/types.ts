@@ -17,6 +17,8 @@ export type Database = {
       companions: {
         Row: {
           age_vibe: string
+          chat_language: string
+          city: string
           created_at: string
           id: string
           memory_summary: string
@@ -28,6 +30,8 @@ export type Database = {
         }
         Insert: {
           age_vibe: string
+          chat_language?: string
+          city?: string
           created_at?: string
           id?: string
           memory_summary?: string
@@ -39,6 +43,8 @@ export type Database = {
         }
         Update: {
           age_vibe?: string
+          chat_language?: string
+          city?: string
           created_at?: string
           id?: string
           memory_summary?: string
@@ -58,7 +64,9 @@ export type Database = {
           default_city: string | null
           default_region: string | null
           id: string
+          reply_language: string
           subscription_status: string
+          ui_language: string
           updated_at: string
         }
         Insert: {
@@ -68,7 +76,9 @@ export type Database = {
           default_city?: string | null
           default_region?: string | null
           id: string
+          reply_language?: string
           subscription_status?: string
+          ui_language?: string
           updated_at?: string
         }
         Update: {
@@ -78,7 +88,9 @@ export type Database = {
           default_city?: string | null
           default_region?: string | null
           id?: string
+          reply_language?: string
           subscription_status?: string
+          ui_language?: string
           updated_at?: string
         }
         Relationships: []
