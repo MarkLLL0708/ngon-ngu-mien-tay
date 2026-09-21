@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Lightbulb, LoaderCircle, RefreshCw, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatBubble } from "./ChatBubble";
@@ -6,29 +8,33 @@ import { Paywall } from "./Paywall";
 import { useRegionTheme } from "./RegionTheme";
 import { useLang } from "./Language";
 import { regions, type AgeGroup, type RegionKey } from "@/lib/tangpt-data";
-import { callFunction, sampleRizz, type ReplyLanguage, type RizzResult } from "@/lib/tangpt-api";
+import { generateRizz, type RizzPayload, type RizzRegion } from "@/lib/rizz.functions";
 import { readReplyLanguage, saveReplyLanguage, useProfile } from "@/lib/tangpt-profile";
-import { supabase } from "@/integrations/supabase/client";
 
-export type Generation = { id: string; input: string; createdAt: string; options: { style: string; text: string; why: string }[]; tip: string };
+type ReplyLanguage = "vi" | "en" | "mix";
 
 const regionKeys: RegionKey[] = ["bac", "nam", "trung", "tay"];
 const ageGroups: AgeGroup[] = ["18-26", "27-35", "36+"];
+const regionApi: Record<RegionKey, RizzRegion> = { bac: "north", nam: "south", trung: "central", tay: "mekong" };
 
 export function SuggestTab() {
   const { region, setRegion, city, setCity } = useRegionTheme();
   const { t, lang } = useLang();
   const profile = useProfile();
+  const askRizz = useServerFn(generateRizz);
   const [mode, setMode] = useState<"reply" | "opener">("reply");
   const [age, setAge] = useState<AgeGroup>("18-26");
   const [replyLanguage, setReplyLanguage] = useState<ReplyLanguage>("vi");
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<RizzResult | null>(null);
+  const [result, setResult] = useState<RizzPayload | null>(null);
   const [copied, setCopied] = useState("");
   const [paywall, setPaywall] = useState(false);
 
-  useEffect(() => { setReplyLanguage(readReplyLanguage()); }, []);
+  useEffect(() => {
+    const saved = readReplyLanguage();
+    setReplyLanguage(saved === "both" ? "mix" : saved);
+  }, []);
   useEffect(() => {
     if (!profile) return;
     if (profile.region) setRegion(profile.region);
@@ -37,31 +43,45 @@ export function SuggestTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
-  function pickLanguage(value: ReplyLanguage) { setReplyLanguage(value); saveReplyLanguage(value); }
+  function pickLanguage(value: ReplyLanguage) {
+    setReplyLanguage(value);
+    saveReplyLanguage(value === "mix" ? "both" : value);
+  }
 
   async function generate() {
     if (!text.trim() || loading) return;
-    setLoading(true); setResult(null);
-    const payload = { mode, region, city, age_group: age, input_text: text.trim(), ui_language: lang, reply_language: replyLanguage };
-    const outcome = await callFunction<RizzResult>("rizz", payload);
-    if (outcome.code === "limit_reached") { setLoading(false); setPaywall(true); return; }
-    const data = outcome.data?.options?.length ? outcome.data : sampleRizz(mode, replyLanguage);
-    if (!outcome.data) await new Promise((resolve) => setTimeout(resolve, 900));
-    setResult(data); setLoading(false);
-    const entry: Generation = { id: crypto.randomUUID(), input: text.trim(), createdAt: new Date().toISOString(), options: data.options, tip: data.tip };
-    const all = JSON.parse(window.localStorage.getItem("tangpt-history") || "[]") as Generation[];
-    window.localStorage.setItem("tangpt-history", JSON.stringify([entry, ...all].slice(0, 30)));
-    if (profile?.userId) {
-      await supabase.from("reply_generations").insert({
-        user_id: profile.userId, mode, region, city, age_group: age, input_text: entry.input,
-        result: { options: data.options, tip: data.tip },
+    setLoading(true);
+    setResult(null);
+    try {
+      const payload = await askRizz({
+        data: {
+          mode,
+          region: regionApi[region],
+          city,
+          age_group: age,
+          input_text: text.trim(),
+          ui_language: lang === "en" ? "en" : "vi",
+          reply_language: replyLanguage,
+        },
       });
+      setResult(payload);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("limit_reached")) setPaywall(true);
+      else if (message.includes("missing_key"))
+        toast.error(t("Chưa kết nối AI. Cần thêm khóa AI trong phần cài đặt dự án.", "AI is not connected yet. The AI key still needs to be saved."));
+      else if (message.includes("bad_ai_response"))
+        toast.error(t("AI trả lời hơi lạ, bạn thử lại giúp mình nha.", "The AI reply came back malformed, please try again."));
+      else toast.error(t("Chưa gợi ý được lúc này. Thử lại sau chút nha.", "Couldn't generate right now. Please try again shortly."));
+    } finally {
+      setLoading(false);
     }
   }
 
   async function copy(value: string, style: string) {
     await navigator.clipboard.writeText(value);
-    setCopied(style); window.setTimeout(() => setCopied(""), 2000);
+    setCopied(style);
+    window.setTimeout(() => setCopied(""), 2000);
   }
 
   return <section className="tab-page">
@@ -79,7 +99,7 @@ export function SuggestTab() {
       <div className="flex gap-2">{ageGroups.map((value) => <button type="button" className={age === value ? "chip chip-active" : "chip"} onClick={() => setAge(value)} key={value}>{value}</button>)}</div>
       <label>{t("Ngôn ngữ câu trả lời", "Reply language")}</label>
       <div className="flex flex-wrap gap-2">
-        {([["vi", "Tiếng Việt"], ["en", "English"], ["both", t("Song ngữ", "Bilingual")]] as [ReplyLanguage, string][]).map(([value, label]) =>
+        {([["vi", "Tiếng Việt"], ["en", "English"], ["mix", t("Song ngữ", "Bilingual")]] as [ReplyLanguage, string][]).map(([value, label]) =>
           <button type="button" key={value} className={replyLanguage === value ? "chip chip-active" : "chip"} onClick={() => pickLanguage(value)}>{label}</button>)}
       </div>
     </div>
@@ -95,9 +115,8 @@ export function SuggestTab() {
         <div><span>{t("3 CÁCH TRẢ LỜI", "3 WAYS TO REPLY")}</span><h2>{t("Chọn câu hợp bạn nhất", "Pick the one that feels like you")}</h2></div>
         <Button variant="ghost" size="sm" onClick={generate}><RefreshCw />{t("Tạo lại", "Regenerate")}</Button>
       </div>
-      {result.sample && <p className="sample-note">{t("Đây là câu mẫu tạm thời để bạn thử luồng, chưa phải gợi ý từ AI.", "Temporary sample content so you can test the flow - not AI output yet.")}</p>}
       {result.options.map((option) => <article key={option.style}><h3>{option.style}</h3><ChatBubble text={option.text} why={option.why} copied={copied === option.style} onCopy={() => copy(option.text, option.style)} /></article>)}
-      <aside className="tip-box"><Lightbulb /><div><b>{t("Mẹo nhỏ", "Quick tip")}</b><p>{result.tip}</p></div></aside>
+      {result.tip && <aside className="tip-box"><Lightbulb /><div><b>{t("Mẹo nhỏ", "Quick tip")}</b><p>{result.tip}</p></div></aside>}
     </div>}
     <Paywall open={paywall} onOpenChange={setPaywall} />
   </section>;
