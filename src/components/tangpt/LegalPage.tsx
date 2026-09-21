@@ -1,14 +1,12 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { LangToggle } from "./Language";
+import { BackButton } from "./BackButton";
 
 export type LegalSection = { vi: { title: string; body: string }; en: { title: string; body: string } };
 
 export function LegalPage({ titleVi, titleEn, sections }: { titleVi: string; titleEn: string; sections: LegalSection[] }) {
   return <main className="legal-shell">
     <header>
-      <Button asChild variant="ghost" size="sm"><Link to="/"><ArrowLeft />Trang chủ / Home</Link></Button>
+      <BackButton label="Trang chủ / Home" />
       <LangToggle />
     </header>
     <article>

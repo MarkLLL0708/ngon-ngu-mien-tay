@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { needsOnboarding } from "@/lib/tangpt-session";
 import { LangToggle, useLang } from "./Language";
+import { BackButton } from "./BackButton";
 
 export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "signup" }) {
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
