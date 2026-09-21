@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Sparkle, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,13 @@ export function OnboardingFlow() {
   const { t } = useLang();
   const navigate = useNavigate();
 
+  const pushedRef = useRef(0);
+
   const goStep = useCallback((next: number) => {
     setStep(next);
     logDebug("nav", `onboarding step ${next}`);
     window.history.pushState({ obStep: next }, "");
+    pushedRef.current += 1;
   }, []);
 
   // Finished guests never land back on onboarding through history.
@@ -94,7 +97,17 @@ export function OnboardingFlow() {
     }
     window.localStorage.setItem("tangpt-onboarded", "1");
     setBusy(false);
-    // replace, and the guard above sends any history return straight back to /app
+    // Drop the step entries first so history back from /app reaches the landing page.
+    if (pushedRef.current > 0) {
+      const steps = pushedRef.current;
+      pushedRef.current = 0;
+      await new Promise<void>((resolve) => {
+        const done = () => { window.removeEventListener("popstate", done); resolve(); };
+        window.addEventListener("popstate", done);
+        window.history.go(-steps);
+        window.setTimeout(done, 400);
+      });
+    }
     navigate({ to: "/app", replace: true });
   }
 
