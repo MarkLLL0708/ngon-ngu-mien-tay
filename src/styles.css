@@ -147,3 +147,22 @@ input,textarea,select{font-size:16px;max-width:100%}
 .chat-header strong,.chat-header small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .star-btn{display:grid;place-items:center;width:32px;height:32px;min-width:32px;color:var(--primary);background:transparent;border:0}
+.voice-msg{display:flex;align-items:center;gap:10px;min-width:180px}
+.voice-play{width:34px;height:34px;min-width:34px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:#0b0b12;border:0}
+.voice-wave{display:flex;align-items:center;gap:3px;flex:1}
+.voice-wave i{display:block;width:3px;border-radius:2px;background:var(--primary);opacity:.65}
+.voice-msg em{font-style:normal;font-size:.72rem;opacity:.65;white-space:nowrap}
+.call-screen{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(120% 80% at 50% 0%,color-mix(in srgb,var(--primary) 22%,transparent),transparent),var(--bg);padding:calc(env(safe-area-inset-top) + 32px) 20px calc(env(safe-area-inset-bottom) + 24px)}
+.call-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;max-width:100%}
+.call-body h2{font-size:1.5rem;font-weight:800}
+.call-avatar{width:132px;height:132px;border-radius:50%;display:grid;place-items:center;font-size:2.6rem;font-weight:800;background:var(--surface-raised);border:1px solid var(--border)}
+.call-avatar-live{box-shadow:0 0 0 0 color-mix(in srgb,var(--primary) 55%,transparent);animation:call-pulse 1.6s infinite}
+@keyframes call-pulse{70%{box-shadow:0 0 0 24px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.call-state{font-size:.85rem;opacity:.7}
+.call-caption{max-width:520px;font-size:.95rem;line-height:1.5;opacity:.9;word-break:break-word}
+.call-input{display:flex;gap:8px;align-items:center;width:100%;max-width:520px;margin:0 auto 16px}
+.call-input input{flex:1;min-width:0;height:48px;border-radius:24px;padding:0 16px;background:var(--surface-raised);border:1px solid var(--border);color:inherit}
+.call-actions{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.call-btn{width:88px;min-height:74px;border-radius:20px;display:grid;place-items:center;gap:6px;background:var(--surface-raised);border:1px solid var(--border);color:inherit;font-size:.72rem}
+.call-btn-on{background:color-mix(in srgb,var(--primary) 22%,transparent);border-color:var(--primary)}
+.call-btn-end{background:#e5484d;border-color:#e5484d;color:#fff}
