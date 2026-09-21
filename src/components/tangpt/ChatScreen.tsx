@@ -216,7 +216,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
         const label = dayLabel(message.createdAt, vi);
         const separator = label !== lastDay ? label : null;
         lastDay = label;
-        return <div key={message.id}>
+        return <div key={message.id} className={message.from === "me" ? "msg-wrap msg-wrap-me" : "msg-wrap"}>
           {separator && <div className="date-sep"><span>{separator}</span></div>}
           <div className={message.from === "me" ? "msg msg-me" : "msg msg-her"}>
             <p>{message.text}</p>
