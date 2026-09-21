@@ -22,6 +22,13 @@
       "when": 1789976876281,
       "tag": "0002_add_profile_gender",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789977194459,
+      "tag": "0003_companion_persona_fields_and_messages",
+      "breakpoints": true
     }
   ]
 }
