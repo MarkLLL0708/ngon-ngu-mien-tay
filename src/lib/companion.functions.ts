@@ -94,7 +94,7 @@ function vnNow() {
   const hour = Number.parseInt(get("hour"), 10) % 24;
   const partOfDay = hour < 5 ? "khuya" : hour < 11 ? "sáng" : hour < 13 ? "trưa" : hour < 18 ? "chiều" : hour < 23 ? "tối" : "khuya";
   return {
-    weekday: WEEKDAYS[weekdayIndex < 0 ? 0 : weekdayIndex],
+    weekday: WEEKDAYS[weekdayIndex < 0 ? 0 : weekdayIndex] ?? "hôm nay",
     date: `ngày ${get("day")}/${get("month")}/${get("year")}`,
     partOfDay: `${partOfDay} (${hour} giờ)`,
     hour,
