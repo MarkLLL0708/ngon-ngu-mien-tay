@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { CallScreen } from "./CallScreen";
 import { useCompanionVoice } from "@/lib/voice-player";
 import { VOICE_MESSAGE_CHANCE } from "@/lib/tangpt-config";
+import { useOverlayFlag } from "@/lib/debug-bus";
 
 type Message = { id: string; from: "me" | "her"; text: string; status?: "sent" | "seen"; createdAt: string; voice?: boolean };
 type Companion = {
@@ -57,6 +58,10 @@ export function ChatScreen({ companionId }: { companionId: string }) {
   const threadRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const welcomedRef = useRef(false);
+
+  useOverlayFlag("chat-menu", menuOpen);
+  useOverlayFlag("memory-sheet", memoryOpen);
+  useOverlayFlag("paywall", paywall);
 
   const speakRef = useRef(voice.speak);
   speakRef.current = voice.speak;

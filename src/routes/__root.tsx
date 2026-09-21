@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RegionThemeProvider } from "../components/tangpt/RegionTheme";
 import { LanguageProvider } from "../components/tangpt/Language";
 import { Toaster } from "../components/ui/sonner";
+import { AppErrorBoundary, DebugPanel } from "../components/tangpt/DebugPanel";
 
 function NotFoundComponent() {
   return (
@@ -122,7 +123,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider><RegionThemeProvider><Outlet /><Toaster position="top-center" /></RegionThemeProvider></LanguageProvider>
+      <LanguageProvider><RegionThemeProvider><AppErrorBoundary><Outlet /><DebugPanel /></AppErrorBoundary><Toaster position="top-center" /></RegionThemeProvider></LanguageProvider>
     </QueryClientProvider>
   );
 }
