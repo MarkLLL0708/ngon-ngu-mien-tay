@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RegionThemeProvider } from "../components/tangpt/RegionTheme";
 import { LanguageProvider } from "../components/tangpt/Language";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -121,7 +122,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider><RegionThemeProvider><Outlet /></RegionThemeProvider></LanguageProvider>
+      <LanguageProvider><RegionThemeProvider><Outlet /><Toaster position="top-center" /></RegionThemeProvider></LanguageProvider>
     </QueryClientProvider>
   );
 }
