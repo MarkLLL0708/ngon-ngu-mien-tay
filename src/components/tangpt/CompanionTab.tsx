@@ -68,6 +68,11 @@ export function CompanionTab() {
       <div className="flex items-center gap-3"><div className="avatar-orbit small"><span>{selected.name[0]}</span></div><div><h2>{selected.name}, {selected.age}</h2><p>{selected.job} · {selected.city}</p></div></div>
       <label>{t("Tính cách", "Personality")}</label>
       <div className="flex flex-wrap gap-2">{["Dịu dàng", "Tinh nghịch", "Chín chắn"].map((x) => <button type="button" key={x} className={personality === x ? "chip chip-active" : "chip"} onClick={() => setPersonality(x)}>{x}</button>)}</div>
+      <label>{t("Phong cách", "Style")}</label>
+      <div className="flex flex-wrap gap-2">{["Nhẹ nhàng", "Cá tính"].map((x) => <button type="button" key={x} className={personaStyle === x ? "chip chip-active" : "chip"} onClick={() => setPersonaStyle(x)}>{x}</button>)}</div>
+      <label>{t("Cách xưng hô", "Address pair")}</label>
+      <div className="flex flex-wrap gap-2">{([["mình", "bạn"], ["em", "anh"], ["anh", "em"], ["tớ", "cậu"]] as [string, string][]).map(([self, other]) =>
+        <button type="button" key={`${self}-${other}`} className={pair[0] === self && pair[1] === other ? "chip chip-active" : "chip"} onClick={() => setPair([self, other])}>{self} - {other}</button>)}</div>
       <label>{t("Ngôn ngữ trò chuyện", "Chat language")}</label>
       <div className="flex flex-wrap gap-2">{([["vi", "Tiếng Việt"], ["en", "English"], ["both", t("Song ngữ", "Bilingual")]] as [ReplyLanguage, string][]).map(([value, label]) =>
         <button type="button" key={value} className={chatLanguage === value ? "chip chip-active" : "chip"} onClick={() => setChatLanguage(value)}>{label}</button>)}</div>
