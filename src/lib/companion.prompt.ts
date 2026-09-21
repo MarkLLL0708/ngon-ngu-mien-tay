@@ -51,7 +51,7 @@ function styleDesc(style: string) {
   return "";
 }
 
-export function buildSystemPrompt(companion: CompanionPersona, userGender: string): string {
+export function buildSystemPrompt(companion: CompanionPersona, userGender: string, continuity?: Continuity | null): string {
   const genz = isGenZ(companion.age_vibe);
   const regionLabel = REGION_LABELS[companion.region] ?? companion.region;
   const regionBlock = REGION_BLOCKS[companion.region] ?? "";
