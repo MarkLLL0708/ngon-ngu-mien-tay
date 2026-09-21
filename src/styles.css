@@ -26,3 +26,4 @@
 @media(min-width:1024px){.app-layout{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1100px;margin:auto;gap:24px}.side-nav{display:flex;flex-direction:column;gap:6px;padding:26px 14px;position:sticky;top:0;height:100vh;border-right:1px solid var(--border)}.side-nav .brand{margin-bottom:22px;padding:0 12px}.side-nav a{display:flex;align-items:center;gap:12px;min-height:50px;padding:0 14px;border-radius:16px;color:var(--muted-foreground);font-size:.9rem;font-weight:600}.side-nav a svg{width:20px}.side-nav a.active{color:var(--primary);background:color-mix(in oklab,var(--primary) 10%,transparent)}.app-shell{max-width:660px;padding-bottom:40px}.bottom-nav{display:none}}
 
 .nav-side{display:flex;align-items:center;gap:14px}
+.auth-back{position:absolute;top:86px;left:26px}

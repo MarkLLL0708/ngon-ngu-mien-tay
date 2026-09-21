@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { RegionPicker } from "./RegionPicker";
 import { useRegionTheme } from "./RegionTheme";
 import { LangToggle, useLang } from "./Language";
+import { BackButton } from "./BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import type { AgeGroup } from "@/lib/tangpt-data";
 
@@ -48,7 +49,7 @@ export function OnboardingFlow() {
 
   return <main className="onboarding-shell">
     <header>
-      <span className="brand"><span>Tán</span>GPT<i /></span>
+      <div className="nav-side"><BackButton /><span className="brand"><span>Tán</span>GPT<i /></span></div>
       <div className="progress-dots">{[0, 1, 2].map((i) => <i key={i} className={i <= step ? "active" : ""} />)}</div>
       <LangToggle />
     </header>

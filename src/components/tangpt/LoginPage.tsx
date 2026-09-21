@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { needsOnboarding } from "@/lib/tangpt-session";
 import { LangToggle, useLang } from "./Language";
+import { BackButton } from "./BackButton";
 
 export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "signup" }) {
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
@@ -60,6 +61,7 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
 
   return <main className="auth-shell">
     <Link to="/" className="brand"><span>Tán</span>GPT<i /></Link>
+    <div className="auth-back"><BackButton /></div>
     <div className="auth-lang"><LangToggle /></div>
     <section className="auth-card">
       <div className="auth-mark">T</div>
