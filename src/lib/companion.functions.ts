@@ -7,6 +7,7 @@ export type CompanionPayload = { reply: string };
 
 const FREE_DAILY_MESSAGES = 30;
 const HISTORY_LIMIT = 20;
+const TEST_DAILY_MESSAGES = 100;
 
 export class CompanionError extends Error {
   constructor(public code: "limit_reached" | "age_not_confirmed" | "not_found" | "missing_key" | "ai_unavailable" | "rate_limited" | "credits") {
@@ -105,7 +106,8 @@ export const companionReply = createServerFn({ method: "POST" })
         .eq("user_id", userId)
         .eq("role", "user")
         .gte("created_at", since.toISOString());
-      if ((count ?? 0) >= FREE_DAILY_MESSAGES) throw new CompanionError("limit_reached");
+      const dailyMessages = process.env["TEST_MODE"] === "true" ? TEST_DAILY_MESSAGES : FREE_DAILY_MESSAGES;
+      if ((count ?? 0) >= dailyMessages) throw new CompanionError("limit_reached");
     }
 
     const { data: history } = await supabase

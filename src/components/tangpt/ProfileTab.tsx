@@ -8,6 +8,8 @@ import { regions } from "@/lib/tangpt-data";
 import { readReplyLanguage, saveReplyLanguage, useProfile } from "@/lib/tangpt-profile";
 import type { ReplyLanguage } from "@/lib/tangpt-api";
 import { supabase } from "@/integrations/supabase/client";
+import { TEST_GUEST_MODE } from "@/lib/tangpt-config";
+import { resetGuestSession } from "@/lib/tangpt-guest";
 
 export function ProfileTab() {
   const { region, city } = useRegionTheme();
@@ -21,6 +23,8 @@ export function ProfileTab() {
 
   async function logout() { await supabase.auth.signOut(); navigate({ to: "/", replace: true }); }
 
+  async function resetSession() { await resetGuestSession(); navigate({ to: "/onboarding", replace: true }); }
+
   async function clearHistory() {
     window.localStorage.removeItem("tangpt-history");
     if (profile?.userId) await supabase.from("reply_generations").delete().eq("user_id", profile.userId);
@@ -31,7 +35,7 @@ export function ProfileTab() {
 
   const plan = profile?.plan === "pro" ? "Pro" : t("Miễn phí", "Free");
   return <section className="tab-page">
-    <div className="page-title"><span>{t("TÀI KHOẢN CỦA BẠN", "YOUR ACCOUNT")}</span><h1>{t("Tôi", "Me")}</h1></div>
+    <div className="page-title"><span>{t("TÀI KHOẢN CỦA BẠN", "YOUR ACCOUNT")}</span><h1>{t("Tôi", "Me")}</h1>{TEST_GUEST_MODE && <b className="ai-badge">{t("Chế độ thử nghiệm", "Test mode")}</b>}</div>
     <div className="profile-hero"><div className="avatar-orbit"><span>B</span></div><div><strong>{t("Bạn của TánGPT", "TánGPT friend")}</strong><p>{t("Gói", "Plan")} <b>{plan}</b></p></div></div>
     <div className="settings-list">
       <div><span>{t("Vùng & thành phố", "Region & city")}</span><b>{regions[region].name} · {city}</b></div>
@@ -44,7 +48,9 @@ export function ProfileTab() {
       </div>
       <div><span>{t("Trạng thái", "Status")}</span><b className="text-primary">{plan}</b></div>
       <button type="button" onClick={clearHistory}><Trash2 />{cleared ? t("Đã xóa", "Cleared") : t("Xóa lịch sử trò chuyện", "Clear conversation history")}</button>
-      <button type="button" onClick={logout}><LogOut />{t("Đăng xuất", "Log out")}</button>
+      {TEST_GUEST_MODE
+        ? <button type="button" onClick={resetSession}><LogOut />{t("Đặt lại phiên thử nghiệm", "Reset test session")}</button>
+        : <button type="button" onClick={logout}><LogOut />{t("Đăng xuất", "Log out")}</button>}
     </div>
     <div className="legal-links"><Link to="/terms">{t("Điều khoản", "Terms")}</Link><Link to="/privacy">{t("Quyền riêng tư", "Privacy")}</Link></div>
   </section>;
