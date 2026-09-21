@@ -5,6 +5,9 @@ import { SYSTEM_PROMPT } from "./rizz.prompt";
 export type RizzMode = "reply" | "opener";
 export type RizzRegion = "north" | "south" | "central" | "mekong";
 export type RizzAgeGroup = "18-26" | "27-35" | "36+";
+export type RizzUserGender = "male" | "female" | "nonbinary" | "unspecified";
+export type RizzTargetGender = "female" | "male" | "nonbinary";
+export type RizzRelativeAge = "older" | "similar" | "younger";
 export type RizzInput = {
   mode: RizzMode;
   region: RizzRegion;
@@ -13,6 +16,11 @@ export type RizzInput = {
   input_text: string;
   ui_language: "vi" | "en";
   reply_language: "vi" | "en" | "mix";
+  user_gender?: RizzUserGender;
+  target_gender?: RizzTargetGender;
+  relative_age?: RizzRelativeAge;
+  address_self?: string;
+  address_other?: string;
 };
 export type RizzOption = { style: string; text: string; why: string };
 export type RizzPayload = { options: RizzOption[]; tip: string };
@@ -25,16 +33,39 @@ export class RizzError extends Error {
   constructor(public code: "limit_reached" | "bad_ai_response" | "missing_key" | "ai_unavailable" | "rate_limited" | "credits") { super(code); }
 }
 
+const USER_GENDERS = ["male", "female", "nonbinary", "unspecified"] as const;
+const TARGET_GENDERS = ["female", "male", "nonbinary"] as const;
+const RELATIVE_AGES = ["older", "similar", "younger"] as const;
+
+function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+  return allowed.includes(value as T) ? (value as T) : fallback;
+}
+
+function address(value: unknown, fallback: string) {
+  const cleaned = String(value ?? "").replace(/[\r\n]/g, " ").replace(/[<>{}`*#_]/g, "").replace(/\s+/g, " ").trim().slice(0, 12);
+  return cleaned || fallback;
+}
+
 function buildUserMessage(input: RizzInput) {
+  const userGender = pick(input.user_gender, USER_GENDERS, "unspecified");
+  const targetGender = pick(input.target_gender, TARGET_GENDERS, "female");
+  const relativeAge = pick(input.relative_age, RELATIVE_AGES, "similar");
+  const self = address(input.address_self, "mình");
+  const other = address(input.address_other, "bạn");
   return [
     `Chế độ: ${input.mode}`,
     `Vùng miền: ${input.region}`,
     `Thành phố: ${input.city}`,
-    `Độ tuổi của cô ấy: ${input.age_group}`,
-    `Ngôn ngữ tin nhắn gửi cho cô ấy: ${input.reply_language}`,
+    `Người dùng xưng: ${self}`,
+    `Người dùng gọi người ấy là: ${other}`,
+    `Giới tính người dùng: ${userGender}`,
+    `Giới tính người ấy: ${targetGender}`,
+    `Người ấy so với người dùng: ${relativeAge}`,
+    `Độ tuổi của người ấy: ${input.age_group}`,
+    `Ngôn ngữ tin nhắn gửi đi: ${input.reply_language}`,
     `Ngôn ngữ giao diện (cho why và tip): ${input.ui_language}`,
-    `Nội dung cô ấy nhắn hoặc mô tả profile:\n${input.input_text}`,
-  ].join("\n");
+    `Nội dung người ấy nhắn hoặc mô tả profile:\n${input.input_text}`,
+  ].join("\n\n");
 }
 
 function clean(text: string) {
