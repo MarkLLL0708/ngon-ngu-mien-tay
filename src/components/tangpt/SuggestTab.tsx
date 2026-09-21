@@ -9,7 +9,8 @@ import { useRegionTheme } from "./RegionTheme";
 import { useLang } from "./Language";
 import { regions, type AgeGroup, type RegionKey } from "@/lib/tangpt-data";
 import { generateRizz, type RizzPayload, type RizzRegion } from "@/lib/rizz.functions";
-import { readReplyLanguage, saveReplyLanguage, useProfile } from "@/lib/tangpt-profile";
+import { readReplyLanguage, saveReplyLanguage, saveUserGender, useProfile, type UserGender } from "@/lib/tangpt-profile";
+import type { RizzRelativeAge, RizzTargetGender } from "@/lib/rizz.functions";
 
 type ReplyLanguage = "vi" | "en" | "mix";
 
@@ -30,6 +31,11 @@ export function SuggestTab() {
   const [result, setResult] = useState<RizzPayload | null>(null);
   const [copied, setCopied] = useState("");
   const [paywall, setPaywall] = useState(false);
+  const [userGender, setUserGender] = useState<UserGender>("unspecified");
+  const [targetGender, setTargetGender] = useState<RizzTargetGender>("female");
+  const [relativeAge, setRelativeAge] = useState<RizzRelativeAge>("similar");
+  const [addressSelf, setAddressSelf] = useState("mình");
+  const [addressOther, setAddressOther] = useState("bạn");
 
   useEffect(() => {
     const saved = readReplyLanguage();
@@ -40,8 +46,14 @@ export function SuggestTab() {
     if (profile.region) setRegion(profile.region);
     if (profile.city) setCity(profile.city);
     if (profile.ageGroup) setAge(profile.ageGroup);
+    if (profile.gender) setUserGender(profile.gender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
+
+  function pickGender(value: UserGender) {
+    setUserGender(value);
+    if (profile?.userId) void saveUserGender(profile.userId, value);
+  }
 
   function pickLanguage(value: ReplyLanguage) {
     setReplyLanguage(value);
@@ -62,6 +74,11 @@ export function SuggestTab() {
           input_text: text.trim(),
           ui_language: lang === "en" ? "en" : "vi",
           reply_language: replyLanguage,
+          user_gender: userGender,
+          target_gender: targetGender,
+          relative_age: relativeAge,
+          address_self: addressSelf.trim().slice(0, 12) || "mình",
+          address_other: addressOther.trim().slice(0, 12) || "bạn",
         },
       });
       setResult(payload);
@@ -97,8 +114,32 @@ export function SuggestTab() {
       <div className="chip-scroll">{regionKeys.map((key) => <button type="button" key={key} className={region === key ? "chip chip-active" : "chip"} onClick={() => { setRegion(key); setCity(regions[key].city); }}>{regions[key].name}</button>)}</div>
       <label>{t("Thành phố", "City")}</label>
       <div className="chip-scroll">{regions[region].cities.map((value) => <button type="button" className={city === value ? "chip chip-active" : "chip"} onClick={() => setCity(value)} key={value}>{value}</button>)}</div>
-      <label>{t("Độ tuổi của em ấy", "Her age group")}</label>
+      <label>{t("Độ tuổi của người ấy", "Their age group")}</label>
       <div className="flex gap-2">{ageGroups.map((value) => <button type="button" className={age === value ? "chip chip-active" : "chip"} onClick={() => setAge(value)} key={value}>{value}</button>)}</div>
+      <label>{t("Bạn là", "You are")}</label>
+      <div className="flex flex-wrap gap-2">
+        {([["male", t("Nam", "Man")], ["female", t("Nữ", "Woman")], ["nonbinary", t("Phi nhị giới", "Non-binary")], ["unspecified", t("Không nói", "Prefer not to say")]] as [UserGender, string][]).map(([value, label]) =>
+          <button type="button" key={value} className={userGender === value ? "chip chip-active" : "chip"} onClick={() => pickGender(value)}>{label}</button>)}
+      </div>
+      <label>{t("Người ấy là", "They are")}</label>
+      <div className="flex flex-wrap gap-2">
+        {([["female", t("Nữ", "Woman")], ["male", t("Nam", "Man")], ["nonbinary", t("Phi nhị giới", "Non-binary")]] as [RizzTargetGender, string][]).map(([value, label]) =>
+          <button type="button" key={value} className={targetGender === value ? "chip chip-active" : "chip"} onClick={() => setTargetGender(value)}>{label}</button>)}
+      </div>
+      <label>{t("Tuổi so với bạn", "Age vs. you")}</label>
+      <div className="flex flex-wrap gap-2">
+        {([["older", t("Lớn tuổi hơn", "Older")], ["similar", t("Bằng tuổi", "Similar")], ["younger", t("Nhỏ tuổi hơn", "Younger")]] as [RizzRelativeAge, string][]).map(([value, label]) =>
+          <button type="button" key={value} className={relativeAge === value ? "chip chip-active" : "chip"} onClick={() => setRelativeAge(value)}>{label}</button>)}
+      </div>
+      <label>{t("Xưng hô", "How you address each other")}</label>
+      <div className="flex flex-wrap gap-2">
+        {([["mình", "bạn"], ["anh", "em"], ["em", "anh"], ["chị", "em"], ["tớ", "cậu"], ["tui", "bà"]] as [string, string][]).map(([self, other]) =>
+          <button type="button" key={`${self}-${other}`} className={addressSelf === self && addressOther === other ? "chip chip-active" : "chip"} onClick={() => { setAddressSelf(self); setAddressOther(other); }}>{self} - {other}</button>)}
+      </div>
+      <div className="flex gap-2">
+        <input className="chip flex-1" maxLength={12} value={addressSelf} onChange={(e) => setAddressSelf(e.target.value)} placeholder={t("Bạn xưng", "You say")} />
+        <input className="chip flex-1" maxLength={12} value={addressOther} onChange={(e) => setAddressOther(e.target.value)} placeholder={t("Gọi người ấy", "Call them")} />
+      </div>
       <label>{t("Ngôn ngữ câu trả lời", "Reply language")}</label>
       <div className="flex flex-wrap gap-2">
         {([["vi", "Tiếng Việt"], ["en", "English"], ["mix", t("Song ngữ", "Bilingual")]] as [ReplyLanguage, string][]).map(([value, label]) =>
@@ -106,7 +147,7 @@ export function SuggestTab() {
       </div>
     </div>
     <div className="composer-card">
-      <textarea value={text} maxLength={800} onChange={(e) => setText(e.target.value)} placeholder={mode === "reply" ? t("Dán tin nhắn của em ấy vào đây...", "Paste her message here...") : t("Mô tả profile, bio hoặc ảnh của em ấy...", "Describe her profile, bio or photo...")} />
+      <textarea value={text} maxLength={800} onChange={(e) => setText(e.target.value)} placeholder={mode === "reply" ? t("Dán tin nhắn của người ấy vào đây...", "Paste their message here...") : t("Mô tả profile, bio hoặc ảnh của người ấy...", "Describe their profile, bio or photo...")} />
       <span>{text.length}/800</span>
     </div>
     <Button variant="gradient" size="lg" onClick={generate} disabled={loading || !text.trim()}>
