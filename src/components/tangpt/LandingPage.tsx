@@ -20,10 +20,21 @@ export function LandingPage() {
   const { userId } = useSessionUser();
   const { t } = useLang();
   const navigate = useNavigate();
+  const [onboarded, setOnboarded] = useState(false);
   useEffect(() => { const id = window.setInterval(() => setDemo((value) => (value + 1) % demos.length), 3000); return () => window.clearInterval(id); }, []);
+  useEffect(() => { setOnboarded(window.localStorage.getItem("tangpt-onboarded") === "1"); }, []);
   const current = demos[demo] ?? demos[0]!;
   useEffect(() => { setRegion(current.key); }, [current, setRegion]);
-  function pickRegion(key: RegionKey) { setRegion(key); setCity(regions[key].cities[0] ?? regions[key].city); navigate({ to: "/login", search: { mode: "signup" } }); }
+  // While TEST_GUEST_MODE is on nobody is sent to /login: new guests start onboarding.
+  const guestTarget = onboarded ? "/app" : "/onboarding";
+  const appTarget = TEST_GUEST_MODE ? guestTarget : "/app";
+  const aiTarget = TEST_GUEST_MODE ? (onboarded ? "/app/ai" : "/onboarding") : "/app/ai";
+  function pickRegion(key: RegionKey) {
+    setRegion(key);
+    setCity(regions[key].cities[0] ?? regions[key].city);
+    if (TEST_GUEST_MODE) { navigate({ to: guestTarget }); return; }
+    navigate({ to: "/login", search: { mode: "signup" } });
+  }
   return <main className="marketing-shell">
     <header className="marketing-nav"><Link to="/" className="brand"><span>Tán</span>GPT<i /></Link><div className="nav-side"><LangToggle />{userId ? <Button asChild variant="outline"><Link to="/app">{t("Vào ứng dụng", "Open app")}</Link></Button> : <Button asChild variant="outline"><Link to="/login" search={{ mode: "login" }}>{t("Đăng nhập", "Log in")}</Link></Button>}</div></header>
     <section className="hero-band">
