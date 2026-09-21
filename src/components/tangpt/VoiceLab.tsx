@@ -54,6 +54,12 @@ export function VoiceLab() {
     let cancelled = false;
     setLoading(true);
     (async () => {
+      for (let attempt = 0; attempt < 20; attempt += 1) {
+        const { data: session } = await supabase.auth.getSession();
+        if (session.session) break;
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+      if (cancelled) return;
       const { data } = await supabase
         .from("voice_profiles")
         .select("id, label, provider, voice_id, style_prompt")
