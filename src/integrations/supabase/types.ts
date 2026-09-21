@@ -110,6 +110,7 @@ export type Database = {
           personality: string
           region: string
           user_id: string
+          voice_profile_id: string | null
           welcome_enabled: boolean
         }
         Insert: {
@@ -131,6 +132,7 @@ export type Database = {
           personality: string
           region: string
           user_id: string
+          voice_profile_id?: string | null
           welcome_enabled?: boolean
         }
         Update: {
@@ -152,9 +154,18 @@ export type Database = {
           personality?: string
           region?: string
           user_id?: string
+          voice_profile_id?: string | null
           welcome_enabled?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "companions_voice_profile_id_fkey"
+            columns: ["voice_profile_id"]
+            isOneToOne: false
+            referencedRelation: "voice_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -233,6 +244,86 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      voice_profiles: {
+        Row: {
+          active: boolean
+          age_vibe: string
+          created_at: string
+          id: string
+          label: string
+          persona_gender: string
+          provider: string
+          region: string
+          speed: number
+          style_prompt: string
+          voice_id: string
+        }
+        Insert: {
+          active?: boolean
+          age_vibe?: string
+          created_at?: string
+          id?: string
+          label?: string
+          persona_gender?: string
+          provider: string
+          region?: string
+          speed?: number
+          style_prompt?: string
+          voice_id?: string
+        }
+        Update: {
+          active?: boolean
+          age_vibe?: string
+          created_at?: string
+          id?: string
+          label?: string
+          persona_gender?: string
+          provider?: string
+          region?: string
+          speed?: number
+          style_prompt?: string
+          voice_id?: string
+        }
+        Relationships: []
+      }
+      voice_ratings: {
+        Row: {
+          accent: number
+          created_at: string
+          id: string
+          keep_listening: number
+          natural: number
+          profile_id: string
+          user_id: string
+        }
+        Insert: {
+          accent: number
+          created_at?: string
+          id?: string
+          keep_listening: number
+          natural: number
+          profile_id: string
+          user_id: string
+        }
+        Update: {
+          accent?: number
+          created_at?: string
+          id?: string
+          keep_listening?: number
+          natural?: number
+          profile_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_ratings_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "voice_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

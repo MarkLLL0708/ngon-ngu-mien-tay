@@ -36,6 +36,13 @@
       "when": 1789987934730,
       "tag": "0004_companion_memories",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789989337147,
+      "tag": "0005_voice_profiles_and_ratings",
+      "breakpoints": true
     }
   ]
 }
