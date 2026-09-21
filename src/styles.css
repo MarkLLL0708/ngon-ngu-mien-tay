@@ -145,3 +145,5 @@ input,textarea,select{font-size:16px;max-width:100%}
 @media(max-width:1023px){.hero-band{gap:34px;min-width:0}.hero-band>*{min-width:0}.phone-stage{min-width:0;max-width:100%}.phone{width:min(360px,100%)}}
 .chat-header{height:auto;min-height:64px}
 .chat-header strong,.chat-header small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.star-btn{display:grid;place-items:center;width:32px;height:32px;min-width:32px;color:var(--primary);background:transparent;border:0}
