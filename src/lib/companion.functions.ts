@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { WELCOME_BACK_HOURS } from "./tangpt-config";
 import { buildSystemPrompt, type Continuity, type CompanionPersona } from "./companion.prompt";
 
 export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back" };
@@ -11,7 +12,6 @@ const TEST_DAILY_MESSAGES = 100;
 const MEMORY_LIMIT = 40;
 const MEMORY_EVERY = 6;
 const SUMMARY_EVERY = 20;
-const WELCOME_BACK_HOURS = 6;
 const REMEMBER_TRIGGERS = ["nhớ nhé", "nhớ giúp", "remember"];
 const CATEGORIES = ["basic", "work", "interests", "plans", "people", "preferences", "events"];
 
