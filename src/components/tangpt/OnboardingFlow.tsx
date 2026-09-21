@@ -42,11 +42,22 @@ export function OnboardingFlow() {
     setStep(2);
   }
 
-  async function finish() {
+  async function saveAge() {
     setBusy(true);
     await save({ age_confirmed: true, default_region: region, default_city: city, age_group: age });
-    window.localStorage.setItem("tangpt-onboarded", "1");
     window.localStorage.setItem("tangpt-age", age);
+    setBusy(false);
+    setStep(3);
+  }
+
+  async function finish(withAddress: boolean) {
+    setBusy(true);
+    await save({ age_confirmed: true, default_region: region, default_city: city, age_group: age, ...(withAddress ? { gender } : {}) });
+    if (withAddress) {
+      window.localStorage.setItem("tangpt-address-self", addressSelf.trim().slice(0, 12) || "mình");
+      window.localStorage.setItem("tangpt-address-other", addressOther.trim().slice(0, 12) || "bạn");
+    }
+    window.localStorage.setItem("tangpt-onboarded", "1");
     setBusy(false);
     navigate({ to: "/app" });
   }
