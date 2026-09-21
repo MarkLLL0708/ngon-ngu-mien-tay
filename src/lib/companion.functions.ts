@@ -1,13 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { buildSystemPrompt, type CompanionPersona } from "./companion.prompt";
+import { buildSystemPrompt, type Continuity, type CompanionPersona } from "./companion.prompt";
 
-export type CompanionInput = { companion_id: string; message: string };
+export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back" };
 export type CompanionPayload = { reply: string };
 
 const FREE_DAILY_MESSAGES = 30;
-const HISTORY_LIMIT = 20;
+const HISTORY_LIMIT = 30;
 const TEST_DAILY_MESSAGES = 100;
+const MEMORY_LIMIT = 40;
+const MEMORY_EVERY = 6;
+const SUMMARY_EVERY = 20;
+const WELCOME_BACK_HOURS = 6;
+const REMEMBER_TRIGGERS = ["nhớ nhé", "nhớ giúp", "remember"];
+const CATEGORIES = ["basic", "work", "interests", "plans", "people", "preferences", "events"];
 
 export class CompanionError extends Error {
   constructor(public code: "limit_reached" | "age_not_confirmed" | "not_found" | "missing_key" | "ai_unavailable" | "rate_limited" | "credits") {
@@ -75,6 +81,57 @@ function clean(reply: string) {
     .trim();
 }
 
+const WEEKDAYS = ["Chủ nhật", "thứ hai", "thứ ba", "thứ tư", "thứ năm", "thứ sáu", "thứ bảy"];
+
+function vnNow() {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    weekday: "short", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hour12: false,
+  }).formatToParts(now);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
+  const weekdayIndex = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
+  const hour = Number.parseInt(get("hour"), 10) % 24;
+  const partOfDay = hour < 5 ? "khuya" : hour < 11 ? "sáng" : hour < 13 ? "trưa" : hour < 18 ? "chiều" : hour < 23 ? "tối" : "khuya";
+  return {
+    weekday: WEEKDAYS[weekdayIndex < 0 ? 0 : weekdayIndex],
+    date: `ngày ${get("day")}/${get("month")}/${get("year")}`,
+    partOfDay: `${partOfDay} (${hour} giờ)`,
+    hour,
+  };
+}
+
+function gapText(last: string | null): string {
+  if (!last) return "chưa có tin nhắn nào trước đây";
+  const ms = Date.now() - new Date(last).getTime();
+  const minutes = Math.floor(ms / 60000);
+  if (minutes < 60) return `${Math.max(minutes, 1)} phút trước`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "hôm qua";
+  return `${days} ngày trước`;
+}
+
+type MemoryRow = { id: string; fact: string; category: string; pinned: boolean };
+
+function parseJson(text: string): unknown {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  try { return JSON.parse(text.slice(start, end + 1)); } catch { return null; }
+}
+
+const EXTRACT_PROMPT = `Bạn cập nhật bộ nhớ về người dùng cho một ứng dụng trò chuyện. Chỉ ghi những điều người dùng TỰ NÓI, ngắn gọn, mỗi ý một dòng, tiếng Việt: tên gọi, nghề nghiệp, nơi ở, sở thích, thói quen, kế hoạch sắp tới (kèm ngày nếu có), người thân và bạn bè họ hay nhắc, món ăn thích, điều họ dặn bạn nhớ.
+
+KHÔNG BAO GIỜ ghi: sức khỏe thể chất hoặc tâm lý, xu hướng tình dục hay bản dạng giới, tôn giáo, chính trị, thu nhập hay số tiền, nợ nần, số căn cước, số thẻ, mật khẩu, địa chỉ nhà, số điện thoại, chuyện phạm pháp, chuyện bị xâm hại, ý định tự làm hại bản thân, thông tin về trẻ em, hay chi tiết nhạy cảm của người khác. Không suy đoán, không kết luận về tính cách.
+
+Nếu thông tin mới mâu thuẫn với thông tin cũ, cập nhật thông tin cũ. Gộp các ý trùng nhau. Tối đa 60 ý. Bỏ những kế hoạch đã qua.
+
+Chỉ trả về JSON hợp lệ: {"add":[{"fact":"...","category":"basic|work|interests|plans|people|preferences|events"}],"update":[{"id":"...","fact":"..."}],"delete":["id"]}`;
+
+const SUMMARY_PROMPT = `Bạn viết lại bản tóm tắt cuộc trò chuyện cho một ứng dụng nhắn tin. Gộp bản tóm tắt cũ với các tin nhắn mới thành một bản tóm tắt tiếng Việt tối đa 200 từ: hai người nói chuyện với nhau kiểu gì, những câu đùa quen thuộc, các chủ đề đã bàn. Không ghi sức khỏe, tâm lý, xu hướng tính dục, tôn giáo, chính trị, tiền bạc, giấy tờ, địa chỉ, số điện thoại hay chuyện nhạy cảm của người khác. Chỉ trả về phần tóm tắt.`;
+
 export const companionReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: CompanionInput) => data)
@@ -82,6 +139,7 @@ export const companionReply = createServerFn({ method: "POST" })
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new CompanionError("missing_key");
     const { supabase, userId } = context;
+    const welcomeBack = data.mode === "welcome_back";
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -92,12 +150,19 @@ export const companionReply = createServerFn({ method: "POST" })
 
     const { data: companion } = await supabase
       .from("companions")
-      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, address_self, address_other, memory_summary, mode, chat_language")
+      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, address_self, address_other, memory_summary, mode, chat_language, last_message_at, welcome_enabled")
       .eq("id", data.companion_id)
       .maybeSingle();
     if (!companion) throw new CompanionError("not_found");
 
-    if ((profile.subscription_status ?? "free") !== "pro") {
+    const lastAt = (companion as { last_message_at: string | null }).last_message_at ?? null;
+
+    if (welcomeBack) {
+      if ((companion as { welcome_enabled: boolean }).welcome_enabled === false) return { reply: "" };
+      if (lastAt && Date.now() - new Date(lastAt).getTime() < WELCOME_BACK_HOURS * 3600000) return { reply: "" };
+    }
+
+    if (!welcomeBack && (profile.subscription_status ?? "free") !== "pro") {
       const since = new Date();
       since.setHours(0, 0, 0, 0);
       const { count } = await supabase
@@ -117,31 +182,109 @@ export const companionReply = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(HISTORY_LIMIT);
 
+    const { data: memoryRows } = await supabase
+      .from("companion_memories")
+      .select("id, fact, category, pinned")
+      .eq("companion_id", data.companion_id)
+      .order("pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(MEMORY_LIMIT);
+    const memories = (memoryRows ?? []) as MemoryRow[];
+
     const turns: Turn[] = (history ?? [])
       .slice()
       .reverse()
       .map((row) => ({ role: row.role === "assistant" ? "assistant" : "user", content: row.content }));
-    const message = data.message.trim().slice(0, 1000);
-    turns.push({ role: "user", content: message });
+    const message = (data.message ?? "").trim().slice(0, 1000);
+    if (welcomeBack) turns.push({ role: "user", content: "[người dùng vừa mở lại cuộc trò chuyện]" });
+    else turns.push({ role: "user", content: message });
 
-    const system = buildSystemPrompt(companion as CompanionPersona, profile.gender ?? "unspecified");
+    const clock = vnNow();
+    const continuity: Continuity = {
+      facts: memories.map((row) => row.fact),
+      weekday: clock.weekday,
+      date: clock.date,
+      partOfDay: clock.partOfDay,
+      gap: gapText(lastAt),
+      welcomeBack,
+    };
+
+    const system = buildSystemPrompt(companion as unknown as CompanionPersona, profile.gender ?? "unspecified", continuity);
     const reply = clean(await askModel(apiKey, system, turns));
     if (!reply) throw new CompanionError("ai_unavailable");
 
-    await supabase.from("companion_messages").insert([
-      { user_id: userId, companion_id: data.companion_id, role: "user", content: message },
-      { user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply },
-    ]);
+    const rows = welcomeBack
+      ? [{ user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply }]
+      : [
+          { user_id: userId, companion_id: data.companion_id, role: "user", content: message },
+          { user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply },
+        ];
+    await supabase.from("companion_messages").insert(rows);
 
-    if (turns.length >= HISTORY_LIMIT) {
-      const summaryTurns: Turn[] = [
-        ...turns,
-        { role: "user", content: "Tóm tắt ngắn (tối đa 4 câu) những điều nên nhớ về người dùng: tên, công việc, sở thích, chuyện đang diễn ra. Chỉ trả về phần tóm tắt." },
-      ];
+    const lastBubble = reply.split("\n").filter(Boolean).pop() ?? reply;
+    await supabase
+      .from("companions")
+      .update({ last_message_at: new Date().toISOString(), last_message_preview: lastBubble.slice(0, 60) })
+      .eq("id", data.companion_id);
+
+    if (welcomeBack) return { reply };
+
+    const { count: userCount } = await supabase
+      .from("companion_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("companion_id", data.companion_id)
+      .eq("role", "user");
+    const userMessages = userCount ?? 0;
+    const asked = REMEMBER_TRIGGERS.some((word) => message.toLowerCase().includes(word));
+
+    if (asked || (userMessages > 0 && userMessages % MEMORY_EVERY === 0)) {
       try {
-        const summary = (await askModel(apiKey, system, summaryTurns)).trim().slice(0, 800);
+        const factsBlock = memories.length
+          ? memories.map((row) => `${row.id} [${row.category}]${row.pinned ? " (ghim)" : ""}: ${row.fact}`).join("\n")
+          : "(chưa có)";
+        const recent = turns.slice(-12).map((turn) => `${turn.role === "user" ? "Người dùng" : "Nhân vật"}: ${turn.content}`).join("\n");
+        const raw = await askModel(apiKey, EXTRACT_PROMPT, [
+          { role: "user", content: `Các ý đang nhớ (kèm id):\n${factsBlock}\n\n12 tin nhắn gần nhất:\n${recent}` },
+        ]);
+        const parsed = parseJson(raw) as {
+          add?: { fact?: string; category?: string }[];
+          update?: { id?: string; fact?: string }[];
+          delete?: string[];
+        } | null;
+        if (parsed) {
+          const pinnedIds = new Set(memories.filter((row) => row.pinned).map((row) => row.id));
+          const additions = (parsed.add ?? [])
+            .filter((item) => typeof item.fact === "string" && item.fact.trim())
+            .slice(0, 20)
+            .map((item) => ({
+              user_id: userId,
+              companion_id: data.companion_id,
+              fact: item.fact!.trim().slice(0, 300),
+              category: CATEGORIES.includes(item.category ?? "") ? item.category! : "basic",
+            }));
+          if (additions.length) await supabase.from("companion_memories").insert(additions);
+          for (const item of parsed.update ?? []) {
+            if (!item.id || !item.fact || pinnedIds.has(item.id)) continue;
+            await supabase
+              .from("companion_memories")
+              .update({ fact: item.fact.trim().slice(0, 300), updated_at: new Date().toISOString() })
+              .eq("id", item.id)
+              .eq("user_id", userId);
+          }
+          const removals = (parsed.delete ?? []).filter((id) => typeof id === "string" && !pinnedIds.has(id));
+          if (removals.length) await supabase.from("companion_memories").delete().in("id", removals).eq("user_id", userId);
+        }
+      } catch (error) { console.error("memory extraction failed", error); }
+    }
+
+    if (userMessages > 0 && userMessages % SUMMARY_EVERY === 0) {
+      try {
+        const transcript = turns.map((turn) => `${turn.role === "user" ? "Người dùng" : "Nhân vật"}: ${turn.content}`).join("\n");
+        const summary = (await askModel(apiKey, SUMMARY_PROMPT, [
+          { role: "user", content: `Tóm tắt cũ:\n${companion.memory_summary || "(chưa có)"}\n\nTin nhắn gần đây:\n${transcript}` },
+        ])).trim().slice(0, 1500);
         if (summary) await supabase.from("companions").update({ memory_summary: summary }).eq("id", data.companion_id);
-      } catch { /* memory refresh is best-effort */ }
+      } catch (error) { console.error("summary refresh failed", error); }
     }
 
     return { reply };
