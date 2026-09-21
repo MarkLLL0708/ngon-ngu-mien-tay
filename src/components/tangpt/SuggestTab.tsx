@@ -40,6 +40,10 @@ export function SuggestTab() {
   useEffect(() => {
     const saved = readReplyLanguage();
     setReplyLanguage(saved === "both" ? "mix" : saved);
+    const self = window.localStorage.getItem("tangpt-address-self");
+    const other = window.localStorage.getItem("tangpt-address-other");
+    if (self) setAddressSelf(self);
+    if (other) setAddressOther(other);
   }, []);
   useEffect(() => {
     if (!profile) return;
