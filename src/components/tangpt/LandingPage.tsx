@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { regions, type RegionKey } from "@/lib/tangpt-data";
 import { useRegionTheme } from "./RegionTheme";
 import { useSessionUser } from "@/lib/tangpt-session";
+import { TEST_GUEST_MODE } from "@/lib/tangpt-config";
 import { LangToggle, useLang } from "./Language";
 
 const demos: { key: RegionKey; label: string; reply: string }[] = [

@@ -19,5 +19,5 @@ export const Route = createFileRoute("/onboarding")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
-  component: OnboardingFlow,
+  component: () => <GuestGate><OnboardingFlow /></GuestGate>,
 });
