@@ -10,4 +10,4 @@
 - [x] Migration: profiles.ui_language/reply_language, companions.city/chat_language
 - [x] Secure server-side "rizz" generator (Claude, daily free limit, cleanup, history save)
 - [x] Gợi ý page uses real generator only; paywall on limit, toast on errors
-- [ ] Blocked: ANTHROPIC_API_KEY not saved (key form was closed)
+- [x] Uses built-in Lovable AI (no external key needed)

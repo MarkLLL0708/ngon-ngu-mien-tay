@@ -22,7 +22,7 @@ const ROBOTIC = ["tất nhiên", "tôi hiểu", "dưới đây là", "là một 
 const RETRY_LINE = "Viết lại tự nhiên hơn, như người thật nhắn tin, không giọng trợ lý.";
 
 export class RizzError extends Error {
-  constructor(public code: "limit_reached" | "bad_ai_response" | "missing_key" | "ai_unavailable") { super(code); }
+  constructor(public code: "limit_reached" | "bad_ai_response" | "missing_key" | "ai_unavailable" | "rate_limited" | "credits") { super(code); }
 }
 
 function buildUserMessage(input: RizzInput) {
@@ -67,31 +67,55 @@ function isRobotic(payload: RizzPayload) {
   return payload.options.some((option) => ROBOTIC.some((phrase) => option.text.toLowerCase().includes(phrase)));
 }
 
-async function askClaude(apiKey: string, userMessage: string): Promise<string> {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+async function askModel(apiKey: string, userMessage: string): Promise<string> {
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
     method: "POST",
-    headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: "claude-sonnet-5",
-      max_tokens: 900,
-      temperature: 1,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userMessage }],
+      model: "openai/gpt-6-astra",
+      instructions: SYSTEM_PROMPT,
+      input: [{ role: "user", content: [{ type: "input_text", text: userMessage }] }],
+      stream: true,
+      store: false,
+      reasoning: { effort: "low", summary: "auto" },
     }),
   });
-  if (!response.ok) {
-    console.error("anthropic error", response.status, await response.text());
+  if (!response.ok || !response.body) {
+    const detail = response.body ? await response.text() : "";
+    console.error("ai gateway error", response.status, detail);
+    if (response.status === 429) throw new RizzError("rate_limited");
+    if (response.status === 402 || response.status === 403) throw new RizzError("credits");
     throw new RizzError("ai_unavailable");
   }
-  const body = (await response.json()) as { content?: { type: string; text?: string }[] };
-  return (body.content ?? []).filter((part) => part.type === "text").map((part) => part.text ?? "").join("\n");
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let text = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.startsWith("data:")) continue;
+      const payload = line.slice(5).trim();
+      if (!payload || payload === "[DONE]") continue;
+      try {
+        const event = JSON.parse(payload) as { type?: string; delta?: string; response?: { output_text?: string } };
+        if (event.type === "response.output_text.delta" && typeof event.delta === "string") text += event.delta;
+        else if (event.type === "response.completed" && !text && event.response?.output_text) text = event.response.output_text;
+      } catch { /* ignore keep-alive lines */ }
+    }
+  }
+  return text;
 }
 
 export const generateRizz = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: RizzInput) => data)
   .handler(async ({ data, context }): Promise<RizzPayload> => {
-    const apiKey = process.env["ANTHROPIC_API_KEY"];
+    const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new RizzError("missing_key");
     const { supabase, userId } = context;
 
@@ -108,11 +132,11 @@ export const generateRizz = createServerFn({ method: "POST" })
     }
 
     const baseMessage = buildUserMessage(data);
-    let payload = parsePayload(await askClaude(apiKey, baseMessage));
-    if (!payload) payload = parsePayload(await askClaude(apiKey, baseMessage));
+    let payload = parsePayload(await askModel(apiKey, baseMessage));
+    if (!payload) payload = parsePayload(await askModel(apiKey, baseMessage));
     if (!payload) throw new RizzError("bad_ai_response");
     if (isRobotic(payload)) {
-      const retry = parsePayload(await askClaude(apiKey, `${baseMessage}\n${RETRY_LINE}`));
+      const retry = parsePayload(await askModel(apiKey, `${baseMessage}\n${RETRY_LINE}`));
       if (retry) payload = retry;
     }
 
