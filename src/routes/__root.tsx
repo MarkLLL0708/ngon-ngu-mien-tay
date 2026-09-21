@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RegionThemeProvider } from "../components/tangpt/RegionTheme";
+import { LanguageProvider } from "../components/tangpt/Language";
 
 function NotFoundComponent() {
   return (
@@ -120,7 +121,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RegionThemeProvider><Outlet /></RegionThemeProvider>
+      <LanguageProvider><RegionThemeProvider><Outlet /></RegionThemeProvider></LanguageProvider>
     </QueryClientProvider>
   );
 }

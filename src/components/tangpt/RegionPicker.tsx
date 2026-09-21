@@ -10,7 +10,7 @@ export function RegionPicker({ compact = false }: { compact?: boolean }) {
     <div className={cn("grid gap-3", compact ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2")}>
       {(Object.keys(regions) as RegionKey[]).map((key) => {
         const item = regions[key]; const Icon = icons[key]; const selected = region === key;
-        return <button key={key} type="button" onClick={() => { setRegion(key); setCity(item.cities[0]); }} className={cn("region-card group", selected && "region-card-active")}>
+        return <button key={key} type="button" onClick={() => { setRegion(key); setCity(item.cities[0] ?? item.city); }} className={cn("region-card group", selected && "region-card-active")}>
           <span className="region-icon"><Icon /></span>
           <span className="min-w-0 text-left"><strong>{item.name}</strong><small>{item.vibe}</small></span>
           {selected && <Check className="ml-auto size-5 shrink-0 text-primary" />}
