@@ -18,8 +18,9 @@ export function LandingPage() {
   const { userId } = useSessionUser();
   const navigate = useNavigate();
   useEffect(() => { const id = window.setInterval(() => setDemo((value) => (value + 1) % demos.length), 3000); return () => window.clearInterval(id); }, []);
-  useEffect(() => { setRegion(demos[demo].key); }, [demo, setRegion]);
-  function pickRegion(key: RegionKey) { setRegion(key); setCity(regions[key].cities[0]); navigate({ to: "/login", search: { mode: "signup" } }); }
+  const current = demos[demo] ?? demos[0]!;
+  useEffect(() => { setRegion(current.key); }, [current, setRegion]);
+  function pickRegion(key: RegionKey) { setRegion(key); setCity(regions[key].cities[0] ?? regions[key].city); navigate({ to: "/login", search: { mode: "signup" } }); }
   return <main className="marketing-shell">
     <header className="marketing-nav"><Link to="/" className="brand"><span>Tán</span>GPT<i /></Link>{userId ? <Button asChild variant="outline"><Link to="/app">Vào ứng dụng</Link></Button> : <Button asChild variant="outline"><Link to="/login" search={{ mode: "login" }}>Đăng nhập</Link></Button>}</header>
     <section className="hero-band">
