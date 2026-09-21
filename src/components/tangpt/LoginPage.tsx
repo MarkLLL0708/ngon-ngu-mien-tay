@@ -60,6 +60,7 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
 
   return <main className="auth-shell">
     <Link to="/" className="brand"><span>Tán</span>GPT<i /></Link>
+    <div className="auth-back"><BackButton /></div>
     <div className="auth-lang"><LangToggle /></div>
     <section className="auth-card">
       <div className="auth-mark">T</div>
