@@ -14,7 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companions: {
+        Row: {
+          age_vibe: string
+          created_at: string
+          id: string
+          memory_summary: string
+          mode: string
+          name: string
+          personality: string
+          region: string
+          user_id: string
+        }
+        Insert: {
+          age_vibe: string
+          created_at?: string
+          id?: string
+          memory_summary?: string
+          mode: string
+          name: string
+          personality: string
+          region: string
+          user_id: string
+        }
+        Update: {
+          age_vibe?: string
+          created_at?: string
+          id?: string
+          memory_summary?: string
+          mode?: string
+          name?: string
+          personality?: string
+          region?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age_confirmed: boolean
+          age_group: string | null
+          created_at: string
+          default_city: string | null
+          default_region: string | null
+          id: string
+          subscription_status: string
+          updated_at: string
+        }
+        Insert: {
+          age_confirmed?: boolean
+          age_group?: string | null
+          created_at?: string
+          default_city?: string | null
+          default_region?: string | null
+          id: string
+          subscription_status?: string
+          updated_at?: string
+        }
+        Update: {
+          age_confirmed?: boolean
+          age_group?: string | null
+          created_at?: string
+          default_city?: string | null
+          default_region?: string | null
+          id?: string
+          subscription_status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reply_generations: {
+        Row: {
+          age_group: string
+          city: string
+          created_at: string
+          id: string
+          input_text: string
+          mode: string
+          region: string
+          result: Json
+          user_id: string
+        }
+        Insert: {
+          age_group: string
+          city: string
+          created_at?: string
+          id?: string
+          input_text: string
+          mode: string
+          region: string
+          result: Json
+          user_id: string
+        }
+        Update: {
+          age_group?: string
+          city?: string
+          created_at?: string
+          id?: string
+          input_text?: string
+          mode?: string
+          region?: string
+          result?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
