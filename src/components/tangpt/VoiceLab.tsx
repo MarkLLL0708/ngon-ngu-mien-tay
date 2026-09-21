@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useLang } from "./Language";
 import { supabase } from "@/integrations/supabase/client";
 import { voiceTts } from "@/lib/voice.functions";
+import { ACTIVE_VOICE_PROVIDERS } from "@/lib/tangpt-config";
 
 const TEST_LINE = "Ok nha, mai em có deadline nên hơi busy, but em vẫn nhắn cho anh nè.";
 const LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H"];
