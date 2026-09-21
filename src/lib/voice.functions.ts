@@ -39,6 +39,12 @@ type ProfileRow = {
   active: boolean;
 };
 
+// Companions store Vietnamese region keys; voice profiles use English ones.
+const REGION_MAP: Record<string, Region> = { bac: "north", nam: "south", trung: "central", tay: "mekong", north: "north", south: "south", central: "central", mekong: "mekong" };
+function normalizeRegion(value: string | null | undefined, fallback: Region): Region {
+  return (value && REGION_MAP[value]) || fallback;
+}
+
 function toBase64(bytes: Uint8Array): string {
   let binary = "";
   const chunk = 0x8000;
@@ -57,7 +63,7 @@ export const voiceTts = createServerFn({ method: "POST" })
 
     const { supabase } = context;
     let gender: PersonaGender = data.persona_gender ?? "female";
-    let region: Region = data.region ?? "south";
+    let region: Region = normalizeRegion(data.region, "south");
     let ageVibe = data.age_vibe ?? "genz";
     let profile: ProfileRow | null = null;
 
@@ -69,8 +75,7 @@ export const voiceTts = createServerFn({ method: "POST" })
         .maybeSingle();
       if (companion) {
         gender = (companion.persona_gender as PersonaGender) || gender;
-        region = (companion.region as Region) || region;
-        ageVibe = (companion.age_vibe as typeof ageVibe) || ageVibe;
+        region = normalizeRegion(companion.region, region);
         if (companion.voice_profile_id) {
           const { data: row } = await supabase
             .from("voice_profiles")
@@ -95,10 +100,13 @@ export const voiceTts = createServerFn({ method: "POST" })
         .from("voice_profiles")
         .select("*")
         .eq("active", true)
-        .eq("persona_gender", gender)
-        .in("region", regions)
         .in("provider", ACTIVE_VOICE_PROVIDERS);
-      const list = (rows ?? []) as ProfileRow[];
+      const all = (rows ?? []) as ProfileRow[];
+      // prefer same gender + region, but never fail when nothing matches exactly
+      const byGender = all.filter((row) => row.persona_gender === gender);
+      const genderPool = byGender.length ? byGender : all;
+      const byRegion = genderPool.filter((row) => regions.includes(row.region as Region));
+      const list = byRegion.length ? byRegion : genderPool;
       const usable = list.filter((row) => row.voice_id && row.voice_id !== "REPLACE_WITH_VOICE_ID");
       const pool = usable.length ? usable : list;
       const score = (row: ProfileRow) =>

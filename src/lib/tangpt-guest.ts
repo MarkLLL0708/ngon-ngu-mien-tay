@@ -3,8 +3,13 @@ import { TEST_GUEST_MODE } from "./tangpt-config";
 
 /** Ensure a profiles row exists for the given user (anonymous guests included). */
 export async function ensureProfileRow(userId: string) {
-  const { data } = await supabase.from("profiles").select("id").eq("id", userId).maybeSingle();
-  if (!data) await supabase.from("profiles").insert({ id: userId });
+  const { data } = await supabase.from("profiles").select("id, age_confirmed").eq("id", userId).maybeSingle();
+  if (!data) {
+    await supabase.from("profiles").insert({ id: userId, age_confirmed: TEST_GUEST_MODE });
+    return;
+  }
+  // Guests created before onboarding would otherwise hit age_not_confirmed.
+  if (TEST_GUEST_MODE && !data.age_confirmed) await supabase.from("profiles").update({ age_confirmed: true }).eq("id", userId);
 }
 
 /**
