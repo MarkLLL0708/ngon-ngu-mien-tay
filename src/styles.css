@@ -143,3 +143,5 @@ input,textarea,select{font-size:16px;max-width:100%}
 .save-banner{flex-wrap:wrap}
 @media (max-width:420px){.page-title h1{font-size:1.55rem}}
 @media(max-width:1023px){.hero-band{gap:34px;min-width:0}.hero-band>*{min-width:0}.phone-stage{min-width:0;max-width:100%}.phone{width:min(360px,100%)}}
+.chat-header{height:auto;min-height:64px}
+.chat-header strong,.chat-header small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
