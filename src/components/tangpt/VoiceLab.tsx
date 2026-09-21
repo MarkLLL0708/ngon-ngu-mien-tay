@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useLang } from "./Language";
 import { supabase } from "@/integrations/supabase/client";
 import { voiceTts } from "@/lib/voice.functions";
+import { ACTIVE_VOICE_PROVIDERS } from "@/lib/tangpt-config";
 
 const TEST_LINE = "Ok nha, mai em có deadline nên hơi busy, but em vẫn nhắn cho anh nè.";
 const LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H"];
@@ -65,7 +66,8 @@ export function VoiceLab() {
         .select("id, label, provider, voice_id, style_prompt")
         .eq("active", true)
         .eq("region", region)
-        .eq("persona_gender", gender);
+        .eq("persona_gender", gender)
+        .in("provider", ACTIVE_VOICE_PROVIDERS);
       if (cancelled) return;
       setProfiles(shuffle((data ?? []) as Profile[]));
       setRevealed({});
