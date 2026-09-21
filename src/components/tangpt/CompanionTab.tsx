@@ -22,6 +22,8 @@ export function CompanionTab() {
   const [personality, setPersonality] = useState("Dịu dàng");
   const [chatLanguage, setChatLanguage] = useState<ReplyLanguage>("vi");
   const [mode, setMode] = useState("Trò chuyện");
+  const [personaStyle, setPersonaStyle] = useState("Nhẹ nhàng");
+  const [pair, setPair] = useState<[string, string]>(["mình", "bạn"]);
   const [saving, setSaving] = useState(false);
   const filtered = useMemo(() => personas.filter((p) => p.region === region), [region]);
 
