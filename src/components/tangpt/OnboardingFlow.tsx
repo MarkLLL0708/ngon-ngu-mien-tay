@@ -65,7 +65,7 @@ export function OnboardingFlow() {
   return <main className="onboarding-shell">
     <header>
       <div className="nav-side"><BackButton /><span className="brand"><span>Tán</span>GPT<i /></span></div>
-      <div className="progress-dots">{[0, 1, 2].map((i) => <i key={i} className={i <= step ? "active" : ""} />)}</div>
+      <div className="progress-dots">{[0, 1, 2, 3].map((i) => <i key={i} className={i <= step ? "active" : ""} />)}</div>
       <LangToggle />
     </header>
     <section className="onboarding-card fade-up">
