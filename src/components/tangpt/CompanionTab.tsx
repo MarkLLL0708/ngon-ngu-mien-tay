@@ -43,6 +43,9 @@ export function CompanionTab() {
     const { data, error } = await supabase.from("companions").insert({
       user_id: profile.userId, name: selected.name, region: selected.region,
       age_vibe: `${selected.age}`, personality, mode,
+      city: selected.city, job: selected.job, chat_language: chatLanguage,
+      persona_gender: "female", persona_style: personaStyle,
+      address_self: pair[0], address_other: pair[1],
     }).select("id").single();
     setSaving(false);
     if (error || !data) return;
