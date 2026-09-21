@@ -1,6 +1,21 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, MoreVertical, Phone } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { personas } from "@/lib/tangpt-data";
-export const Route = createFileRoute("/app/chat/$companionId")({ head:()=>({meta:[{title:"Trò chuyện — TánGPT"},{name:"description",content:"Không gian trò chuyện cùng nhân vật AI TánGPT."},{property:"og:title",content:"Trò chuyện — TánGPT"},{property:"og:description",content:"Không gian trò chuyện cùng nhân vật AI TánGPT."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}), component: ChatHeader });
-function ChatHeader(){const {companionId}=Route.useParams();const p=personas.find(x=>x.id===companionId)??personas[0]!;return <main className="chat-screen"><header className="chat-header"><Button asChild variant="ghost" size="icon" aria-label="Quay lại"><Link to="/app"><ArrowLeft/></Link></Button><div className="avatar-orbit tiny"><span>{p.name[0]}</span></div><div className="min-w-0"><strong>{p.name}</strong><small>Nhân vật AI · đang hoạt động</small></div><Button variant="ghost" size="icon" aria-label="Gọi thoại"><Phone/></Button><Button variant="ghost" size="icon" aria-label="Tùy chọn"><MoreVertical/></Button></header><div className="chat-coming"><span>Phần trò chuyện sẽ được hoàn thiện ở bước tiếp theo.</span></div></main>}
+import { createFileRoute } from "@tanstack/react-router";
+import { ChatScreen } from "@/components/tangpt/ChatScreen";
+
+export const Route = createFileRoute("/app/chat/$companionId")({
+  component: ChatRoute,
+  head: () => ({
+    meta: [
+      { title: "Trò chuyện cùng bạn gái AI | TánGPT" },
+      { name: "description", content: "Nhắn tin tự nhiên với nhân vật AI của bạn trên TánGPT." },
+      { property: "og:title", content: "Trò chuyện cùng bạn gái AI | TánGPT" },
+      { property: "og:description", content: "Nhắn tin tự nhiên với nhân vật AI của bạn trên TánGPT." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+});
+
+function ChatRoute() {
+  const { companionId } = Route.useParams();
+  return <ChatScreen companionId={companionId} />;
+}
