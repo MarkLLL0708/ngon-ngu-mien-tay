@@ -36,7 +36,7 @@ export function LandingPage() {
     navigate({ to: "/login", search: { mode: "signup" } });
   }
   return <main className="marketing-shell">
-    <header className="marketing-nav"><Link to="/" className="brand"><span>Tán</span>GPT<i /></Link><div className="nav-side"><LangToggle />{userId ? <Button asChild variant="outline"><Link to="/app">{t("Vào ứng dụng", "Open app")}</Link></Button> : <Button asChild variant="outline"><Link to="/login" search={{ mode: "login" }}>{t("Đăng nhập", "Log in")}</Link></Button>}</div></header>
+    <header className="marketing-nav"><Link to="/" className="brand"><span>Tán</span>GPT<i /></Link><div className="nav-side"><LangToggle />{TEST_GUEST_MODE ? <Button asChild variant="outline"><Link to={appTarget}>{t("Vào ứng dụng", "Open app")}</Link></Button> : userId ? <Button asChild variant="outline"><Link to="/app">{t("Vào ứng dụng", "Open app")}</Link></Button> : <Button asChild variant="outline"><Link to="/login" search={{ mode: "login" }}>{t("Đăng nhập", "Log in")}</Link></Button>}</div></header>
     <section className="hero-band">
       <div className="hero-copy fade-up">
         <div className="eyebrow"><MapPin className="size-4" /> {t("Đúng giọng. Đúng duyên.", "Right dialect. Right charm.")}</div>
