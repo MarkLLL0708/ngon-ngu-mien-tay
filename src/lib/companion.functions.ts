@@ -207,8 +207,9 @@ export const companionReply = createServerFn({ method: "POST" })
       .reverse()
       .map((row) => ({ role: row.role === "assistant" ? "assistant" : "user", content: row.content }));
     const message = (data.message ?? "").trim().slice(0, 1000);
+    const image = welcomeBack ? null : safeImage(data.image_data);
     if (welcomeBack) turns.push({ role: "user", content: "[người dùng vừa mở lại cuộc trò chuyện]" });
-    else turns.push({ role: "user", content: message });
+    else turns.push({ role: "user", content: message, ...(image ? { image } : {}) });
 
     const clock = vnNow();
     const continuity: Continuity = {
@@ -220,14 +221,28 @@ export const companionReply = createServerFn({ method: "POST" })
       welcomeBack,
     };
 
-    const system = buildSystemPrompt(companion as unknown as CompanionPersona, profile.gender ?? "unspecified", continuity);
+    const baseSystem = buildSystemPrompt(companion as unknown as CompanionPersona, profile.gender ?? "unspecified", continuity);
+    const system = image ? `${baseSystem}\n\n${IMAGE_TURN_INSTRUCTION}` : baseSystem;
     const reply = clean(await askModel(apiKey, system, turns));
     if (!reply) throw new CompanionError("ai_unavailable");
+
+    // Không lưu bytes ảnh: chỉ lưu một chú thích ngắn để phục vụ trí nhớ.
+    let stored = message;
+    if (image) {
+      let caption = "";
+      try {
+        caption = (await askModel(apiKey, IMAGE_CAPTION_PROMPT, [{ role: "user", content: message || "(không có chữ kèm theo)", image }]))
+          .replace(/[*#`_\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+      } catch (error) { console.error("caption failed", error); }
+      if (!caption) caption = "ảnh: (không mô tả được)";
+      if (!/^ảnh\s*:/i.test(caption)) caption = `ảnh: ${caption}`;
+      stored = message ? `${caption} — ${message}` : caption;
+    }
 
     const rows = welcomeBack
       ? [{ user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply }]
       : [
-          { user_id: userId, companion_id: data.companion_id, role: "user", content: message },
+          { user_id: userId, companion_id: data.companion_id, role: "user", content: stored, via: image ? "image" : "text" },
           { user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply },
         ];
     await supabase.from("companion_messages").insert(rows);
