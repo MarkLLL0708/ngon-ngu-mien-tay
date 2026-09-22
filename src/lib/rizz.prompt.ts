@@ -165,3 +165,7 @@ Người dùng nam, nhắn cho nam lớn tuổi hơn, Bắc, 27-35, xưng em - a
 {"options":[{"style":"...","text":"...","why":"..."},{"style":"...","text":"...","why":"..."},{"style":"...","text":"...","why":"..."}],"tip":"..."}
 
 Trường "style" dùng nhãn theo ngôn ngữ giao diện: vi = "Vui vẻ", "Chân thành", "Tự tin"; en = "Playful", "Sincere", "Confident". "why" một câu ngắn giải thích vì sao câu này hiệu quả. "tip" một lời khuyên dưới 25 từ.`;
+
+export const IMAGE_OPENER_INSTRUCTION = `Người dùng đã gửi ảnh profile, bio, hoặc story của người ấy. Dựa vào NHỮNG GÌ THẤY TRONG ẢNH một cách cụ thể (hoạt động, nơi chốn, thú cưng, sở thích thể hiện qua ảnh, dòng chữ trong ảnh nếu có) để viết câu mở lời, không chung chung. Nếu ảnh nhạy cảm hoặc không phù hợp, không tạo câu mở lời và trả lời tip: 'Ảnh này không phù hợp để tạo gợi ý, thử ảnh khác nhé.'
+
+An toàn: không bình luận hay mô tả nội dung khoả thân, tình dục, ảnh trẻ em hay bạo lực; không cố nhận dạng hay gọi tên người thật trong ảnh.`;
