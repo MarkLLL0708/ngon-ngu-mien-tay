@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Brain, Check, LoaderCircle, MoreVertical, Pause, Phone, Play, SendHorizontal, Trash2 } from "lucide-react";
+import { ArrowLeft, Brain, Check, ImagePlus, LoaderCircle, MoreVertical, Pause, Phone, Play, SendHorizontal, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Paywall } from "./Paywall";
@@ -14,8 +14,9 @@ import { CallScreen } from "./CallScreen";
 import { useCompanionVoice } from "@/lib/voice-player";
 import { VOICE_MESSAGE_CHANCE } from "@/lib/tangpt-config";
 import { useOverlayFlag } from "@/lib/debug-bus";
+import { ACCEPTED_IMAGE_TYPES, imageErrorText, prepareImage } from "@/lib/tangpt-image";
 
-type Message = { id: string; from: "me" | "her"; text: string; status?: "sent" | "seen"; createdAt: string; voice?: boolean };
+type Message = { id: string; from: "me" | "her"; text: string; status?: "sent" | "seen"; createdAt: string; voice?: boolean; image?: string };
 type Companion = {
   id: string; name: string; personality: string; mode: string; region: string;
   address_self: string; address_other: string; persona_gender: string; welcome_enabled: boolean;
@@ -52,6 +53,8 @@ export function ChatScreen({ companionId }: { companionId: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const [callOpen, setCallOpen] = useState(false);
+  const [pending, setPending] = useState<{ dataUrl: string } | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const voice = useCompanionVoice(companionId);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -164,17 +167,30 @@ export function ChatScreen({ companionId }: { companionId: string }) {
     navigate({ to: "/app/ai", replace: true });
   }
 
+  async function pickImage(file: File | undefined) {
+    if (!file) return;
+    try {
+      const prepared = await prepareImage(file);
+      setPending({ dataUrl: prepared.dataUrl });
+    } catch (error) {
+      toast.error(imageErrorText(error, lang === "vi"));
+    }
+  }
+
   async function send(value: string) {
     const text = value.trim();
-    if (!text || typing) return;
-    const mine: Message = { id: crypto.randomUUID(), from: "me", text, status: "sent", createdAt: new Date().toISOString() };
+    const image = pending?.dataUrl;
+    if ((!text && !image) || typing) return;
+    const mine: Message = { id: crypto.randomUUID(), from: "me", text, status: "sent", createdAt: new Date().toISOString(), ...(image ? { image } : {}) };
     setMessages((list) => [...list, mine]);
     setDraft("");
+    setPending(null);
+    if (fileRef.current) fileRef.current.value = "";
     setTyping(true);
 
     let reply = "";
     try {
-      const result = await companionReply({ data: { companion_id: companionId, message: text } });
+      const result = await companionReply({ data: { companion_id: companionId, message: text, ...(image ? { image_data: image } : {}) } });
       reply = result.reply;
     } catch (error) {
       setTyping(false);
@@ -248,7 +264,10 @@ export function ChatScreen({ companionId }: { companionId: string }) {
                   <span className="voice-wave" aria-hidden>{[9, 15, 22, 13, 18, 10, 20, 12].map((height, index) => <i key={index} style={{ height }} />)}</span>
                   <em>{t("Tin nhắn thoại", "Voice message")}</em>
                 </p>
-              : <p>{message.text}</p>}
+              : <>
+                  {message.image && <img className="msg-image" src={message.image} alt={t("Ảnh đã gửi", "Sent photo")} />}
+                  {message.text && <p>{message.text}</p>}
+                </>}
             {message.from === "me" && <small>{message.status === "seen" ? t("Đã xem", "Seen") : t("Đã gửi", "Sent")}</small>}
           </div>
         </div>;
@@ -257,8 +276,15 @@ export function ChatScreen({ companionId }: { companionId: string }) {
       <div ref={endRef} />
     </div>
     <div className="chat-composer">
+      {pending && <div className="composer-preview">
+        <img src={pending.dataUrl} alt={t("Ảnh sắp gửi", "Photo to send")} />
+        <button type="button" aria-label={t("Bỏ ảnh", "Remove photo")} onClick={() => { setPending(null); if (fileRef.current) fileRef.current.value = ""; }}><X size={14} /></button>
+      </div>}
+      <input ref={fileRef} type="file" accept={ACCEPTED_IMAGE_TYPES.join(",")} capture="environment" hidden
+        onChange={(e) => void pickImage(e.target.files?.[0])} />
+      <Button variant="ghost" size="icon" aria-label={t("Gửi ảnh", "Send a photo")} disabled={typing} onClick={() => fileRef.current?.click()}><ImagePlus /></Button>
       <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void send(draft); }} placeholder={t("Nhắn gì đó...", "Say something...")} />
-      <Button variant="gradient" size="icon" onClick={() => void send(draft)} disabled={!draft.trim() || typing} aria-label={t("Gửi", "Send")}><SendHorizontal /></Button>
+      <Button variant="gradient" size="icon" onClick={() => void send(draft)} disabled={(!draft.trim() && !pending) || typing} aria-label={t("Gửi", "Send")}><SendHorizontal /></Button>
     </div>
     {memoryOpen && companion && <MemorySheet companionId={companion.id} personaGender={companion.persona_gender}
       onClose={() => setMemoryOpen(false)} onWiped={() => { setMessages([]); setHasMore(false); }} />}
