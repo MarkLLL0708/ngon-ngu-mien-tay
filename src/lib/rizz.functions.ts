@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { SYSTEM_PROMPT } from "./rizz.prompt";
+import { IMAGE_OPENER_INSTRUCTION, SYSTEM_PROMPT } from "./rizz.prompt";
 
 export type RizzMode = "reply" | "opener";
 export type RizzRegion = "north" | "south" | "central" | "mekong";
@@ -21,6 +21,7 @@ export type RizzInput = {
   relative_age?: RizzRelativeAge;
   address_self?: string;
   address_other?: string;
+  image_data?: string;
 };
 export type RizzOption = { style: string; text: string; why: string };
 export type RizzPayload = { options: RizzOption[]; tip: string };
@@ -99,14 +100,26 @@ function isRobotic(payload: RizzPayload) {
   return payload.options.some((option) => ROBOTIC.some((phrase) => option.text.toLowerCase().includes(phrase)));
 }
 
-async function askModel(apiKey: string, userMessage: string): Promise<string> {
+const IMAGE_PATTERN = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+function safeImage(value: unknown): string | null {
+  const raw = typeof value === "string" ? value.trim() : "";
+  if (!raw || !IMAGE_PATTERN.test(raw) || raw.length > 12_000_000) return null;
+  return raw;
+}
+
+async function askModel(apiKey: string, userMessage: string, image?: string | null): Promise<string> {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
       model: "openai/gpt-6-astra",
-      instructions: SYSTEM_PROMPT,
-      input: [{ role: "user", content: [{ type: "input_text", text: userMessage }] }],
+      instructions: image ? `${SYSTEM_PROMPT}\n\n${IMAGE_OPENER_INSTRUCTION}` : SYSTEM_PROMPT,
+      input: [{
+        role: "user",
+        content: image
+          ? [{ type: "input_image", image_url: image }, { type: "input_text", text: userMessage }]
+          : [{ type: "input_text", text: userMessage }],
+      }],
       stream: true,
       store: false,
       reasoning: { effort: "low", summary: "auto" },
@@ -164,12 +177,13 @@ export const generateRizz = createServerFn({ method: "POST" })
       if ((count ?? 0) >= dailyLimit) throw new RizzError("limit_reached");
     }
 
+    const image = safeImage(data.image_data);
     const baseMessage = buildUserMessage(data);
-    let payload = parsePayload(await askModel(apiKey, baseMessage));
-    if (!payload) payload = parsePayload(await askModel(apiKey, baseMessage));
+    let payload = parsePayload(await askModel(apiKey, baseMessage, image));
+    if (!payload) payload = parsePayload(await askModel(apiKey, baseMessage, image));
     if (!payload) throw new RizzError("bad_ai_response");
     if (isRobotic(payload)) {
-      const retry = parsePayload(await askModel(apiKey, `${baseMessage}\n${RETRY_LINE}`));
+      const retry = parsePayload(await askModel(apiKey, `${baseMessage}\n${RETRY_LINE}`, image));
       if (retry) payload = retry;
     }
 
