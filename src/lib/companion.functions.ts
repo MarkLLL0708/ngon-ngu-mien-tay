@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { WELCOME_BACK_HOURS } from "./tangpt-config";
-import { buildSystemPrompt, type Continuity, type CompanionPersona } from "./companion.prompt";
+import { buildSystemPrompt, IMAGE_CAPTION_PROMPT, IMAGE_TURN_INSTRUCTION, type Continuity, type CompanionPersona } from "./companion.prompt";
 
-export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back" };
+export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back"; image_data?: string };
 export type CompanionPayload = { reply: string };
 
 const FREE_DAILY_MESSAGES = 30;
