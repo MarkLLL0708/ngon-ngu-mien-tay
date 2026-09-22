@@ -21,7 +21,16 @@ export class CompanionError extends Error {
   }
 }
 
-type Turn = { role: "user" | "assistant"; content: string };
+type Turn = { role: "user" | "assistant"; content: string; image?: string };
+
+const IMAGE_PREFIX = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+function safeImage(value: unknown): string | null {
+  const raw = typeof value === "string" ? value.trim() : "";
+  if (!raw || !IMAGE_PREFIX.test(raw)) return null;
+  // ~8 MB nhị phân sau khi base64 hoá
+  if (raw.length > 12_000_000) return null;
+  return raw;
+}
 
 async function askModel(apiKey: string, system: string, turns: Turn[]): Promise<string> {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
@@ -32,7 +41,9 @@ async function askModel(apiKey: string, system: string, turns: Turn[]): Promise<
       instructions: system,
       input: turns.map((turn) => ({
         role: turn.role,
-        content: [{ type: turn.role === "user" ? "input_text" : "output_text", text: turn.content }],
+        content: turn.role === "user" && turn.image
+          ? [{ type: "input_image", image_url: turn.image }, { type: "input_text", text: turn.content || "(người dùng gửi ảnh, không kèm chữ)" }]
+          : [{ type: turn.role === "user" ? "input_text" : "output_text", text: turn.content }],
       })),
       stream: true,
       store: false,
