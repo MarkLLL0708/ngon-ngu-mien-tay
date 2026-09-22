@@ -63,6 +63,7 @@ export type Database = {
           id: string
           role: string
           user_id: string
+          via: string
         }
         Insert: {
           companion_id: string
@@ -71,6 +72,7 @@ export type Database = {
           id?: string
           role: string
           user_id: string
+          via?: string
         }
         Update: {
           companion_id?: string
@@ -79,6 +81,7 @@ export type Database = {
           id?: string
           role?: string
           user_id?: string
+          via?: string
         }
         Relationships: [
           {

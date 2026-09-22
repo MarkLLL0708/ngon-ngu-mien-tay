@@ -43,6 +43,13 @@
       "when": 1789989337147,
       "tag": "0005_voice_profiles_and_ratings",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790056257570,
+      "tag": "0006_add_via_to_companion_messages",
+      "breakpoints": true
     }
   ]
 }
