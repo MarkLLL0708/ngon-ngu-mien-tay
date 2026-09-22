@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Lightbulb, LoaderCircle, RefreshCw, Send } from "lucide-react";
+import { ImagePlus, Lightbulb, LoaderCircle, RefreshCw, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatBubble } from "./ChatBubble";
 import { Paywall } from "./Paywall";
 import { useRegionTheme } from "./RegionTheme";
 import { useLang } from "./Language";
 import { regions, type AgeGroup, type RegionKey } from "@/lib/tangpt-data";
+import { ACCEPTED_IMAGE_TYPES, imageErrorText, prepareImage } from "@/lib/tangpt-image";
 import { generateRizz, type RizzPayload, type RizzRegion } from "@/lib/rizz.functions";
 import { readReplyLanguage, saveReplyLanguage, saveUserGender, useProfile, type UserGender } from "@/lib/tangpt-profile";
 import type { RizzRelativeAge, RizzTargetGender } from "@/lib/rizz.functions";
@@ -36,6 +37,8 @@ export function SuggestTab() {
   const [relativeAge, setRelativeAge] = useState<RizzRelativeAge>("similar");
   const [addressSelf, setAddressSelf] = useState("mình");
   const [addressOther, setAddressOther] = useState("bạn");
+  const [photo, setPhoto] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const saved = readReplyLanguage();
@@ -64,8 +67,18 @@ export function SuggestTab() {
     saveReplyLanguage(value === "mix" ? "both" : value);
   }
 
+  async function pickPhoto(file: File | undefined) {
+    if (!file) return;
+    try {
+      const prepared = await prepareImage(file);
+      setPhoto(prepared.dataUrl);
+    } catch (error) {
+      toast.error(imageErrorText(error, lang !== "en"));
+    }
+  }
+
   async function generate() {
-    if (!text.trim() || loading) return;
+    if ((!text.trim() && !(mode === "opener" && photo)) || loading) return;
     setLoading(true);
     setResult(null);
     try {
@@ -83,6 +96,7 @@ export function SuggestTab() {
           relative_age: relativeAge,
           address_self: addressSelf.trim().slice(0, 12) || "mình",
           address_other: addressOther.trim().slice(0, 12) || "bạn",
+          ...(mode === "opener" && photo ? { image_data: photo } : {}),
         },
       });
       setResult(payload);
@@ -154,7 +168,18 @@ export function SuggestTab() {
       <textarea value={text} maxLength={800} onChange={(e) => setText(e.target.value)} placeholder={mode === "reply" ? t("Dán tin nhắn của người ấy vào đây...", "Paste their message here...") : t("Mô tả profile, bio hoặc ảnh của người ấy...", "Describe their profile, bio or photo...")} />
       <span>{text.length}/800</span>
     </div>
-    <Button variant="gradient" size="lg" onClick={generate} disabled={loading || !text.trim()}>
+    {mode === "opener" && <div className="upload-block">
+      <input ref={fileRef} type="file" accept={ACCEPTED_IMAGE_TYPES.join(",")} hidden onChange={(e) => void pickPhoto(e.target.files?.[0])} />
+      {photo
+        ? <div className="upload-preview">
+            <img src={photo} alt={t("Ảnh đã chọn", "Selected photo")} />
+            <button type="button" aria-label={t("Bỏ ảnh", "Remove photo")} onClick={() => { setPhoto(null); if (fileRef.current) fileRef.current.value = ""; }}><X size={14} /></button>
+          </div>
+        : <button type="button" className="chip" onClick={() => fileRef.current?.click()}>
+            <ImagePlus size={16} />{t("Hoặc tải ảnh profile/bio lên", "Or upload a profile/bio photo")}
+          </button>}
+    </div>}
+    <Button variant="gradient" size="lg" onClick={generate} disabled={loading || (!text.trim() && !(mode === "opener" && photo))}>
       {loading ? <><LoaderCircle className="animate-spin" />{t("Đang nghĩ câu duyên...", "Thinking of something charming...")}</> : <><Send />{t("Gợi ý cho tôi", "Give me ideas")}</>}
     </Button>
     {result && <div className="results fade-up">
