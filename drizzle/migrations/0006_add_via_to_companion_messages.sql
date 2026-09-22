@@ -1,0 +1,1 @@
+ALTER TABLE public.companion_messages ADD COLUMN IF NOT EXISTS via text NOT NULL DEFAULT 'text';

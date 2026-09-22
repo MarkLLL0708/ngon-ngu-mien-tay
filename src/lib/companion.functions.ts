@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { WELCOME_BACK_HOURS } from "./tangpt-config";
-import { buildSystemPrompt, type Continuity, type CompanionPersona } from "./companion.prompt";
+import { buildSystemPrompt, IMAGE_CAPTION_PROMPT, IMAGE_TURN_INSTRUCTION, type Continuity, type CompanionPersona } from "./companion.prompt";
 
-export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back" };
+export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back"; image_data?: string };
 export type CompanionPayload = { reply: string };
 
 const FREE_DAILY_MESSAGES = 30;
@@ -21,7 +21,16 @@ export class CompanionError extends Error {
   }
 }
 
-type Turn = { role: "user" | "assistant"; content: string };
+type Turn = { role: "user" | "assistant"; content: string; image?: string };
+
+const IMAGE_PREFIX = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+function safeImage(value: unknown): string | null {
+  const raw = typeof value === "string" ? value.trim() : "";
+  if (!raw || !IMAGE_PREFIX.test(raw)) return null;
+  // ~8 MB nhị phân sau khi base64 hoá
+  if (raw.length > 12_000_000) return null;
+  return raw;
+}
 
 async function askModel(apiKey: string, system: string, turns: Turn[]): Promise<string> {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
@@ -32,7 +41,9 @@ async function askModel(apiKey: string, system: string, turns: Turn[]): Promise<
       instructions: system,
       input: turns.map((turn) => ({
         role: turn.role,
-        content: [{ type: turn.role === "user" ? "input_text" : "output_text", text: turn.content }],
+        content: turn.role === "user" && turn.image
+          ? [{ type: "input_image", image_url: turn.image }, { type: "input_text", text: turn.content || "(người dùng gửi ảnh, không kèm chữ)" }]
+          : [{ type: turn.role === "user" ? "input_text" : "output_text", text: turn.content }],
       })),
       stream: true,
       store: false,
@@ -196,8 +207,9 @@ export const companionReply = createServerFn({ method: "POST" })
       .reverse()
       .map((row) => ({ role: row.role === "assistant" ? "assistant" : "user", content: row.content }));
     const message = (data.message ?? "").trim().slice(0, 1000);
+    const image = welcomeBack ? null : safeImage(data.image_data);
     if (welcomeBack) turns.push({ role: "user", content: "[người dùng vừa mở lại cuộc trò chuyện]" });
-    else turns.push({ role: "user", content: message });
+    else turns.push({ role: "user", content: message, ...(image ? { image } : {}) });
 
     const clock = vnNow();
     const continuity: Continuity = {
@@ -209,14 +221,28 @@ export const companionReply = createServerFn({ method: "POST" })
       welcomeBack,
     };
 
-    const system = buildSystemPrompt(companion as unknown as CompanionPersona, profile.gender ?? "unspecified", continuity);
+    const baseSystem = buildSystemPrompt(companion as unknown as CompanionPersona, profile.gender ?? "unspecified", continuity);
+    const system = image ? `${baseSystem}\n\n${IMAGE_TURN_INSTRUCTION}` : baseSystem;
     const reply = clean(await askModel(apiKey, system, turns));
     if (!reply) throw new CompanionError("ai_unavailable");
+
+    // Không lưu bytes ảnh: chỉ lưu một chú thích ngắn để phục vụ trí nhớ.
+    let stored = message;
+    if (image) {
+      let caption = "";
+      try {
+        caption = (await askModel(apiKey, IMAGE_CAPTION_PROMPT, [{ role: "user", content: message || "(không có chữ kèm theo)", image }]))
+          .replace(/[*#`_\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+      } catch (error) { console.error("caption failed", error); }
+      if (!caption) caption = "ảnh: (không mô tả được)";
+      if (!/^ảnh\s*:/i.test(caption)) caption = `ảnh: ${caption}`;
+      stored = message ? `${caption} — ${message}` : caption;
+    }
 
     const rows = welcomeBack
       ? [{ user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply }]
       : [
-          { user_id: userId, companion_id: data.companion_id, role: "user", content: message },
+          { user_id: userId, companion_id: data.companion_id, role: "user", content: stored, via: image ? "image" : "text" },
           { user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply },
         ];
     await supabase.from("companion_messages").insert(rows);
