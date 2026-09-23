@@ -22,8 +22,20 @@ export function ProfileTab() {
   const [saveOpen, setSaveOpen] = useState(false);
   const [replyLanguage, setReplyLanguage] = useState<ReplyLanguage>("vi");
   const [cleared, setCleared] = useState(false);
+  const [pairKey, setPairKey] = useState<string | null>(null);
 
   useEffect(() => { setReplyLanguage(readReplyLanguage()); }, []);
+  useEffect(() => { if (profile) setPairKey(pairOf(profile.gender, profile.targetGender)?.key ?? null); }, [profile]);
+
+  // Applies straight away to persona filtering and reply-helper prefills; existing chats keep their own framing.
+  function choosePair(pair: GenderPair) {
+    setPairKey(pair.key);
+    const [self, other] = defaultAddress(pair.user, pair.target);
+    window.localStorage.setItem("tangpt-address-self", self);
+    window.localStorage.setItem("tangpt-address-other", other);
+    if (profile?.userId) void saveGenderPair(profile.userId, pair);
+  }
+
 
   async function logout() { await supabase.auth.signOut(); navigate({ to: "/", replace: true }); }
 
