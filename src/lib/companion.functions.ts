@@ -97,7 +97,11 @@ function clean(reply: string) {
 /* ------------------------- human-like engine helpers ----------------------- */
 
 const STAGE_THRESHOLDS = [0, 15, 40, 80, 150, 250];
+const RECENT_IMAGE_WINDOW = 20;
+type MomentRow = { id: string; category: string; image_url: string; caption_hint: string };
+type PoolItem = MomentRow & { source: "persona" | "shared" };
 const clamp = (value: number, min = 0, max = 100) => Math.min(max, Math.max(min, Math.round(value)));
+
 
 function stageFor(score: number) {
   let stage = 0;
@@ -301,7 +305,26 @@ export const companionReply = createServerFn({ method: "POST" })
       .or(momentFilter)
       .order("last_shown_at", { ascending: true, nullsFirst: true })
       .limit(40);
-    const moments = (momentRows ?? []) as { id: string; category: string; image_url: string; caption_hint: string }[];
+    const personaPool = ((momentRows ?? []) as MomentRow[]).map((row) => ({ ...row, source: "persona" as const }));
+
+    const { data: sharedRows } = await supabase
+      .from("shared_image_moments")
+      .select("id, category, image_url, caption_hint")
+      .eq("active", true)
+      .order("created_at", { ascending: true })
+      .limit(200);
+    const sharedPool = ((sharedRows ?? []) as MomentRow[]).map((row) => ({ ...row, source: "shared" as const }));
+
+    const { data: historyRows } = await supabase
+      .from("companion_image_history")
+      .select("image_id, shown_at")
+      .eq("companion_id", data.companion_id)
+      .order("shown_at", { ascending: false })
+      .limit(RECENT_IMAGE_WINDOW);
+    const recentIds = ((historyRows ?? []) as { image_id: string | null }[])
+      .map((row) => row.image_id)
+      .filter((id): id is string => Boolean(id));
+
 
     const { data: stateRow } = await supabase
       .from("companion_emotional_state")
@@ -319,7 +342,7 @@ export const companionReply = createServerFn({ method: "POST" })
       energy: state.energy,
       affection: state.affection,
       stage: (companion as { relationship_stage?: number }).relationship_stage ?? stageFor(score),
-      imageCategories: Array.from(new Set(moments.map((item) => item.category).filter(Boolean))),
+      imageCategories: Array.from(new Set([...personaPool, ...sharedPool].map((item) => item.category).filter(Boolean))),
       ...(welcomeBack ? { proactive: true } : {}),
     };
 
@@ -332,8 +355,15 @@ export const companionReply = createServerFn({ method: "POST" })
 
     if (parsedEngine?.imageCategory) {
       const wanted = parsedEngine.imageCategory.toLowerCase();
-      const pick = moments.find((item) => item.category.toLowerCase() === wanted);
-      if (pick?.image_url) {
+      const inCategory = (pool: PoolItem[]) => pool.filter((item) => item.category.toLowerCase() === wanted && item.image_url);
+      // Ảnh có mặt nhân vật ưu tiên kho riêng; còn lại lấy từ kho dùng chung.
+      const candidates = inCategory(personaPool).length ? inCategory(personaPool) : inCategory(sharedPool);
+      const fresh = candidates.filter((item) => !recentIds.includes(item.id));
+      const exhausted = candidates.length > 0 && fresh.length === 0;
+      const usable = fresh.length ? fresh : candidates;
+      const pick = usable.length ? usable[Math.floor(Math.random() * usable.length)]! : null;
+      if (exhausted) console.warn("image_pool_exhausted", { category: wanted, companion_id: data.companion_id });
+      if (pick) {
         let url = pick.image_url;
         if (!url.startsWith("http")) {
           const { data: signed } = await supabase.storage.from("persona-media").createSignedUrl(url, 3600);
@@ -343,10 +373,14 @@ export const companionReply = createServerFn({ method: "POST" })
         if (url) {
           last.image_url = url;
           if (pick.caption_hint) last.caption_hint = pick.caption_hint;
-          await supabase.rpc("mark_image_moment_shown", { _moment_id: pick.id });
+          await supabase.from("companion_image_history").insert({
+            companion_id: data.companion_id, image_source: pick.source, image_id: pick.id,
+          });
+          if (pick.source === "persona") await supabase.rpc("mark_image_moment_shown", { _moment_id: pick.id });
         }
       }
     }
+
 
     const reply = bubbles.map((bubble) => bubble.text).join("\n");
 

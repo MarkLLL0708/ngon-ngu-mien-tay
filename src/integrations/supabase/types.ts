@@ -46,6 +46,38 @@ export type Database = {
           },
         ]
       }
+      companion_image_history: {
+        Row: {
+          companion_id: string | null
+          id: string
+          image_id: string | null
+          image_source: string
+          shown_at: string
+        }
+        Insert: {
+          companion_id?: string | null
+          id?: string
+          image_id?: string | null
+          image_source?: string
+          shown_at?: string
+        }
+        Update: {
+          companion_id?: string | null
+          id?: string
+          image_id?: string | null
+          image_source?: string
+          shown_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companion_image_history_companion_id_fkey"
+            columns: ["companion_id"]
+            isOneToOne: false
+            referencedRelation: "companions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companion_memories: {
         Row: {
           category: string
@@ -454,6 +486,33 @@ export type Database = {
           region?: string
           result?: Json
           user_id?: string
+        }
+        Relationships: []
+      }
+      shared_image_moments: {
+        Row: {
+          active: boolean
+          caption_hint: string
+          category: string
+          created_at: string
+          id: string
+          image_url: string
+        }
+        Insert: {
+          active?: boolean
+          caption_hint?: string
+          category?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+        }
+        Update: {
+          active?: boolean
+          caption_hint?: string
+          category?: string
+          created_at?: string
+          id?: string
+          image_url?: string
         }
         Relationships: []
       }

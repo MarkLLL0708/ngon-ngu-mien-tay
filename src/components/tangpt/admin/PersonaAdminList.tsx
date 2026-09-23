@@ -4,6 +4,8 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { PersonaThumb } from "./PersonaThumb";
+import { ImagePoolPanel } from "./ImagePoolPanel";
+
 import { listAllPersonas, type PersonaRow } from "@/lib/tangpt-personas";
 import { supabase } from "@/integrations/supabase/client";
 import { regions, type RegionKey } from "@/lib/tangpt-data";
@@ -34,7 +36,10 @@ export function PersonaAdminList() {
       <Button variant="gradient" size="icon" aria-label="Tạo nhân vật" onClick={createPersona}><Plus /></Button>
     </div>
 
+    <ImagePoolPanel />
+
     {!rows && <p className="text-sm text-muted-foreground">Đang tải…</p>}
+
 
     <div className="admin-list">
       {(rows ?? []).map((row) => <div className="admin-row" key={row.id}>
