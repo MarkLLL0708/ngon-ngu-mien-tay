@@ -118,7 +118,7 @@ export function OnboardingFlow() {
       <div className="progress-dots">{Array.from({ length: STEPS }, (_, i) => <i key={i} className={i <= step ? "active" : ""} />)}</div>
       <LangToggle />
     </header>
-    <RegionChipBar onSelect={() => { if (step === 1) void pickRegion(); }} />
+    <RegionChipBar />
     <section className="onboarding-card fade-up">
       {step === 0 && <>
         <div className="line-illustration"><UserRound /></div>
@@ -135,7 +135,8 @@ export function OnboardingFlow() {
         <span className="step-label">{t("BƯỚC 2/5", "STEP 2/5")}</span>
         <h1>{t("Em ấy đến từ đâu?", "Where is she from?")}</h1>
         <p>{t("Chọn đúng vùng, câu chữ sẽ nghe tự nhiên hơn hẳn.", "Pick the right region and every line sounds far more natural.")}</p>
-        <RegionPicker compact onSelect={() => void pickRegion()} />
+        <RegionPicker compact />
+        <div className="anchored-actions"><Button variant="gradient" size="lg" disabled={busy} onClick={() => void pickRegion()}>{t("Tiếp tục", "Continue")}</Button></div>
       </>}
       {step === 2 && <>
         <span className="step-label">{t("BƯỚC 3/5", "STEP 3/5")}</span>
