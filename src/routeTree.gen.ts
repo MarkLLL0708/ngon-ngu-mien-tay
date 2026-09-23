@@ -20,6 +20,9 @@ import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppMeRouteImport } from './routes/app.me'
 import { Route as AppChatCompanionIdRouteImport } from './routes/app.chat.$companionId'
+import { Route as AppPersonaPersonaIdRouteImport } from './routes/app.persona.$personaId'
+import { Route as AppAdminPersonasIndexRouteImport } from './routes/app.admin.personas.index'
+import { Route as AppAdminPersonasPersonaIdRouteImport } from './routes/app.admin.personas.$personaId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +79,22 @@ const AppChatCompanionIdRoute = AppChatCompanionIdRouteImport.update({
   path: '/chat/$companionId',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPersonaPersonaIdRoute = AppPersonaPersonaIdRouteImport.update({
+  id: '/persona/$personaId',
+  path: '/persona/$personaId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminPersonasIndexRoute = AppAdminPersonasIndexRouteImport.update({
+  id: '/admin/personas/',
+  path: '/admin/personas/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminPersonasPersonaIdRoute =
+  AppAdminPersonasPersonaIdRouteImport.update({
+    id: '/admin/personas/$personaId',
+    path: '/admin/personas/$personaId',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +108,9 @@ export interface FileRoutesByFullPath {
   '/app/me': typeof AppMeRoute
   '/app/': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
+  '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
+  '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
+  '/app/admin/personas/': typeof AppAdminPersonasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -101,6 +123,9 @@ export interface FileRoutesByTo {
   '/app/me': typeof AppMeRoute
   '/app': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
+  '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
+  '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
+  '/app/admin/personas': typeof AppAdminPersonasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -115,6 +140,9 @@ export interface FileRoutesById {
   '/app/me': typeof AppMeRoute
   '/app/': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
+  '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
+  '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
+  '/app/admin/personas/': typeof AppAdminPersonasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -130,6 +158,9 @@ export interface FileRouteTypes {
     | '/app/me'
     | '/app/'
     | '/app/chat/$companionId'
+    | '/app/persona/$personaId'
+    | '/app/admin/personas/$personaId'
+    | '/app/admin/personas/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -142,6 +173,9 @@ export interface FileRouteTypes {
     | '/app/me'
     | '/app'
     | '/app/chat/$companionId'
+    | '/app/persona/$personaId'
+    | '/app/admin/personas/$personaId'
+    | '/app/admin/personas'
   id:
     | '__root__'
     | '/'
@@ -155,6 +189,9 @@ export interface FileRouteTypes {
     | '/app/me'
     | '/app/'
     | '/app/chat/$companionId'
+    | '/app/persona/$personaId'
+    | '/app/admin/personas/$personaId'
+    | '/app/admin/personas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -245,6 +282,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatCompanionIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/persona/$personaId': {
+      id: '/app/persona/$personaId'
+      path: '/persona/$personaId'
+      fullPath: '/app/persona/$personaId'
+      preLoaderRoute: typeof AppPersonaPersonaIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/admin/personas/': {
+      id: '/app/admin/personas/'
+      path: '/admin/personas'
+      fullPath: '/app/admin/personas/'
+      preLoaderRoute: typeof AppAdminPersonasIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/admin/personas/$personaId': {
+      id: '/app/admin/personas/$personaId'
+      path: '/admin/personas/$personaId'
+      fullPath: '/app/admin/personas/$personaId'
+      preLoaderRoute: typeof AppAdminPersonasPersonaIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -254,6 +312,9 @@ interface AppRouteChildren {
   AppMeRoute: typeof AppMeRoute
   AppIndexRoute: typeof AppIndexRoute
   AppChatCompanionIdRoute: typeof AppChatCompanionIdRoute
+  AppPersonaPersonaIdRoute: typeof AppPersonaPersonaIdRoute
+  AppAdminPersonasPersonaIdRoute: typeof AppAdminPersonasPersonaIdRoute
+  AppAdminPersonasIndexRoute: typeof AppAdminPersonasIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -262,6 +323,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppMeRoute: AppMeRoute,
   AppIndexRoute: AppIndexRoute,
   AppChatCompanionIdRoute: AppChatCompanionIdRoute,
+  AppPersonaPersonaIdRoute: AppPersonaPersonaIdRoute,
+  AppAdminPersonasPersonaIdRoute: AppAdminPersonasPersonaIdRoute,
+  AppAdminPersonasIndexRoute: AppAdminPersonasIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
