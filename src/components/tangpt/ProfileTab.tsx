@@ -44,9 +44,14 @@ export function ProfileTab() {
     <div className="page-title"><span>{t("TÀI KHOẢN CỦA BẠN", "YOUR ACCOUNT")}</span><h1>{t("Tôi", "Me")}</h1>{TEST_GUEST_MODE && <b className="ai-badge">{t("Chế độ thử nghiệm", "Test mode")}</b>}</div>
     <div className="profile-hero"><div className="avatar-orbit"><span>B</span></div><div><strong>{guest.email ?? t("Bạn của TánGPT", "TánGPT friend")}</strong><p>{t("Gói", "Plan")} <b>{plan}</b></p></div></div>
     <div className="settings-list">
+      <div className="settings-wide">
+        <span>{t("Bạn muốn kết nối như thế nào?", "How do you want to connect?")}</span>
+        <GenderPairCards value={pairKey} onChange={choosePair} />
+      </div>
       <div><span>{t("Vùng & thành phố", "Region & city")}</span><b>{regions[region].name} · {city}</b></div>
       <div className="settings-wide"><RegionPicker compact /></div>
       <div><span>{t("Ngôn ngữ ứng dụng", "App language")}</span><LangToggle /></div>
+
       <div className="settings-wide">
         <span>{t("Ngôn ngữ trả lời mặc định", "Default reply language")}</span>
         <div className="flex flex-wrap gap-2">{([["vi", "Tiếng Việt"], ["en", "English"], ["both", t("Song ngữ", "Bilingual")]] as [ReplyLanguage, string][]).map(([value, label]) =>
