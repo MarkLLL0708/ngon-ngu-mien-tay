@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { AgeGroup, RegionKey } from "@/lib/tangpt-data";
 import type { ReplyLanguage } from "@/lib/tangpt-api";
-import type { TargetGender, UserGender } from "@/lib/tangpt-gender";
+import { GENDER_PAIR_CHANGED_EVENT, type GenderPair, type TargetGender, type UserGender } from "@/lib/tangpt-gender";
 
 export type { UserGender, TargetGender };
 export type Profile = {
@@ -18,6 +18,12 @@ export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   useEffect(() => {
     let active = true;
+    const applyGenderPair = (event: Event) => {
+      const pair = (event as CustomEvent<GenderPair>).detail;
+      if (!pair) return;
+      setProfile((current) => current ? { ...current, gender: pair.user, targetGender: pair.target } : current);
+    };
+    window.addEventListener(GENDER_PAIR_CHANGED_EVENT, applyGenderPair);
     (async () => {
       const { data: auth } = await supabase.auth.getUser();
       const userId = auth.user?.id ?? null;
@@ -35,7 +41,10 @@ export function useProfile() {
       const targetGender = genders.find((value) => value === data?.default_target_gender) ?? "unspecified";
       setProfile({ userId, region, city: data?.default_city ?? null, ageGroup, plan: data?.subscription_status ?? "free", gender, targetGender });
     })();
-    return () => { active = false; };
+    return () => {
+      active = false;
+      window.removeEventListener(GENDER_PAIR_CHANGED_EVENT, applyGenderPair);
+    };
   }, []);
   return profile;
 }

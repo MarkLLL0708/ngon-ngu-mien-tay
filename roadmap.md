@@ -7,6 +7,8 @@
 - [ ] Kiểm tra điện thoại, máy tính và các tương tác
 - [x] Đưa chọn vùng xuống dưới tiêu đề và ghim hành động chính trên mọi luồng chọn
 - [x] Gỡ toàn bộ giao diện và đường truy cập giọng nói/cuộc gọi, giữ mã nền ở trạng thái lưu trữ
+- [x] Lưu lựa chọn kết nối ngay khi chạm và cập nhật bộ lọc tức thì
+- [x] Hiện đồng thời danh sách trò chuyện và nhân vật mới chưa bắt đầu
 
 ## Rizz suggestion engine
 - [x] Migration: profiles.ui_language/reply_language, companions.city/chat_language

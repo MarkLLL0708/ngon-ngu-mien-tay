@@ -14,6 +14,7 @@ import type { ReplyLanguage } from "@/lib/tangpt-api";
 import { supabase } from "@/integrations/supabase/client";
 import { TEST_GUEST_MODE } from "@/lib/tangpt-config";
 import { resetGuestSession } from "@/lib/tangpt-guest";
+import { toast } from "sonner";
 
 export function ProfileTab() {
   const { region, city } = useRegionTheme();
@@ -31,12 +32,24 @@ export function ProfileTab() {
   useEffect(() => { if (profile) setPairKey(pairOf(profile.gender, profile.targetGender)?.key ?? null); }, [profile]);
 
   // Applies straight away to persona filtering and reply-helper prefills; existing chats keep their own framing.
-  function choosePair(pair: GenderPair) {
+  async function choosePair(pair: GenderPair) {
+    const previousKey = pairKey;
     setPairKey(pair.key);
     const [self, other] = defaultAddress(pair.user, pair.target);
     window.localStorage.setItem("tangpt-address-self", self);
     window.localStorage.setItem("tangpt-address-other", other);
-    if (profile?.userId) void saveGenderPair(profile.userId, pair);
+    if (!profile?.userId) {
+      setPairKey(previousKey);
+      toast.error(t("Không thể cập nhật", "Could not update"));
+      return;
+    }
+    try {
+      await saveGenderPair(profile.userId, pair);
+      toast.success(t("Đã cập nhật", "Updated"));
+    } catch {
+      setPairKey(previousKey);
+      toast.error(t("Không thể cập nhật", "Could not update"));
+    }
   }
 
 

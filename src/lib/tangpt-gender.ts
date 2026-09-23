@@ -17,6 +17,7 @@ export const GENDER_PAIRS: GenderPair[] = [
 
 export const GENDER_NOTE_VI = "Chỉ dùng để trò chuyện đúng chất và đúng người, không hiển thị công khai và có thể đổi bất cứ lúc nào.";
 export const GENDER_NOTE_EN = "Only used to get the conversation right, never shown publicly, and you can change it anytime.";
+export const GENDER_PAIR_CHANGED_EVENT = "tangpt-gender-pair-changed";
 
 export function pairOf(user: string | null | undefined, target: string | null | undefined): GenderPair | null {
   return GENDER_PAIRS.find((pair) => pair.user === user && pair.target === target) ?? null;
@@ -35,7 +36,9 @@ export function personaGenderFilter(target: TargetGender): "male" | "female" | n
 }
 
 export async function saveGenderPair(userId: string, pair: GenderPair) {
-  await supabase.from("profiles")
+  const { error } = await supabase.from("profiles")
     .update({ user_gender: pair.user, default_target_gender: pair.target, gender: pair.user })
     .eq("id", userId);
+  if (error) throw error;
+  window.dispatchEvent(new CustomEvent<GenderPair>(GENDER_PAIR_CHANGED_EVENT, { detail: pair }));
 }
