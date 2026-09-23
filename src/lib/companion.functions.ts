@@ -220,14 +220,14 @@ export const companionReply = createServerFn({ method: "POST" })
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("age_confirmed, subscription_status, gender")
+      .select("age_confirmed, subscription_status, gender, user_gender, default_target_gender")
       .eq("id", userId)
       .maybeSingle();
     if (!profile?.age_confirmed) throw new CompanionError("age_not_confirmed");
 
     const { data: companion } = await supabase
       .from("companions")
-      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, address_self, address_other, memory_summary, mode, chat_language, last_message_at, welcome_enabled, persona_slug, emoji_signature, texting_habits, relationship_stage, relationship_score")
+      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, address_self, address_other, user_gender, target_gender, memory_summary, mode, chat_language, last_message_at, welcome_enabled, persona_slug, emoji_signature, texting_habits, relationship_stage, relationship_score")
       .eq("id", data.companion_id)
       .maybeSingle();
     if (!companion) throw new CompanionError("not_found");
@@ -346,7 +346,13 @@ export const companionReply = createServerFn({ method: "POST" })
       ...(welcomeBack ? { proactive: true } : {}),
     };
 
-    const baseSystem = buildSystemPrompt(companion as unknown as CompanionPersona, profile.gender ?? "unspecified", continuity, engine);
+    const baseSystem = buildSystemPrompt(
+      companion as unknown as CompanionPersona,
+      // Existing chats keep the framing they were created with; new ones follow the current profile choice.
+      (companion as { user_gender?: string }).user_gender || profile.user_gender || profile.gender || "unspecified",
+      continuity,
+      engine,
+    );
     const system = image ? `${baseSystem}\n\n${IMAGE_TURN_INSTRUCTION}` : baseSystem;
     const rawReply = await askModel(apiKey, system, turns);
     const parsedEngine = parseEngine(rawReply);

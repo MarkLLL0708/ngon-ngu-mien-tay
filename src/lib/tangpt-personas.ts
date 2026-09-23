@@ -38,18 +38,19 @@ export const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const VIDEO_TYPES = ["video/mp4", "video/webm"];
 
 /** Published personas only — what normal users ever see. */
-export function usePublishedPersonas(region?: RegionKey) {
+export function usePublishedPersonas(region?: RegionKey, personaGender?: "male" | "female" | null) {
   const [rows, setRows] = useState<PersonaRow[] | null>(null);
   useEffect(() => {
     let active = true;
     (async () => {
       let query = supabase.from("personas").select(PERSONA_SELECT).eq("published", true).order("sort_order");
       if (region) query = query.eq("region", region);
+      if (personaGender) query = query.eq("persona_gender", personaGender);
       const { data } = await query;
       if (active) setRows((data as PersonaRow[]) ?? []);
     })();
     return () => { active = false; };
-  }, [region]);
+  }, [region, personaGender]);
   return rows;
 }
 
@@ -162,6 +163,8 @@ export type StartOptions = {
   chatLanguage?: string;
   addressSelf?: string;
   addressOther?: string;
+  userGender?: string;
+  targetGender?: string;
 };
 
 /** Create (or reuse) a companion built from a persona and return its id. */
@@ -184,6 +187,8 @@ export async function startCompanion(userId: string, persona: PersonaRow, option
     persona_style: options.personaStyle || "Nhẹ nhàng",
     address_self: options.addressSelf || "mình",
     address_other: options.addressOther || "bạn",
+    user_gender: options.userGender || "",
+    target_gender: options.targetGender || "",
     persona_slug: persona.slug,
     intro_video_url: persona.intro_video_url,
     gallery_urls: persona.gallery_urls,

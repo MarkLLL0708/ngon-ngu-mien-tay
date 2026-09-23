@@ -11,7 +11,9 @@ import { useLang } from "./Language";
 import { regions, type AgeGroup, type RegionKey } from "@/lib/tangpt-data";
 import { ACCEPTED_IMAGE_TYPES, imageErrorText, prepareImage } from "@/lib/tangpt-image";
 import { generateRizz, type RizzPayload, type RizzRegion } from "@/lib/rizz.functions";
-import { readReplyLanguage, saveReplyLanguage, saveUserGender, useProfile, type UserGender } from "@/lib/tangpt-profile";
+import { readReplyLanguage, saveReplyLanguage, useProfile, type UserGender } from "@/lib/tangpt-profile";
+import { defaultAddress } from "@/lib/tangpt-gender";
+
 import type { RizzRelativeAge, RizzTargetGender } from "@/lib/rizz.functions";
 
 type ReplyLanguage = "vi" | "en" | "mix";
@@ -48,19 +50,24 @@ export function SuggestTab() {
     if (self) setAddressSelf(self);
     if (other) setAddressOther(other);
   }, []);
+  // The combined choice from onboarding / Me prefills both the target chip and the pronouns.
   useEffect(() => {
     if (!profile) return;
     if (profile.region) setRegion(profile.region);
     if (profile.city) setCity(profile.city);
     if (profile.ageGroup) setAge(profile.ageGroup);
-    if (profile.gender) setUserGender(profile.gender);
+    setUserGender(profile.gender);
+    if (profile.targetGender !== "unspecified") setTargetGender(profile.targetGender as RizzTargetGender);
+    const savedSelf = window.localStorage.getItem("tangpt-address-self");
+    if (!savedSelf) {
+      const [self, other] = defaultAddress(profile.gender, profile.targetGender);
+      setAddressSelf(self);
+      setAddressOther(other);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
-  function pickGender(value: UserGender) {
-    setUserGender(value);
-    if (profile?.userId) void saveUserGender(profile.userId, value);
-  }
+
 
   function pickLanguage(value: ReplyLanguage) {
     setReplyLanguage(value);
@@ -133,11 +140,8 @@ export function SuggestTab() {
       <div className="chip-scroll">{regions[region].cities.map((value) => <button type="button" className={city === value ? "chip chip-active" : "chip"} onClick={() => setCity(value)} key={value}>{value}</button>)}</div>
       <label>{t("Độ tuổi của người ấy", "Their age group")}</label>
       <div className="flex gap-2">{ageGroups.map((value) => <button type="button" className={age === value ? "chip chip-active" : "chip"} onClick={() => setAge(value)} key={value}>{value}</button>)}</div>
-      <label>{t("Bạn là", "You are")}</label>
-      <div className="flex flex-wrap gap-2">
-        {([["male", t("Nam", "Man")], ["female", t("Nữ", "Woman")], ["nonbinary", t("Phi nhị giới", "Non-binary")], ["unspecified", t("Không nói", "Prefer not to say")]] as [UserGender, string][]).map(([value, label]) =>
-          <button type="button" key={value} className={userGender === value ? "chip chip-active" : "chip"} onClick={() => pickGender(value)}>{label}</button>)}
-      </div>
+      {/* "Bạn là" giờ nằm trong lựa chọn ghép ở onboarding và trang Tôi. */}
+
       <label>{t("Người ấy là", "They are")}</label>
       <div className="flex flex-wrap gap-2">
         {([["female", t("Nữ", "Woman")], ["male", t("Nam", "Man")], ["nonbinary", t("Phi nhị giới", "Non-binary")]] as [RizzTargetGender, string][]).map(([value, label]) =>

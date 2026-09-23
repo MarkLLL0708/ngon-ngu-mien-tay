@@ -7,6 +7,8 @@ import { PersonaCustomizeSheet } from "./PersonaCustomizeSheet";
 import { personaBlurb, useMediaUrl, useMediaUrls, type PersonaRow } from "@/lib/tangpt-personas";
 import { useProfile } from "@/lib/tangpt-profile";
 import { startCompanion } from "@/lib/tangpt-personas";
+import { defaultAddress } from "@/lib/tangpt-gender";
+
 
 export function PersonaIntro({ persona, preview }: { persona: PersonaRow; preview?: boolean }) {
   const { t } = useLang();
@@ -23,7 +25,11 @@ export function PersonaIntro({ persona, preview }: { persona: PersonaRow; previe
     if (preview || busy || !profile?.userId) return;
     setBusy(true);
     try {
-      const id = await startCompanion(profile.userId, persona);
+      const [self, other] = defaultAddress(profile.gender, profile.targetGender);
+      const id = await startCompanion(profile.userId, persona, {
+        addressSelf: self, addressOther: other, userGender: profile.gender, targetGender: profile.targetGender,
+      });
+
       navigate({ to: "/app/chat/$companionId", params: { companionId: id } });
     } finally { setBusy(false); }
   }
