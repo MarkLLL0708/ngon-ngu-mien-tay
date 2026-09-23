@@ -97,7 +97,10 @@ function clean(reply: string) {
 /* ------------------------- human-like engine helpers ----------------------- */
 
 const STAGE_THRESHOLDS = [0, 15, 40, 80, 150, 250];
-const clamp = (value: number, min = 0, max = 100) => Math.min(max, Math.max(min, Math.round(value)));
+const RECENT_IMAGE_WINDOW = 20;
+type MomentRow = { id: string; category: string; image_url: string; caption_hint: string };
+type PoolItem = MomentRow & { source: "persona" | "shared" };
+
 
 function stageFor(score: number) {
   let stage = 0;
