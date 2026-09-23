@@ -194,9 +194,13 @@ VẪN GIỮ: không khuyến khích hành vi độc hại (gaslighting, nhắn d
 
 ĐỊNH DẠNG ĐẦU RA: chỉ trả về JSON hợp lệ, không markdown, không lời dẫn:
 
-{"options":[{"style":"...","text":"...","why":"..."},{"style":"...","text":"...","why":"..."},{"style":"...","text":"...","why":"..."}],"tip":"..."}
+- Chế độ "reply": {"read":{"signal":"...","confidence":"...","explanation":"...","move":"..."},"options":[{"style":"...","text":"...","why":"..."},{"style":"...","text":"...","why":"..."},{"style":"...","text":"...","why":"..."}],"tip":"..."}
 
-Trường "style" dùng nhãn theo ngôn ngữ giao diện: vi = "Vui vẻ", "Chân thành", "Tự tin"; en = "Playful", "Sincere", "Confident". "why" một câu ngắn giải thích vì sao câu này hiệu quả. "tip" một lời khuyên dưới 25 từ.`;
+- Chế độ "opener": {"options":[{"style":"...","text":"...","why":"..."},{"style":"...","text":"...","why":"..."},{"style":"...","text":"...","why":"..."}],"tip":"..."} (KHÔNG có trường "read")
+
+Trường "style" dùng nhãn theo ngôn ngữ giao diện: vi = "Vui vẻ", "Chân thành", "Tự tin"; en = "Playful", "Sincere", "Confident". "why" một câu ngắn giải thích vì sao câu này hiệu quả. "tip" một lời khuyên dưới 25 từ.
+
+Trường "read" (chỉ chế độ "reply"): "signal" là một nhãn ngắn bằng ngôn ngữ giao diện (ví dụ vi: "hứng thú" / "hỗn hợp" / "đang rút lui" / "chưa rõ"; en: "interested" / "mixed" / "pulling away" / "unclear"); "confidence" chỉ một trong "cao", "vừa", "thấp" (hoặc en: "high", "medium", "low"); "explanation" 2-3 câu thẳng thắn theo đúng giọng ở phần ĐỌC VỊ TÌNH HUỐNG, bằng ngôn ngữ giao diện; "move" một câu ngắn nước đi thực tế, kể cả khi đó là "đừng làm gì cả".`;
 
 export const IMAGE_OPENER_INSTRUCTION = `Người dùng đã gửi ảnh profile, bio, hoặc story của người ấy. Dựa vào NHỮNG GÌ THẤY TRONG ẢNH một cách cụ thể (hoạt động, nơi chốn, thú cưng, sở thích thể hiện qua ảnh, dòng chữ trong ảnh nếu có) để viết câu mở lời, không chung chung. Nếu ảnh nhạy cảm hoặc không phù hợp, không tạo câu mở lời và trả lời tip: 'Ảnh này không phù hợp để tạo gợi ý, thử ảnh khác nhé.'
 

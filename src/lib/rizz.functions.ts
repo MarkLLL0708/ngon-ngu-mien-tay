@@ -24,7 +24,8 @@ export type RizzInput = {
   image_data?: string;
 };
 export type RizzOption = { style: string; text: string; why: string };
-export type RizzPayload = { options: RizzOption[]; tip: string };
+export type RizzRead = { signal: string; confidence: string; explanation: string; move: string };
+export type RizzPayload = { options: RizzOption[]; tip: string; read?: RizzRead };
 
 const FREE_DAILY_LIMIT = 5;
 const TEST_DAILY_LIMIT = 50;
