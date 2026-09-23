@@ -6,6 +6,7 @@
 - [x] Dựng khung đầu trang hội thoại
 - [ ] Kiểm tra điện thoại, máy tính và các tương tác
 - [x] Đưa chọn vùng xuống dưới tiêu đề và ghim hành động chính trên mọi luồng chọn
+- [ ] Gỡ toàn bộ giao diện và đường truy cập giọng nói/cuộc gọi, giữ mã nền ở trạng thái lưu trữ
 
 ## Rizz suggestion engine
 - [x] Migration: profiles.ui_language/reply_language, companions.city/chat_language
