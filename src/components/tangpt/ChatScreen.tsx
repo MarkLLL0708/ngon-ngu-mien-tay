@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Brain, Check, ImagePlus, LoaderCircle, MoreVertical, Pause, Phone, Play, SendHorizontal, Trash2, X } from "lucide-react";
+import { ArrowLeft, Brain, Check, ImagePlus, LoaderCircle, MoreVertical, SendHorizontal, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Paywall } from "./Paywall";
@@ -10,13 +10,10 @@ import { companionReply } from "@/lib/companion.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { dayLabel, personaPronoun } from "@/lib/tangpt-companions";
 import { toast } from "sonner";
-import { CallScreen } from "./CallScreen";
-import { useCompanionVoice } from "@/lib/voice-player";
-import { VOICE_MESSAGE_CHANCE } from "@/lib/tangpt-config";
 import { useOverlayFlag } from "@/lib/debug-bus";
 import { ACCEPTED_IMAGE_TYPES, imageErrorText, prepareImage } from "@/lib/tangpt-image";
 
-type Message = { id: string; from: "me" | "her"; text: string; status?: "sent" | "seen"; createdAt: string; voice?: boolean; image?: string };
+type Message = { id: string; from: "me" | "her"; text: string; status?: "sent" | "seen"; createdAt: string; image?: string };
 type Companion = {
   id: string; name: string; personality: string; mode: string; region: string;
   address_self: string; address_other: string; persona_gender: string; welcome_enabled: boolean;
@@ -52,10 +49,8 @@ export function ChatScreen({ companionId }: { companionId: string }) {
   const [paywall, setPaywall] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
-  const [callOpen, setCallOpen] = useState(false);
   const [pending, setPending] = useState<{ dataUrl: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const voice = useCompanionVoice(companionId);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
@@ -66,21 +61,15 @@ export function ChatScreen({ companionId }: { companionId: string }) {
   useOverlayFlag("memory-sheet", memoryOpen);
   useOverlayFlag("paywall", paywall);
 
-  const speakRef = useRef(voice.speak);
-  speakRef.current = voice.speak;
-
   const showBubbles = useCallback(async (reply: string) => {
     const lines = reply.split("\n").map((line) => line.trim()).filter(Boolean);
-    const voiceIndex = Math.random() < VOICE_MESSAGE_CHANCE ? lines.length - 1 : -1;
     for (let index = 0; index < lines.length; index += 1) {
       const line = lines[index]!;
-      const asVoice = index === voiceIndex;
       setTyping(true);
       await wait(typingTime(line));
       setTyping(false);
       const id = crypto.randomUUID();
-      setMessages((list) => [...list, { id, from: "her", text: line, createdAt: new Date().toISOString(), voice: asVoice }]);
-      if (asVoice) await speakRef.current(line, id).catch(() => undefined);
+      setMessages((list) => [...list, { id, from: "her", text: line, createdAt: new Date().toISOString() }]);
       await wait(gap());
     }
     setTyping(false);
@@ -218,7 +207,6 @@ export function ChatScreen({ companionId }: { companionId: string }) {
       <Button asChild variant="ghost" size="icon" aria-label={t("Quay lại", "Back")}><Link to="/app/ai"><ArrowLeft /></Link></Button>
       <div className="avatar-orbit tiny"><span>{name[0]}</span></div>
       <div className="min-w-0"><strong>{name} <i className="ai-chip">AI</i></strong><small>{companion?.personality ?? t("Đang tải", "Loading")} · {t("đang hoạt động", "online")}</small></div>
-      <Button variant="ghost" size="icon" aria-label={t("Gọi thoại", "Call")} disabled={!companion} onClick={() => setCallOpen(true)}><Phone /></Button>
       <Button variant="ghost" size="icon" aria-label={t("Tùy chọn", "Options")} onClick={() => setMenuOpen((open) => !open)}><MoreVertical /></Button>
     </header>
     {menuOpen && companion && <div className="chat-menu fade-up">
@@ -253,21 +241,8 @@ export function ChatScreen({ companionId }: { companionId: string }) {
         return <div key={message.id} className={message.from === "me" ? "msg-wrap msg-wrap-me" : "msg-wrap"}>
           {separator && <div className="date-sep"><span>{separator}</span></div>}
           <div className={message.from === "me" ? "msg msg-me" : "msg msg-her"}>
-            {message.from === "her" && message.voice
-              ? <p className="voice-msg">
-                  <button type="button" className="voice-play" aria-label={t("Nghe tin nhắn thoại", "Play voice message")}
-                    onClick={() => { if (voice.activeId === message.id) voice.stop(); else void voice.speak(message.text, message.id); }}>
-                    {voice.activeId === message.id && voice.status === "loading"
-                      ? <LoaderCircle className="animate-spin" size={16} />
-                      : voice.activeId === message.id ? <Pause size={16} /> : <Play size={16} />}
-                  </button>
-                  <span className="voice-wave" aria-hidden>{[9, 15, 22, 13, 18, 10, 20, 12].map((height, index) => <i key={index} style={{ height }} />)}</span>
-                  <em>{t("Tin nhắn thoại", "Voice message")}</em>
-                </p>
-              : <>
-                  {message.image && <img className="msg-image" src={message.image} alt={t("Ảnh đã gửi", "Sent photo")} />}
-                  {message.text && <p>{message.text}</p>}
-                </>}
+            {message.image && <img className="msg-image" src={message.image} alt={t("Ảnh đã gửi", "Sent photo")} />}
+            {message.text && <p>{message.text}</p>}
             {message.from === "me" && <small>{message.status === "seen" ? t("Đã xem", "Seen") : t("Đã gửi", "Sent")}</small>}
           </div>
         </div>;
@@ -288,7 +263,6 @@ export function ChatScreen({ companionId }: { companionId: string }) {
     </div>
     {memoryOpen && companion && <MemorySheet companionId={companion.id} personaGender={companion.persona_gender}
       onClose={() => setMemoryOpen(false)} onWiped={() => { setMessages([]); setHasMore(false); }} />}
-    {callOpen && companion && <CallScreen companion={companion} onClose={() => setCallOpen(false)} />}
     <Paywall open={paywall} onOpenChange={setPaywall} />
   </main>;
 }
