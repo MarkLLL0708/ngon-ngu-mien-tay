@@ -8,13 +8,14 @@ export type CompanionRow = {
   mode: string;
   region: string;
   persona_gender: string;
+  persona_slug: string;
   created_at: string;
   last_message_at: string | null;
   last_message_preview: string;
 };
 
 export const COMPANION_SELECT =
-  "id, name, personality, mode, region, persona_gender, created_at, last_message_at, last_message_preview";
+  "id, name, personality, mode, region, persona_gender, persona_slug, created_at, last_message_at, last_message_preview";
 
 export function sortCompanions(rows: CompanionRow[]) {
   return rows.slice().sort((a, b) => {
