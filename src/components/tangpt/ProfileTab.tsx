@@ -5,6 +5,9 @@ import { useRegionTheme } from "./RegionTheme";
 import { LangToggle, useLang } from "./Language";
 import { RegionPicker } from "./RegionPicker";
 import { SaveAccountBanner, SaveAccountModal, useGuestAccount, useSignInInstead } from "./SaveAccount";
+import { GenderPairCards } from "./GenderPairCards";
+import { defaultAddress, pairOf, saveGenderPair, type GenderPair } from "@/lib/tangpt-gender";
+
 import { regions } from "@/lib/tangpt-data";
 import { readReplyLanguage, saveReplyLanguage, useProfile } from "@/lib/tangpt-profile";
 import type { ReplyLanguage } from "@/lib/tangpt-api";
