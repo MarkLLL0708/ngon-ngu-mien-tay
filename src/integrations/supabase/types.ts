@@ -186,7 +186,9 @@ export type Database = {
           region: string
           relationship_score: number
           relationship_stage: number
+          target_gender: string
           texting_habits: Json
+          user_gender: string
           user_id: string
           voice_profile_id: string | null
           welcome_enabled: boolean
@@ -216,7 +218,9 @@ export type Database = {
           region: string
           relationship_score?: number
           relationship_stage?: number
+          target_gender?: string
           texting_habits?: Json
+          user_gender?: string
           user_id: string
           voice_profile_id?: string | null
           welcome_enabled?: boolean
@@ -246,7 +250,9 @@ export type Database = {
           region?: string
           relationship_score?: number
           relationship_stage?: number
+          target_gender?: string
           texting_habits?: Json
+          user_gender?: string
           user_id?: string
           voice_profile_id?: string | null
           welcome_enabled?: boolean
@@ -418,12 +424,14 @@ export type Database = {
           created_at: string
           default_city: string | null
           default_region: string | null
+          default_target_gender: string
           gender: string
           id: string
           reply_language: string
           subscription_status: string
           ui_language: string
           updated_at: string
+          user_gender: string
         }
         Insert: {
           age_confirmed?: boolean
@@ -431,12 +439,14 @@ export type Database = {
           created_at?: string
           default_city?: string | null
           default_region?: string | null
+          default_target_gender?: string
           gender?: string
           id: string
           reply_language?: string
           subscription_status?: string
           ui_language?: string
           updated_at?: string
+          user_gender?: string
         }
         Update: {
           age_confirmed?: boolean
@@ -444,12 +454,14 @@ export type Database = {
           created_at?: string
           default_city?: string | null
           default_region?: string | null
+          default_target_gender?: string
           gender?: string
           id?: string
           reply_language?: string
           subscription_status?: string
           ui_language?: string
           updated_at?: string
+          user_gender?: string
         }
         Relationships: []
       }
