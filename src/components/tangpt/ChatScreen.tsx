@@ -84,7 +84,10 @@ export function ChatScreen({ companionId }: { companionId: string }) {
         .select("id, name, personality, mode, region, address_self, address_other, persona_gender, welcome_enabled")
         .eq("id", companionId)
         .maybeSingle();
-      if (active && data) setCompanion(data as Companion);
+      if (!active) return;
+      if (!data) { setMissing(true); return; }
+      setCompanion(data as Companion);
+      setMissing(false);
       const { data: rows } = await supabase
         .from("companion_messages")
         .select("id, role, content, created_at")
