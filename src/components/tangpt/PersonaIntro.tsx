@@ -7,6 +7,8 @@ import { PersonaCustomizeSheet } from "./PersonaCustomizeSheet";
 import { personaBlurb, useMediaUrl, useMediaUrls, type PersonaRow } from "@/lib/tangpt-personas";
 import { useProfile } from "@/lib/tangpt-profile";
 import { startCompanion } from "@/lib/tangpt-personas";
+import { defaultAddress } from "@/lib/tangpt-gender";
+
 
 export function PersonaIntro({ persona, preview }: { persona: PersonaRow; preview?: boolean }) {
   const { t } = useLang();
