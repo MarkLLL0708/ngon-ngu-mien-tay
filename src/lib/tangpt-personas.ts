@@ -14,6 +14,7 @@ export type PersonaRow = {
   job: string;
   persona_gender: string;
   personality: string;
+  character_romance_style: string;
   tags: string[];
   backstory: string;
   family: string;
@@ -30,7 +31,7 @@ export type PersonaRow = {
 };
 
 export const PERSONA_SELECT =
-  "id, slug, name, age_vibe, region, city, job, persona_gender, personality, tags, backstory, family, daily_life, quirks, favorite_things, opinions, catchphrase, intro_video_url, gallery_urls, published, is_seed, sort_order";
+  "id, slug, name, age_vibe, region, city, job, persona_gender, personality, character_romance_style, tags, backstory, family, daily_life, quirks, favorite_things, opinions, catchphrase, intro_video_url, gallery_urls, published, is_seed, sort_order";
 
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 export const MAX_VIDEO_BYTES = 60 * 1024 * 1024;
@@ -169,6 +170,8 @@ export type StartOptions = {
 
 /** Create (or reuse) a companion built from a persona and return its id. */
 export async function startCompanion(userId: string, persona: PersonaRow, options: StartOptions = {}) {
+  const adultAge = Number.parseInt(persona.age_vibe, 10);
+  if (!Number.isFinite(adultAge) || adultAge < 18) throw new Error("adult_persona_required");
   const existing = await supabase
     .from("companions").select("id").eq("user_id", userId).eq("persona_slug", persona.slug).limit(1).maybeSingle();
   if (existing.data?.id) return existing.data.id as string;
@@ -179,6 +182,7 @@ export async function startCompanion(userId: string, persona: PersonaRow, option
     region: persona.region,
     age_vibe: persona.age_vibe,
     personality: options.personality || persona.personality || "Dịu dàng",
+    character_romance_style: persona.character_romance_style || "ấm áp, tinh tế, tiến triển tự nhiên",
     mode: options.mode || "Trò chuyện",
     city: persona.city,
     job: persona.job,

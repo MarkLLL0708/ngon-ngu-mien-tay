@@ -144,7 +144,7 @@ export function OnboardingFlow() {
         <p>{t("Ứng dụng dành cho người từ 18 tuổi trở lên. Nhân vật là AI, không phải người thật.", "This app is for people aged 18 and over. The characters are AI, not real people.")}</p>
         <label className="confirm-row">
           <input type="checkbox" checked={ageConfirmed} onChange={(e) => setAgeConfirmed(e.target.checked)} />
-          <span><b>{t("Tôi xác nhận tôi đủ 18 tuổi", "I confirm I am 18 or older")}</b><small>{t("Mình cần bạn xác nhận để giữ trải nghiệm phù hợp.", "We need this to keep the experience appropriate.")}</small></span>
+          <span><b>{t("Tôi xác nhận tôi đủ 18 tuổi", "I confirm I am 18 or older")}</b><small>{t("Xác nhận này mở trải nghiệm đồng hành dành riêng cho người trưởng thành.", "This confirmation enables the adults-only companion experience.")}</small></span>
         </label>
         <div className="anchored-actions"><Button variant="gradient" size="lg" disabled={!ageConfirmed || busy} onClick={confirmAge}>{t("Tiếp tục", "Continue")}</Button></div>
       </>}

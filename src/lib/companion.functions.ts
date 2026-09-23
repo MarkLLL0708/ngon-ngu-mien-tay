@@ -100,13 +100,20 @@ const STAGE_THRESHOLDS = [0, 15, 40, 80, 150, 250];
 const RECENT_IMAGE_WINDOW = 20;
 type MomentRow = { id: string; category: string; image_url: string; caption_hint: string };
 type PoolItem = MomentRow & { source: "persona" | "shared" };
-const clamp = (value: number, min = 0, max = 100) => Math.min(max, Math.max(min, Math.round(value)));
+const clamp = (value: number, min = 0, max = 100) => {
+  const safeValue = Number.isFinite(value) ? value : 0;
+  return Math.min(max, Math.max(min, Math.round(safeValue)));
+};
 
 
 function stageFor(score: number) {
   let stage = 0;
   STAGE_THRESHOLDS.forEach((threshold, index) => { if (score >= threshold) stage = index; });
   return stage;
+}
+
+function romanceCeilingForStage(stage: number) {
+  return [2, 3, 4, 5, 6, 6][clamp(stage, 0, 5)] ?? 2;
 }
 
 function moodLabel(energy: number, affection: number) {
@@ -128,6 +135,7 @@ type EngineOutput = {
   affectionDelta: number;
   imageCategory: string | null;
   relationshipDelta: number;
+  romanceIntensityDelta: number;
 };
 
 function parseEngine(raw: string): EngineOutput | null {
@@ -136,6 +144,7 @@ function parseEngine(raw: string): EngineOutput | null {
     mood_delta?: { energy?: number; affection?: number };
     image_moment?: string | null;
     relationship_delta?: number;
+    romance_intensity_delta?: number;
   } | null;
   if (!parsed?.messages?.length) return null;
   const messages = parsed.messages
@@ -153,6 +162,7 @@ function parseEngine(raw: string): EngineOutput | null {
     affectionDelta: small(parsed.mood_delta?.affection),
     imageCategory: typeof parsed.image_moment === "string" && parsed.image_moment.trim() ? parsed.image_moment.trim() : null,
     relationshipDelta: clamp(Number(parsed.relationship_delta ?? 0), 0, 2),
+    romanceIntensityDelta: clamp(Number(parsed.romance_intensity_delta ?? 0), -1, 1),
   };
 }
 
@@ -227,7 +237,7 @@ export const companionReply = createServerFn({ method: "POST" })
 
     const { data: companion } = await supabase
       .from("companions")
-      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, address_self, address_other, user_gender, target_gender, memory_summary, mode, chat_language, last_message_at, welcome_enabled, persona_slug, emoji_signature, texting_habits, relationship_stage, relationship_score")
+      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, character_romance_style, address_self, address_other, user_gender, target_gender, memory_summary, mode, chat_language, last_message_at, welcome_enabled, persona_slug, emoji_signature, texting_habits, relationship_stage, relationship_score, romance_intensity")
       .eq("id", data.companion_id)
       .maybeSingle();
     if (!companion) throw new CompanionError("not_found");
@@ -342,6 +352,10 @@ export const companionReply = createServerFn({ method: "POST" })
       energy: state.energy,
       affection: state.affection,
       stage: (companion as { relationship_stage?: number }).relationship_stage ?? stageFor(score),
+      romanceIntensity: Math.min(
+        (companion as { romance_intensity?: number }).romance_intensity ?? 0,
+        romanceCeilingForStage((companion as { relationship_stage?: number }).relationship_stage ?? stageFor(score)),
+      ),
       imageCategories: Array.from(new Set([...personaPool, ...sharedPool].map((item) => item.category).filter(Boolean))),
       ...(welcomeBack ? { proactive: true } : {}),
     };
@@ -420,6 +434,12 @@ export const companionReply = createServerFn({ method: "POST" })
     });
 
     const nextScore = score + (parsedEngine?.relationshipDelta ?? 0);
+    const nextStage = stageFor(nextScore);
+    const nextRomanceIntensity = Math.min(romanceCeilingForStage(nextStage), clamp(
+      engine.romanceIntensity + (parsedEngine?.romanceIntensityDelta ?? 0),
+      0,
+      6,
+    ));
     const lastBubble = bubbles[bubbles.length - 1]?.text ?? reply;
     await supabase
       .from("companions")
@@ -427,7 +447,8 @@ export const companionReply = createServerFn({ method: "POST" })
         last_message_at: new Date().toISOString(),
         last_message_preview: lastBubble.slice(0, 60),
         relationship_score: nextScore,
-        relationship_stage: stageFor(nextScore),
+        relationship_stage: nextStage,
+        romance_intensity: nextRomanceIntensity,
       })
       .eq("id", data.companion_id);
 
