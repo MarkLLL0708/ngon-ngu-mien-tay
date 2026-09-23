@@ -100,6 +100,7 @@ const STAGE_THRESHOLDS = [0, 15, 40, 80, 150, 250];
 const RECENT_IMAGE_WINDOW = 20;
 type MomentRow = { id: string; category: string; image_url: string; caption_hint: string };
 type PoolItem = MomentRow & { source: "persona" | "shared" };
+const clamp = (value: number, min = 0, max = 100) => Math.min(max, Math.max(min, Math.round(value)));
 
 
 function stageFor(score: number) {
