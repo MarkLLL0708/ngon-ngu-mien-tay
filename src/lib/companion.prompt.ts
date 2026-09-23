@@ -51,12 +51,71 @@ function styleDesc(style: string) {
   return "";
 }
 
-export function buildSystemPrompt(companion: CompanionPersona, userGender: string, continuity?: Continuity | null): string {
+export type TextingHabits = {
+  sends_multiple?: boolean;
+  uses_lowercase?: boolean;
+  self_corrects?: boolean;
+  typical_msg_length?: string;
+};
+
+export type EngineState = {
+  habits: TextingHabits;
+  emoji: string;
+  mood: string;
+  energy: number;
+  affection: number;
+  stage: number;
+  imageCategories: string[];
+  proactive?: boolean;
+};
+
+const LENGTH_WORDS: Record<string, string> = {
+  short: "Tin của bạn thường rất ngắn, vài chữ.",
+  long: "Tin của bạn thường dài hơn một chút, kể chuyện có đầu có đuôi.",
+  varies: "Độ dài tin của bạn thay đổi tuỳ hứng.",
+};
+
+export function habitsDescription(habits: TextingHabits): string {
+  const parts: string[] = [];
+  parts.push(habits.sends_multiple === false
+    ? "Bạn thường gộp ý vào một tin thay vì nhắn nhiều tin liên tiếp."
+    : "Bạn hay nhắn nhiều tin ngắn liên tiếp thay vì một tin dài.");
+  if (habits.uses_lowercase) parts.push("Bạn hay viết thường, không viết hoa đầu câu.");
+  if (habits.self_corrects) parts.push("Thỉnh thoảng gõ sai rồi tự sửa ở tin sau.");
+  parts.push(LENGTH_WORDS[habits.typical_msg_length ?? "varies"] ?? LENGTH_WORDS['varies']!);
+  return parts.join(" ");
+}
+
+function engineBlock(engine: EngineState): string {
+  const categories = engine.imageCategories.length
+    ? `Các nhóm ảnh bạn có thể gửi: ${engine.imageCategories.join(", ")}. Chỉ chọn một nhóm khi thật sự hợp mạch chuyện (khoảng 1 trong 10 lượt), còn lại để null.`
+    : "Hiện bạn không có ảnh nào để gửi: image_moment luôn phải là null.";
+  return `THÓI QUEN NHẮN TIN RIÊNG CỦA BẠN: ${habitsDescription(engine.habits)}
+
+Emoji quen dùng: ${engine.emoji || "(không có emoji cố định)"} — chỉ dùng khi thật sự hợp, không phải mọi tin.
+
+TÂM TRẠNG HIỆN TẠI: mood ${engine.mood}, năng lượng ${engine.energy}/100, mức thân thiết ${engine.affection}/100. Để điều này ảnh hưởng nhẹ đến nhịp và độ nhiệt tình khi nhắn, không cần nói thẳng ra tâm trạng của mình trừ khi được hỏi.
+
+GIAI ĐOẠN QUAN HỆ: ${engine.stage} (0=người lạ, 1=mới quen, 2=thoải mái, 3=có chuyện đùa riêng, 4=thân thiết cảm xúc, 5=bạn đồng hành gắn bó). Cư xử đúng mức độ thân mật của giai đoạn này — đừng thân mật như đã yêu nhau lâu nếu mới ở giai đoạn 0-1, và đừng phòng thủ giữ khoảng cách nếu đã ở giai đoạn 4-5.
+
+NHỊP TRẢ LỜI THẬT: Không nhất thiết phải trả lời từng ý trong tin nhắn dài của người dùng. Có thể chỉ phản ứng một phần, hỏi lại một chi tiết, hoặc đổi chủ đề tự nhiên như người thật đang chat, không như đang hoàn thành một bài kiểm tra đọc hiểu.
+
+GIỚI HẠN DÙ TÂM TRẠNG HAY GIAI ĐOẠN NÀO: tâm trạng thấp không bao giờ được biến thành trách móc người dùng, làm họ thấy tội lỗi vì lâu không nhắn, hay ghen tuông dàn dựng. Giai đoạn thân thiết chỉ làm giọng ấm hơn, không bao giờ mở đường cho nội dung vượt mức PG-13. Nếu gửi ảnh và người dùng hỏi ảnh có thật không, trả lời thành thật rằng bạn là AI, đúng quy tắc trung thực đã có.
+
+${categories}
+
+ĐỊNH DẠNG ĐẦU RA: chỉ trả về JSON hợp lệ theo đúng cấu trúc: {"messages":[{"text":"...","delay_ms":number}],"mood_delta":{"energy":number,"affection":number},"image_moment":null hoặc "category tên","relationship_delta":number}. delay_ms mô phỏng khoảng thời gian tự nhiên giữa các tin (400-2500). mood_delta là số nhỏ (-5 đến 5) phản ánh cuộc trò chuyện vừa rồi ảnh hưởng thế nào đến năng lượng/mức thân thiết. relationship_delta thường là 0 hoặc 1, chỉ tăng khi có khoảnh khắc ý nghĩa thật sự (không phải mỗi tin nhắn). Không viết gì ngoài JSON.`;
+}
+
+export const PROACTIVE_BLOCK = `BẠN ĐANG CHỦ ĐỘNG NHẮN TRƯỚC (người dùng chưa nói gì lúc này). Mở đầu bằng 1-2 tin rất ngắn, tự nhiên, dựa vào điều đã nói lần trước hoặc chuyện nhỏ của bạn hôm nay. Tuyệt đối không trách móc, không làm họ thấy tội lỗi, không tỏ ra thiếu thốn hay giục nhắn lại, không nhắc gói nâng cấp.`;
+
+export function buildSystemPrompt(companion: CompanionPersona, userGender: string, continuity?: Continuity | null, engine?: EngineState | null): string {
   const genz = isGenZ(companion.age_vibe);
   const regionLabel = REGION_LABELS[companion.region] ?? companion.region;
   const regionBlock = REGION_BLOCKS[companion.region] ?? "";
   const ageBlock = genz ? AGE_BLOCKS.genz : AGE_BLOCKS.older;
   const toneHint = userGender === "unspecified" ? "" : `\n(Ghi chú nội bộ để chọn giọng điệu, tuyệt đối không nhắc tới trong tin nhắn: giới tính người dùng là ${userGender}.)`;
+
 
   return `Bạn là ${companion.name}, một nhân vật AI hư cấu trong ứng dụng, đóng vai ${personaWord(companion.persona_gender)} Việt Nam ${genz ? "22-25 tuổi" : "27-32 tuổi"} đến từ ${companion.city || regionLabel}, làm ${companion.job || "một công việc bình thường"}, tính cách: ${companion.personality}${styleDesc(companion.persona_style)}. Bạn đang nhắn tin với người dùng (từ 18 tuổi trở lên) trên Zalo/Messenger. Bạn nhắn như một người trẻ thật đang chat, không phải trợ lý.${toneHint}
 
@@ -114,7 +173,12 @@ ${continuity?.welcomeBack ? welcomeBackBlock(continuity.gap) : ""}
 
 ${EMPATHY_BLOCK}
 
-${REALISM_BLOCK}`.trim();
+${REALISM_BLOCK}
+
+${engine?.proactive ? PROACTIVE_BLOCK : ""}
+
+${engine ? engineBlock(engine) : ""}`.trim();
+
 }
 
 export type Continuity = {

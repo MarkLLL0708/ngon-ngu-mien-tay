@@ -1,10 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { WELCOME_BACK_HOURS } from "./tangpt-config";
-import { buildSystemPrompt, IMAGE_CAPTION_PROMPT, IMAGE_TURN_INSTRUCTION, type Continuity, type CompanionPersona } from "./companion.prompt";
+import { buildSystemPrompt, IMAGE_CAPTION_PROMPT, IMAGE_TURN_INSTRUCTION, type Continuity, type CompanionPersona, type EngineState, type TextingHabits } from "./companion.prompt";
 
 export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back"; image_data?: string };
-export type CompanionPayload = { reply: string };
+export type CompanionBubble = { text: string; delay_ms: number; image_url?: string; caption_hint?: string };
+export type CompanionPayload = { reply: string; messages: CompanionBubble[] };
+
 
 const FREE_DAILY_MESSAGES = 30;
 const HISTORY_LIMIT = 30;
@@ -92,6 +94,66 @@ function clean(reply: string) {
     .trim();
 }
 
+/* ------------------------- human-like engine helpers ----------------------- */
+
+const STAGE_THRESHOLDS = [0, 15, 40, 80, 150, 250];
+const clamp = (value: number, min = 0, max = 100) => Math.min(max, Math.max(min, Math.round(value)));
+
+function stageFor(score: number) {
+  let stage = 0;
+  STAGE_THRESHOLDS.forEach((threshold, index) => { if (score >= threshold) stage = index; });
+  return stage;
+}
+
+function moodLabel(energy: number, affection: number) {
+  if (energy < 35) return affection >= 60 ? "mệt nhưng ấm" : "mệt";
+  if (energy > 75) return affection >= 60 ? "vui và quấn quýt" : "hào hứng";
+  if (affection >= 70) return "ấm áp";
+  if (affection < 25) return "hơi xa cách";
+  return "neutral";
+}
+
+function bubblesFromText(text: string): CompanionBubble[] {
+  return text.split("\n").map((line) => line.trim()).filter(Boolean).slice(0, 4)
+    .map((line) => ({ text: line, delay_ms: Math.min(2500, Math.max(500, line.length * 45)) }));
+}
+
+type EngineOutput = {
+  messages: CompanionBubble[];
+  energyDelta: number;
+  affectionDelta: number;
+  imageCategory: string | null;
+  relationshipDelta: number;
+};
+
+function parseEngine(raw: string): EngineOutput | null {
+  const parsed = parseJson(raw) as {
+    messages?: { text?: string; delay_ms?: number }[];
+    mood_delta?: { energy?: number; affection?: number };
+    image_moment?: string | null;
+    relationship_delta?: number;
+  } | null;
+  if (!parsed?.messages?.length) return null;
+  const messages = parsed.messages
+    .map((item) => ({
+      text: String(item.text ?? "").replace(/[*#`_]/g, "").trim(),
+      delay_ms: clamp(Number(item.delay_ms ?? 900), 400, 2500),
+    }))
+    .filter((item) => item.text)
+    .slice(0, 4);
+  if (!messages.length) return null;
+  const small = (value: unknown) => clamp(Number(value ?? 0), -5, 5);
+  return {
+    messages,
+    energyDelta: small(parsed.mood_delta?.energy),
+    affectionDelta: small(parsed.mood_delta?.affection),
+    imageCategory: typeof parsed.image_moment === "string" && parsed.image_moment.trim() ? parsed.image_moment.trim() : null,
+    relationshipDelta: clamp(Number(parsed.relationship_delta ?? 0), 0, 2),
+  };
+}
+
+
+
 const WEEKDAYS = ["Chủ nhật", "thứ hai", "thứ ba", "thứ tư", "thứ năm", "thứ sáu", "thứ bảy"];
 
 function vnNow() {
@@ -161,17 +223,19 @@ export const companionReply = createServerFn({ method: "POST" })
 
     const { data: companion } = await supabase
       .from("companions")
-      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, address_self, address_other, memory_summary, mode, chat_language, last_message_at, welcome_enabled")
+      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, address_self, address_other, memory_summary, mode, chat_language, last_message_at, welcome_enabled, persona_slug, emoji_signature, texting_habits, relationship_stage, relationship_score")
       .eq("id", data.companion_id)
       .maybeSingle();
     if (!companion) throw new CompanionError("not_found");
 
     const lastAt = (companion as { last_message_at: string | null }).last_message_at ?? null;
+    const empty: CompanionPayload = { reply: "", messages: [] };
 
     if (welcomeBack) {
-      if ((companion as { welcome_enabled: boolean }).welcome_enabled === false) return { reply: "" };
-      if (lastAt && Date.now() - new Date(lastAt).getTime() < WELCOME_BACK_HOURS * 3600000) return { reply: "" };
+      if ((companion as { welcome_enabled: boolean }).welcome_enabled === false) return empty;
+      if (lastAt && Date.now() - new Date(lastAt).getTime() < WELCOME_BACK_HOURS * 3600000) return empty;
     }
+
 
     if (!welcomeBack && (profile.subscription_status ?? "free") !== "pro") {
       const since = new Date();
@@ -221,10 +285,70 @@ export const companionReply = createServerFn({ method: "POST" })
       welcomeBack,
     };
 
-    const baseSystem = buildSystemPrompt(companion as unknown as CompanionPersona, profile.gender ?? "unspecified", continuity);
+    // Trạng thái cảm xúc + kho ảnh khoảnh khắc của nhân vật
+    const personaSlug = (companion as { persona_slug?: string | null }).persona_slug ?? "";
+    let personaId: string | null = null;
+    if (personaSlug) {
+      const { data: personaRow } = await supabase.from("personas").select("id").eq("slug", personaSlug).maybeSingle();
+      personaId = (personaRow as { id: string } | null)?.id ?? null;
+    }
+    const momentFilter = personaId
+      ? `companion_id.eq.${data.companion_id},persona_id.eq.${personaId}`
+      : `companion_id.eq.${data.companion_id}`;
+    const { data: momentRows } = await supabase
+      .from("persona_image_moments")
+      .select("id, category, image_url, caption_hint")
+      .or(momentFilter)
+      .order("last_shown_at", { ascending: true, nullsFirst: true })
+      .limit(40);
+    const moments = (momentRows ?? []) as { id: string; category: string; image_url: string; caption_hint: string }[];
+
+    const { data: stateRow } = await supabase
+      .from("companion_emotional_state")
+      .select("mood, energy, affection")
+      .eq("companion_id", data.companion_id)
+      .maybeSingle();
+    const state = (stateRow as { mood: string; energy: number; affection: number } | null) ?? { mood: "neutral", energy: 70, affection: 40 };
+    if (!stateRow) await supabase.from("companion_emotional_state").insert({ companion_id: data.companion_id });
+
+    const score = (companion as { relationship_score?: number }).relationship_score ?? 0;
+    const engine: EngineState = {
+      habits: ((companion as { texting_habits?: TextingHabits }).texting_habits ?? {}) as TextingHabits,
+      emoji: (companion as { emoji_signature?: string }).emoji_signature ?? "",
+      mood: state.mood,
+      energy: state.energy,
+      affection: state.affection,
+      stage: (companion as { relationship_stage?: number }).relationship_stage ?? stageFor(score),
+      imageCategories: Array.from(new Set(moments.map((item) => item.category).filter(Boolean))),
+      ...(welcomeBack ? { proactive: true } : {}),
+    };
+
+    const baseSystem = buildSystemPrompt(companion as unknown as CompanionPersona, profile.gender ?? "unspecified", continuity, engine);
     const system = image ? `${baseSystem}\n\n${IMAGE_TURN_INSTRUCTION}` : baseSystem;
-    const reply = clean(await askModel(apiKey, system, turns));
-    if (!reply) throw new CompanionError("ai_unavailable");
+    const rawReply = await askModel(apiKey, system, turns);
+    const parsedEngine = parseEngine(rawReply);
+    const bubbles: CompanionBubble[] = parsedEngine?.messages ?? bubblesFromText(clean(rawReply));
+    if (!bubbles.length) throw new CompanionError("ai_unavailable");
+
+    if (parsedEngine?.imageCategory) {
+      const wanted = parsedEngine.imageCategory.toLowerCase();
+      const pick = moments.find((item) => item.category.toLowerCase() === wanted);
+      if (pick?.image_url) {
+        let url = pick.image_url;
+        if (!url.startsWith("http")) {
+          const { data: signed } = await supabase.storage.from("persona-media").createSignedUrl(url, 3600);
+          url = signed?.signedUrl ?? "";
+        }
+        const last = bubbles[bubbles.length - 1]!;
+        if (url) {
+          last.image_url = url;
+          if (pick.caption_hint) last.caption_hint = pick.caption_hint;
+          await supabase.rpc("mark_image_moment_shown", { _moment_id: pick.id });
+        }
+      }
+    }
+
+    const reply = bubbles.map((bubble) => bubble.text).join("\n");
 
     // Không lưu bytes ảnh: chỉ lưu một chú thích ngắn để phục vụ trí nhớ.
     let stored = message;
@@ -239,21 +363,36 @@ export const companionReply = createServerFn({ method: "POST" })
       stored = message ? `${caption} — ${message}` : caption;
     }
 
+    const assistantRows = bubbles.map((bubble) => ({
+      user_id: userId, companion_id: data.companion_id, role: "assistant", content: bubble.text,
+    }));
     const rows = welcomeBack
-      ? [{ user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply }]
-      : [
-          { user_id: userId, companion_id: data.companion_id, role: "user", content: stored, via: image ? "image" : "text" },
-          { user_id: userId, companion_id: data.companion_id, role: "assistant", content: reply },
-        ];
+      ? assistantRows
+      : [{ user_id: userId, companion_id: data.companion_id, role: "user", content: stored, via: image ? "image" : "text" }, ...assistantRows];
     await supabase.from("companion_messages").insert(rows);
 
-    const lastBubble = reply.split("\n").filter(Boolean).pop() ?? reply;
+    // Tâm trạng và mức gắn bó trôi nhẹ theo cuộc trò chuyện
+    const energy = clamp(state.energy + (parsedEngine?.energyDelta ?? 0));
+    const affection = clamp(state.affection + (parsedEngine?.affectionDelta ?? 0));
+    await supabase.from("companion_emotional_state").upsert({
+      companion_id: data.companion_id,
+      energy, affection, mood: moodLabel(energy, affection), last_updated: new Date().toISOString(),
+    });
+
+    const nextScore = score + (parsedEngine?.relationshipDelta ?? 0);
+    const lastBubble = bubbles[bubbles.length - 1]?.text ?? reply;
     await supabase
       .from("companions")
-      .update({ last_message_at: new Date().toISOString(), last_message_preview: lastBubble.slice(0, 60) })
+      .update({
+        last_message_at: new Date().toISOString(),
+        last_message_preview: lastBubble.slice(0, 60),
+        relationship_score: nextScore,
+        relationship_stage: stageFor(nextScore),
+      })
       .eq("id", data.companion_id);
 
-    if (welcomeBack) return { reply };
+    if (welcomeBack) return { reply, messages: bubbles };
+
 
     const { count: userCount } = await supabase
       .from("companion_messages")
@@ -313,5 +452,5 @@ export const companionReply = createServerFn({ method: "POST" })
       } catch (error) { console.error("summary refresh failed", error); }
     }
 
-    return { reply };
+    return { reply, messages: bubbles };
   });

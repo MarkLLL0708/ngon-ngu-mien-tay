@@ -64,6 +64,20 @@
       "when": 1790151881508,
       "tag": "0008_persona_media_storage_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790156549909,
+      "tag": "0009_companion_human_engine",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790156759036,
+      "tag": "0010_schedule_mood_decay",
+      "breakpoints": true
     }
   ]
 }

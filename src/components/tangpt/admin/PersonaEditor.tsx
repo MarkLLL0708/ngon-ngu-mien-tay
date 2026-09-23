@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { GalleryEditor } from "./GalleryEditor";
 import { VideoEditor } from "./VideoEditor";
+import { ImageMomentsEditor } from "./ImageMomentsEditor";
+
 import { PersonaIntro } from "../PersonaIntro";
 import { supabase } from "@/integrations/supabase/client";
 import { deletePersonaMedia, PERSONA_SELECT, type PersonaRow } from "@/lib/tangpt-personas";
@@ -115,9 +117,15 @@ export function PersonaEditor({ personaId }: { personaId: string }) {
     </div>
 
     <div className="filter-block">
+      <div className="admin-section-head"><strong>Ảnh khoảnh khắc</strong></div>
+      <ImageMomentsEditor personaId={personaId} />
+    </div>
+
+    <div className="filter-block">
       <div className="admin-section-head"><strong>Video giới thiệu</strong>{savedChip("video")}</div>
       <VideoEditor personaId={personaId} path={row.intro_video_url} onChange={(next) => { patch({ intro_video_url: next }); save("video", { intro_video_url: next }); }} />
     </div>
+
 
     <div className="filter-block">
       <div className="admin-section-head"><strong>Xóa nhân vật</strong></div>
