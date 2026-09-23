@@ -50,19 +50,24 @@ export function SuggestTab() {
     if (self) setAddressSelf(self);
     if (other) setAddressOther(other);
   }, []);
+  // The combined choice from onboarding / Me prefills both the target chip and the pronouns.
   useEffect(() => {
     if (!profile) return;
     if (profile.region) setRegion(profile.region);
     if (profile.city) setCity(profile.city);
     if (profile.ageGroup) setAge(profile.ageGroup);
-    if (profile.gender) setUserGender(profile.gender);
+    setUserGender(profile.gender);
+    if (profile.targetGender !== "unspecified") setTargetGender(profile.targetGender as RizzTargetGender);
+    const savedSelf = window.localStorage.getItem("tangpt-address-self");
+    if (!savedSelf) {
+      const [self, other] = defaultAddress(profile.gender, profile.targetGender);
+      setAddressSelf(self);
+      setAddressOther(other);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
-  function pickGender(value: UserGender) {
-    setUserGender(value);
-    if (profile?.userId) void saveUserGender(profile.userId, value);
-  }
+
 
   function pickLanguage(value: ReplyLanguage) {
     setReplyLanguage(value);
