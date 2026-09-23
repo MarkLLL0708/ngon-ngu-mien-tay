@@ -165,6 +165,7 @@ export type Database = {
           address_other: string
           address_self: string
           age_vibe: string
+          character_romance_style: string
           chat_language: string
           city: string
           created_at: string
@@ -186,6 +187,7 @@ export type Database = {
           region: string
           relationship_score: number
           relationship_stage: number
+          romance_intensity: number
           target_gender: string
           texting_habits: Json
           user_gender: string
@@ -197,6 +199,7 @@ export type Database = {
           address_other?: string
           address_self?: string
           age_vibe: string
+          character_romance_style?: string
           chat_language?: string
           city?: string
           created_at?: string
@@ -218,6 +221,7 @@ export type Database = {
           region: string
           relationship_score?: number
           relationship_stage?: number
+          romance_intensity?: number
           target_gender?: string
           texting_habits?: Json
           user_gender?: string
@@ -229,6 +233,7 @@ export type Database = {
           address_other?: string
           address_self?: string
           age_vibe?: string
+          character_romance_style?: string
           chat_language?: string
           city?: string
           created_at?: string
@@ -250,6 +255,7 @@ export type Database = {
           region?: string
           relationship_score?: number
           relationship_stage?: number
+          romance_intensity?: number
           target_gender?: string
           texting_habits?: Json
           user_gender?: string
@@ -341,6 +347,7 @@ export type Database = {
           age_vibe: string
           backstory: string
           catchphrase: string
+          character_romance_style: string
           city: string
           created_at: string
           daily_life: string
@@ -367,6 +374,7 @@ export type Database = {
           age_vibe?: string
           backstory?: string
           catchphrase?: string
+          character_romance_style?: string
           city?: string
           created_at?: string
           daily_life?: string
@@ -393,6 +401,7 @@ export type Database = {
           age_vibe?: string
           backstory?: string
           catchphrase?: string
+          character_romance_style?: string
           city?: string
           created_at?: string
           daily_life?: string
