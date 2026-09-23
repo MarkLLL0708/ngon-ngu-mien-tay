@@ -9,6 +9,9 @@ export const DEBUG = TEST_GUEST_MODE;
 // Lower this (e.g. 0.02) to test the greeting quickly.
 export const WELCOME_BACK_HOURS = 6;
 
+// Archived voice/call feature. Keep false until the feature is deliberately rebuilt.
+export const VOICE_FEATURE_ENABLED = false;
+
 // Voice providers currently in use. Set to ["cartesia", "elevenlabs", ...] to enable more.
 // Only profiles from these providers are selectable/playable; other adapters stay dormant.
 export const ACTIVE_VOICE_PROVIDERS: string[] = ["cartesia"];
