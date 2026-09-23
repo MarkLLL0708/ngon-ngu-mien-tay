@@ -5,6 +5,7 @@ import { ImagePlus, Lightbulb, LoaderCircle, RefreshCw, Send, X } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { ChatBubble } from "./ChatBubble";
 import { Paywall } from "./Paywall";
+import { RegionChipBar } from "./RegionChipBar";
 import { useRegionTheme } from "./RegionTheme";
 import { useLang } from "./Language";
 import { regions, type AgeGroup, type RegionKey } from "@/lib/tangpt-data";
@@ -15,7 +16,6 @@ import type { RizzRelativeAge, RizzTargetGender } from "@/lib/rizz.functions";
 
 type ReplyLanguage = "vi" | "en" | "mix";
 
-const regionKeys: RegionKey[] = ["bac", "nam", "trung", "tay"];
 const ageGroups: AgeGroup[] = ["18-26", "27-35", "36+"];
 const regionApi: Record<RegionKey, RizzRegion> = { bac: "north", nam: "south", trung: "central", tay: "mekong" };
 
@@ -123,13 +123,12 @@ export function SuggestTab() {
 
   return <section className="tab-page">
     <div className="page-title"><span>{t("LỜI HAY ĐÚNG LÚC", "THE RIGHT WORDS")}</span><h1>{t("Gợi ý cho bạn", "Ideas for you")}</h1></div>
+    <RegionChipBar />
     <div className="segmented">
       <button type="button" className={mode === "reply" ? "active" : ""} onClick={() => setMode("reply")}>{t("Trả lời tin nhắn", "Reply to a message")}</button>
       <button type="button" className={mode === "opener" ? "active" : ""} onClick={() => setMode("opener")}>{t("Mở lời", "Opener")}</button>
     </div>
     <div className="filter-block">
-      <label>{t("Vùng miền", "Region")}</label>
-      <div className="chip-scroll">{regionKeys.map((key) => <button type="button" key={key} className={region === key ? "chip chip-active" : "chip"} onClick={() => { setRegion(key); setCity(regions[key].city); }}>{regions[key].name}</button>)}</div>
       <label>{t("Thành phố", "City")}</label>
       <div className="chip-scroll">{regions[region].cities.map((value) => <button type="button" className={city === value ? "chip chip-active" : "chip"} onClick={() => setCity(value)} key={value}>{value}</button>)}</div>
       <label>{t("Độ tuổi của người ấy", "Their age group")}</label>

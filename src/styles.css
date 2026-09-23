@@ -198,3 +198,29 @@ input,textarea,select{font-size:16px;max-width:100%}
 .upload-block .chip { display: inline-flex; align-items: center; gap: 6px; }
 .upload-preview { position: relative; width: 96px; height: 96px; }
 .upload-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; }
+
+/* Inline region access and viewport-anchored flow actions */
+.region-chip-bar{display:flex;gap:8px;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 0}
+.region-chip-bar::-webkit-scrollbar{display:none}
+.region-chip-bar .chip{flex:0 0 auto}
+.anchored-actions{position:sticky;bottom:0;z-index:8;display:grid;gap:8px;margin:4px -2px -2px;padding:14px 2px max(2px,env(safe-area-inset-bottom));background:var(--surface-raised);border-top:1px solid var(--border);box-shadow:0 -12px 24px color-mix(in oklab,var(--background) 70%,transparent)}
+.anchored-actions>button{width:100%}
+.confirm-sheet{position:fixed;left:50%;bottom:0;z-index:60;width:min(680px,100%);max-height:min(90dvh,760px);transform:translateX(-50%);grid-template-rows:minmax(0,1fr) auto;overflow:hidden;padding:0}
+.confirm-sheet-body{min-height:0;overflow-y:auto;display:grid;gap:15px;padding:20px}
+.confirm-sheet>.anchored-actions{margin:0;padding:14px 20px max(14px,env(safe-area-inset-bottom))}
+.modal-card{grid-template-rows:auto;overflow-y:auto}
+.modal-card>.anchored-actions{margin:4px -22px -22px;padding:14px 22px max(14px,env(safe-area-inset-bottom))}
+.glass-sheet{max-height:90dvh;overflow-y:auto}
+.glass-sheet>.anchored-actions{margin:4px -24px -24px;padding:14px 24px max(14px,env(safe-area-inset-bottom))}
+.memory-confirm>.anchored-actions{margin:0 -14px -14px;padding:12px 14px max(12px,env(safe-area-inset-bottom))}
+.call-consent-card>.anchored-actions{margin:0 -18px -18px;padding:12px 18px max(12px,env(safe-area-inset-bottom))}
+.onboarding-card>.anchored-actions{margin-top:auto;margin-left:-30px;margin-right:-30px;margin-bottom:-30px;padding:14px 30px max(14px,env(safe-area-inset-bottom));border-radius:0 0 24px 24px}
+.auth-card form>.anchored-actions{margin-left:0;margin-right:0;background:var(--surface);padding-bottom:max(14px,env(safe-area-inset-bottom))}
+
+@media(max-width:760px){
+  .onboarding-shell{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  .onboarding-shell>.region-chip-bar{margin:10px 0 2px}
+  .onboarding-card>.anchored-actions{position:fixed;left:0;right:0;bottom:0;z-index:55;margin:0;padding:14px max(18px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));border-radius:0;background:color-mix(in oklab,var(--background) 94%,transparent);backdrop-filter:blur(18px)}
+  .auth-shell{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+  .auth-card form>.anchored-actions{position:fixed;left:0;right:0;bottom:0;z-index:55;margin:0;padding:14px max(16px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:color-mix(in oklab,var(--background) 94%,transparent);backdrop-filter:blur(18px)}
+}

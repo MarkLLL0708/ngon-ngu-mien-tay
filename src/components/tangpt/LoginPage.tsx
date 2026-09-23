@@ -75,7 +75,7 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
         <label>Email<input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" placeholder="ban@email.com" /></label>
         <label>{t("Mật khẩu", "Password")}<div className="password-field"><input value={password} onChange={(e) => setPassword(e.target.value)} type={show ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} placeholder={t("Ít nhất 6 ký tự", "At least 6 characters")} /><button type="button" aria-label={show ? t("Ẩn mật khẩu", "Hide password") : t("Hiện mật khẩu", "Show password")} onClick={() => setShow(!show)}>{show ? <EyeOff /> : <Eye />}</button></div></label>
         {error && <p className="form-message">{error}</p>}
-        <Button variant="gradient" size="lg" className="w-full" disabled={busy}>{busy && <LoaderCircle className="animate-spin" />}{mode === "login" ? t("Đăng nhập", "Log in") : t("Tạo tài khoản", "Create account")}</Button>
+        <div className="anchored-actions"><Button variant="gradient" size="lg" className="w-full" disabled={busy}>{busy && <LoaderCircle className="animate-spin" />}{mode === "login" ? t("Đăng nhập", "Log in") : t("Tạo tài khoản", "Create account")}</Button></div>
       </form>
       <div className="divider"><span>{t("hoặc", "or")}</span></div>
       <Button variant="outline" size="lg" className="w-full" onClick={google}><b className="google-g">G</b> {t("Tiếp tục với Google", "Continue with Google")}</Button>
