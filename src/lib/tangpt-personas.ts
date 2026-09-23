@@ -73,18 +73,19 @@ export async function listAllPersonas(): Promise<PersonaRow[]> {
 
 /* ---------------------------------- media --------------------------------- */
 
-const signedCache = new Map<string, { url: string; expires: number }>();
+const signedCache = new Map<string, { promise: Promise<string>; expires: number }>();
 
-/** Resolve a stored object path into a temporary readable URL. */
-export async function mediaUrl(path: string): Promise<string> {
-  if (!path) return "";
-  if (path.startsWith("http")) return path;
+/** Resolve a stored object path into a temporary readable URL (cached per path). */
+export function mediaUrl(path: string): Promise<string> {
+  if (!path) return Promise.resolve("");
+  if (path.startsWith("http")) return Promise.resolve(path);
   const cached = signedCache.get(path);
-  if (cached && cached.expires > Date.now()) return cached.url;
-  const { data } = await supabase.storage.from(PERSONA_BUCKET).createSignedUrl(path, 3600);
-  const url = data?.signedUrl ?? "";
-  if (url) signedCache.set(path, { url, expires: Date.now() + 50 * 60 * 1000 });
-  return url;
+  if (cached && cached.expires > Date.now()) return cached.promise;
+  const promise = supabase.storage.from(PERSONA_BUCKET).createSignedUrl(path, 3600)
+    .then(({ data }) => data?.signedUrl ?? "")
+    .catch(() => "");
+  signedCache.set(path, { promise, expires: Date.now() + 50 * 60 * 1000 });
+  return promise;
 }
 
 /** Resolve a list of paths into display URLs, keeping order. */
