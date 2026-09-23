@@ -140,11 +140,8 @@ export function SuggestTab() {
       <div className="chip-scroll">{regions[region].cities.map((value) => <button type="button" className={city === value ? "chip chip-active" : "chip"} onClick={() => setCity(value)} key={value}>{value}</button>)}</div>
       <label>{t("Độ tuổi của người ấy", "Their age group")}</label>
       <div className="flex gap-2">{ageGroups.map((value) => <button type="button" className={age === value ? "chip chip-active" : "chip"} onClick={() => setAge(value)} key={value}>{value}</button>)}</div>
-      <label>{t("Bạn là", "You are")}</label>
-      <div className="flex flex-wrap gap-2">
-        {([["male", t("Nam", "Man")], ["female", t("Nữ", "Woman")], ["nonbinary", t("Phi nhị giới", "Non-binary")], ["unspecified", t("Không nói", "Prefer not to say")]] as [UserGender, string][]).map(([value, label]) =>
-          <button type="button" key={value} className={userGender === value ? "chip chip-active" : "chip"} onClick={() => pickGender(value)}>{label}</button>)}
-      </div>
+      {/* "Bạn là" giờ nằm trong lựa chọn ghép ở onboarding và trang Tôi. */}
+
       <label>{t("Người ấy là", "They are")}</label>
       <div className="flex flex-wrap gap-2">
         {([["female", t("Nữ", "Woman")], ["male", t("Nam", "Man")], ["nonbinary", t("Phi nhị giới", "Non-binary")]] as [RizzTargetGender, string][]).map(([value, label]) =>
