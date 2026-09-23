@@ -34,7 +34,10 @@ export function PersonaAdminList() {
       <Button variant="gradient" size="icon" aria-label="Tạo nhân vật" onClick={createPersona}><Plus /></Button>
     </div>
 
+    <ImagePoolPanel />
+
     {!rows && <p className="text-sm text-muted-foreground">Đang tải…</p>}
+
 
     <div className="admin-list">
       {(rows ?? []).map((row) => <div className="admin-row" key={row.id}>
