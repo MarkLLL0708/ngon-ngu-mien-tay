@@ -267,3 +267,14 @@ input,textarea,select{font-size:16px;max-width:100%}
 .stock-low { outline: 1px solid rgba(255,180,80,0.5); }
 .stock-banner { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 12px; border-radius: 12px;
   background: rgba(255,180,80,0.12); color: #ffca7a; font-size: 13px; }
+
+/* Lựa chọn ghép giới tính (thẻ lớn) */
+.gender-pair-block { width: 100%; }
+.gender-pair-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.gender-pair-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 64px;
+  padding: 14px 16px; border-radius: 16px; text-align: left; border: 1px solid hsl(var(--border));
+  background: rgba(255,255,255,0.04); color: inherit; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+.gender-pair-card strong { font-size: 15px; font-weight: 600; }
+.gender-pair-card:active { transform: scale(0.99); }
+.gender-pair-card.active { border-color: hsl(var(--primary)); background: hsl(var(--primary) / 0.14); }
+.gender-pair-note { margin-top: 12px; font-size: 13px; line-height: 1.5; color: hsl(var(--muted-foreground)); }
