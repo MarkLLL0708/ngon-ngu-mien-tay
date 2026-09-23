@@ -128,6 +128,7 @@ type EngineOutput = {
   affectionDelta: number;
   imageCategory: string | null;
   relationshipDelta: number;
+  romanceIntensityDelta: number;
 };
 
 function parseEngine(raw: string): EngineOutput | null {
@@ -136,6 +137,7 @@ function parseEngine(raw: string): EngineOutput | null {
     mood_delta?: { energy?: number; affection?: number };
     image_moment?: string | null;
     relationship_delta?: number;
+    romance_intensity_delta?: number;
   } | null;
   if (!parsed?.messages?.length) return null;
   const messages = parsed.messages
@@ -153,6 +155,7 @@ function parseEngine(raw: string): EngineOutput | null {
     affectionDelta: small(parsed.mood_delta?.affection),
     imageCategory: typeof parsed.image_moment === "string" && parsed.image_moment.trim() ? parsed.image_moment.trim() : null,
     relationshipDelta: clamp(Number(parsed.relationship_delta ?? 0), 0, 2),
+    romanceIntensityDelta: clamp(Number(parsed.romance_intensity_delta ?? 0), -1, 1),
   };
 }
 
@@ -227,7 +230,7 @@ export const companionReply = createServerFn({ method: "POST" })
 
     const { data: companion } = await supabase
       .from("companions")
-      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, address_self, address_other, user_gender, target_gender, memory_summary, mode, chat_language, last_message_at, welcome_enabled, persona_slug, emoji_signature, texting_habits, relationship_stage, relationship_score")
+      .select("name, region, city, job, age_vibe, personality, persona_gender, persona_style, character_romance_style, address_self, address_other, user_gender, target_gender, memory_summary, mode, chat_language, last_message_at, welcome_enabled, persona_slug, emoji_signature, texting_habits, relationship_stage, relationship_score, romance_intensity")
       .eq("id", data.companion_id)
       .maybeSingle();
     if (!companion) throw new CompanionError("not_found");
@@ -342,6 +345,7 @@ export const companionReply = createServerFn({ method: "POST" })
       energy: state.energy,
       affection: state.affection,
       stage: (companion as { relationship_stage?: number }).relationship_stage ?? stageFor(score),
+      romanceIntensity: (companion as { romance_intensity?: number }).romance_intensity ?? 0,
       imageCategories: Array.from(new Set([...personaPool, ...sharedPool].map((item) => item.category).filter(Boolean))),
       ...(welcomeBack ? { proactive: true } : {}),
     };
@@ -420,6 +424,11 @@ export const companionReply = createServerFn({ method: "POST" })
     });
 
     const nextScore = score + (parsedEngine?.relationshipDelta ?? 0);
+    const nextRomanceIntensity = clamp(
+      engine.romanceIntensity + (parsedEngine?.romanceIntensityDelta ?? 0),
+      0,
+      6,
+    );
     const lastBubble = bubbles[bubbles.length - 1]?.text ?? reply;
     await supabase
       .from("companions")
@@ -428,6 +437,7 @@ export const companionReply = createServerFn({ method: "POST" })
         last_message_preview: lastBubble.slice(0, 60),
         relationship_score: nextScore,
         relationship_stage: stageFor(nextScore),
+        romance_intensity: nextRomanceIntensity,
       })
       .eq("id", data.companion_id);
 

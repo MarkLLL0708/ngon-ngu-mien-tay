@@ -9,6 +9,7 @@
 - [x] Gỡ toàn bộ giao diện và đường truy cập giọng nói/cuộc gọi, giữ mã nền ở trạng thái lưu trữ
 - [x] Lưu lựa chọn kết nối ngay khi chạm và cập nhật bộ lọc tức thì
 - [x] Hiện đồng thời danh sách trò chuyện và nhân vật mới chưa bắt đầu
+- [x] Nâng cấp hội thoại đồng hành trưởng thành với cường độ lãng mạn động và phong cách riêng
 
 ## Rizz suggestion engine
 - [x] Migration: profiles.ui_language/reply_language, companions.city/chat_language

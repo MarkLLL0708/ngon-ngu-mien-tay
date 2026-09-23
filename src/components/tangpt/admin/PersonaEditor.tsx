@@ -80,6 +80,10 @@ export function PersonaEditor({ personaId }: { personaId: string }) {
         <Input id={key} value={row[key]} onChange={(event) => patch({ [key]: event.target.value } as Partial<PersonaRow>)} />
       </div>)}
       <div className="admin-field">
+        <label htmlFor="character_romance_style">Phong cách lãng mạn</label>
+        <Textarea id="character_romance_style" rows={2} value={row.character_romance_style} onChange={(event) => patch({ character_romance_style: event.target.value })} />
+      </div>
+      <div className="admin-field">
         <label>Vùng miền</label>
         <div className="flex flex-wrap gap-2">{regionKeys.map((key) =>
           <button type="button" key={key} className={row.region === key ? "chip chip-active" : "chip"} onClick={() => patch({ region: key })}>{regions[key].name}</button>)}</div>
@@ -95,7 +99,7 @@ export function PersonaEditor({ personaId }: { personaId: string }) {
       </div>
       <Button variant="gradient" onClick={() => save("basic", {
         name: row.name, age_vibe: row.age_vibe, region: row.region, city: row.city, job: row.job,
-        persona_gender: row.persona_gender, personality: row.personality, tags: row.tags,
+        persona_gender: row.persona_gender, personality: row.personality, character_romance_style: row.character_romance_style, tags: row.tags,
       })}>Lưu thông tin cơ bản</Button>
     </div>
 
