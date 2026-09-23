@@ -119,7 +119,7 @@ export function OnboardingFlow() {
       <LangToggle />
     </header>
     <RegionChipBar />
-    <section className="onboarding-card fade-up">
+    <section className="onboarding-card">
       {step === 0 && <>
         <div className="line-illustration"><UserRound /></div>
         <span className="step-label">{t("BƯỚC 1/5", "STEP 1/5")}</span>
