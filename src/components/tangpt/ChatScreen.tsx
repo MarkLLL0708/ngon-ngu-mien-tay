@@ -205,6 +205,17 @@ export function ChatScreen({ companionId }: { companionId: string }) {
   const who = personaPronoun(companion?.persona_gender, vi);
   const chips = quickChips(companion?.region ?? "bac", companion?.address_other ?? t("bạn", "you"), vi);
 
+  if (missing) return <main className="chat-screen">
+    <header className="chat-header">
+      <Button asChild variant="ghost" size="icon" aria-label={t("Quay lại", "Back")}><Link to="/app/ai"><ArrowLeft /></Link></Button>
+      <div className="min-w-0"><strong>{t("Không tìm thấy", "Not found")}</strong></div>
+    </header>
+    <div className="empty-state" style={{ padding: "32px 16px", textAlign: "center" }}>
+      <p>{t("Cuộc trò chuyện này không còn nữa.", "This conversation is no longer available.")}</p>
+      <Button asChild className="mt-4"><Link to="/app/ai">{t("Về danh sách nhân vật", "Back to characters")}</Link></Button>
+    </div>
+  </main>;
+
   let lastDay = "";
   return <main className="chat-screen">
     <header className="chat-header">
