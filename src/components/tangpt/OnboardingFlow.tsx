@@ -10,9 +10,11 @@ import { BackButton } from "./BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { logDebug } from "@/lib/debug-bus";
 import type { AgeGroup } from "@/lib/tangpt-data";
-import type { UserGender } from "@/lib/tangpt-profile";
+import { GenderPairCards } from "./GenderPairCards";
+import { defaultAddress, type GenderPair } from "@/lib/tangpt-gender";
 
-const STEPS = 5;
+const STEPS = 6;
+
 
 export function OnboardingFlow() {
   const [step, setStep] = useState(0);
