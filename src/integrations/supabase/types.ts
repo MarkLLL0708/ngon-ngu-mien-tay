@@ -101,7 +101,9 @@ export type Database = {
           chat_language: string
           city: string
           created_at: string
+          gallery_urls: string[]
           id: string
+          intro_video_url: string
           job: string
           last_message_at: string | null
           last_message_preview: string
@@ -109,8 +111,10 @@ export type Database = {
           mode: string
           name: string
           persona_gender: string
+          persona_slug: string
           persona_style: string
           personality: string
+          published: boolean
           region: string
           user_id: string
           voice_profile_id: string | null
@@ -123,7 +127,9 @@ export type Database = {
           chat_language?: string
           city?: string
           created_at?: string
+          gallery_urls?: string[]
           id?: string
+          intro_video_url?: string
           job?: string
           last_message_at?: string | null
           last_message_preview?: string
@@ -131,8 +137,10 @@ export type Database = {
           mode: string
           name: string
           persona_gender?: string
+          persona_slug?: string
           persona_style?: string
           personality: string
+          published?: boolean
           region: string
           user_id: string
           voice_profile_id?: string | null
@@ -145,7 +153,9 @@ export type Database = {
           chat_language?: string
           city?: string
           created_at?: string
+          gallery_urls?: string[]
           id?: string
+          intro_video_url?: string
           job?: string
           last_message_at?: string | null
           last_message_preview?: string
@@ -153,8 +163,10 @@ export type Database = {
           mode?: string
           name?: string
           persona_gender?: string
+          persona_slug?: string
           persona_style?: string
           personality?: string
+          published?: boolean
           region?: string
           user_id?: string
           voice_profile_id?: string | null
@@ -169,6 +181,105 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      persona_admins: {
+        Row: {
+          created_at: string
+          note: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          note?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          note?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      personas: {
+        Row: {
+          age_vibe: string
+          backstory: string
+          catchphrase: string
+          city: string
+          created_at: string
+          daily_life: string
+          family: string
+          favorite_things: string
+          gallery_urls: string[]
+          id: string
+          intro_video_url: string
+          is_seed: boolean
+          job: string
+          name: string
+          opinions: string
+          persona_gender: string
+          personality: string
+          published: boolean
+          quirks: string
+          region: string
+          slug: string
+          sort_order: number
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          age_vibe?: string
+          backstory?: string
+          catchphrase?: string
+          city?: string
+          created_at?: string
+          daily_life?: string
+          family?: string
+          favorite_things?: string
+          gallery_urls?: string[]
+          id?: string
+          intro_video_url?: string
+          is_seed?: boolean
+          job?: string
+          name?: string
+          opinions?: string
+          persona_gender?: string
+          personality?: string
+          published?: boolean
+          quirks?: string
+          region?: string
+          slug: string
+          sort_order?: number
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          age_vibe?: string
+          backstory?: string
+          catchphrase?: string
+          city?: string
+          created_at?: string
+          daily_life?: string
+          family?: string
+          favorite_things?: string
+          gallery_urls?: string[]
+          id?: string
+          intro_video_url?: string
+          is_seed?: boolean
+          job?: string
+          name?: string
+          opinions?: string
+          persona_gender?: string
+          personality?: string
+          published?: boolean
+          quirks?: string
+          region?: string
+          slug?: string
+          sort_order?: number
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -333,7 +444,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_persona_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

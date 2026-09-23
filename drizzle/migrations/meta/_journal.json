@@ -50,6 +50,20 @@
       "when": 1790056257570,
       "tag": "0006_add_via_to_companion_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790151851167,
+      "tag": "0007_persona_media_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790151881508,
+      "tag": "0008_persona_media_storage_policies",
+      "breakpoints": true
     }
   ]
 }
