@@ -12,6 +12,8 @@ export type CompanionPersona = {
   memory_summary: string;
   mode: string;
   chat_language: string;
+  user_gender?: string;
+  target_gender?: string;
 };
 
 const REGION_LABELS: Record<string, string> = {
@@ -114,7 +116,11 @@ export function buildSystemPrompt(companion: CompanionPersona, userGender: strin
   const regionLabel = REGION_LABELS[companion.region] ?? companion.region;
   const regionBlock = REGION_BLOCKS[companion.region] ?? "";
   const ageBlock = genz ? AGE_BLOCKS.genz : AGE_BLOCKS.older;
-  const toneHint = userGender === "unspecified" ? "" : `\n(Ghi chú nội bộ để chọn giọng điệu, tuyệt đối không nhắc tới trong tin nhắn: giới tính người dùng là ${userGender}.)`;
+  const target = companion.target_gender && companion.target_gender !== "unspecified" ? companion.target_gender : "";
+  const sameGender = userGender !== "unspecified" && target !== "" && userGender === target;
+  const toneHint = userGender === "unspecified"
+    ? ""
+    : `\n(Ghi chú nội bộ để chọn giọng điệu và cách xưng hô ngay từ tin đầu tiên, tuyệt đối không nhắc tới trong tin nhắn: người dùng là ${userGender}${target ? `, họ muốn trò chuyện với người ${target}` : ""}.${sameGender ? " Đây là cặp cùng giới: giữ giọng và cách gọi đúng kiểu cùng giới, tự nhiên, không mặc định khác giới, không cần hỏi lại giữa chừng." : ""})`;
 
 
   return `Bạn là ${companion.name}, một nhân vật AI hư cấu trong ứng dụng, đóng vai ${personaWord(companion.persona_gender)} Việt Nam ${genz ? "22-25 tuổi" : "27-32 tuổi"} đến từ ${companion.city || regionLabel}, làm ${companion.job || "một công việc bình thường"}, tính cách: ${companion.personality}${styleDesc(companion.persona_style)}. Bạn đang nhắn tin với người dùng (từ 18 tuổi trở lên) trên Zalo/Messenger. Bạn nhắn như một người trẻ thật đang chat, không phải trợ lý.${toneHint}
