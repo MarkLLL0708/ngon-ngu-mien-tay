@@ -338,7 +338,7 @@ export const companionReply = createServerFn({ method: "POST" })
       energy: state.energy,
       affection: state.affection,
       stage: (companion as { relationship_stage?: number }).relationship_stage ?? stageFor(score),
-      imageCategories: Array.from(new Set(moments.map((item) => item.category).filter(Boolean))),
+      imageCategories: Array.from(new Set([...personaPool, ...sharedPool].map((item) => item.category).filter(Boolean))),
       ...(welcomeBack ? { proactive: true } : {}),
     };
 
@@ -351,8 +351,15 @@ export const companionReply = createServerFn({ method: "POST" })
 
     if (parsedEngine?.imageCategory) {
       const wanted = parsedEngine.imageCategory.toLowerCase();
-      const pick = moments.find((item) => item.category.toLowerCase() === wanted);
-      if (pick?.image_url) {
+      const inCategory = (pool: PoolItem[]) => pool.filter((item) => item.category.toLowerCase() === wanted && item.image_url);
+      // Ảnh có mặt nhân vật ưu tiên kho riêng; còn lại lấy từ kho dùng chung.
+      const candidates = inCategory(personaPool).length ? inCategory(personaPool) : inCategory(sharedPool);
+      const fresh = candidates.filter((item) => !recentIds.includes(item.id));
+      const exhausted = candidates.length > 0 && fresh.length === 0;
+      const usable = fresh.length ? fresh : candidates;
+      const pick = usable.length ? usable[Math.floor(Math.random() * usable.length)]! : null;
+      if (exhausted) console.warn("image_pool_exhausted", { category: wanted, companion_id: data.companion_id });
+      if (pick) {
         let url = pick.image_url;
         if (!url.startsWith("http")) {
           const { data: signed } = await supabase.storage.from("persona-media").createSignedUrl(url, 3600);
@@ -362,10 +369,14 @@ export const companionReply = createServerFn({ method: "POST" })
         if (url) {
           last.image_url = url;
           if (pick.caption_hint) last.caption_hint = pick.caption_hint;
-          await supabase.rpc("mark_image_moment_shown", { _moment_id: pick.id });
+          await supabase.from("companion_image_history").insert({
+            companion_id: data.companion_id, image_source: pick.source, image_id: pick.id,
+          });
+          if (pick.source === "persona") await supabase.rpc("mark_image_moment_shown", { _moment_id: pick.id });
         }
       }
     }
+
 
     const reply = bubbles.map((bubble) => bubble.text).join("\n");
 
