@@ -80,6 +80,17 @@ function clean(text: string) {
     .trim();
 }
 
+function parseRead(value: unknown): RizzRead | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const raw = value as Record<string, unknown>;
+  const signal = clean(String(raw["signal"] ?? ""));
+  const confidence = clean(String(raw["confidence"] ?? ""));
+  const explanation = clean(String(raw["explanation"] ?? ""));
+  const move = clean(String(raw["move"] ?? ""));
+  if (!signal && !explanation) return undefined;
+  return { signal, confidence, explanation, move };
+}
+
 function parsePayload(raw: string): RizzPayload | null {
   const stripped = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
   const start = stripped.indexOf("{");
@@ -91,6 +102,7 @@ function parsePayload(raw: string): RizzPayload | null {
     return {
       options: parsed.options.map((option) => ({ style: clean(String(option.style ?? "")), text: clean(String(option.text ?? "")), why: clean(String(option.why ?? "")) })),
       tip: clean(String(parsed.tip ?? "")),
+      read: parseRead(parsed.read),
     };
   } catch {
     return null;
