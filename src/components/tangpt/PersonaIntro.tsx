@@ -23,7 +23,11 @@ export function PersonaIntro({ persona, preview }: { persona: PersonaRow; previe
     if (preview || busy || !profile?.userId) return;
     setBusy(true);
     try {
-      const id = await startCompanion(profile.userId, persona);
+      const [self, other] = defaultAddress(profile.gender, profile.targetGender);
+      const id = await startCompanion(profile.userId, persona, {
+        addressSelf: self, addressOther: other, userGender: profile.gender, targetGender: profile.targetGender,
+      });
+
       navigate({ to: "/app/chat/$companionId", params: { companionId: id } });
     } finally { setBusy(false); }
   }
