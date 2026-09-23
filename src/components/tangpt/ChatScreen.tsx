@@ -43,6 +43,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
   const { t, lang } = useLang();
   const navigate = useNavigate();
   const [companion, setCompanion] = useState<Companion | null>(null);
+  const [missing, setMissing] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
