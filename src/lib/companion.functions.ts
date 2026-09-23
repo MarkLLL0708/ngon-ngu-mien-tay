@@ -301,7 +301,26 @@ export const companionReply = createServerFn({ method: "POST" })
       .or(momentFilter)
       .order("last_shown_at", { ascending: true, nullsFirst: true })
       .limit(40);
-    const moments = (momentRows ?? []) as { id: string; category: string; image_url: string; caption_hint: string }[];
+    const personaPool = ((momentRows ?? []) as MomentRow[]).map((row) => ({ ...row, source: "persona" as const }));
+
+    const { data: sharedRows } = await supabase
+      .from("shared_image_moments")
+      .select("id, category, image_url, caption_hint")
+      .eq("active", true)
+      .order("created_at", { ascending: true })
+      .limit(200);
+    const sharedPool = ((sharedRows ?? []) as MomentRow[]).map((row) => ({ ...row, source: "shared" as const }));
+
+    const { data: historyRows } = await supabase
+      .from("companion_image_history")
+      .select("image_id, shown_at")
+      .eq("companion_id", data.companion_id)
+      .order("shown_at", { ascending: false })
+      .limit(RECENT_IMAGE_WINDOW);
+    const recentIds = ((historyRows ?? []) as { image_id: string | null }[])
+      .map((row) => row.image_id)
+      .filter((id): id is string => Boolean(id));
+
 
     const { data: stateRow } = await supabase
       .from("companion_emotional_state")
