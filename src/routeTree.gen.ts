@@ -19,6 +19,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppMeRouteImport } from './routes/app.me'
+import { Route as ApiPublicCompanionDailyDecayRouteImport } from './routes/api/public/companion-daily-decay'
 import { Route as AppChatCompanionIdRouteImport } from './routes/app.chat.$companionId'
 import { Route as AppPersonaPersonaIdRouteImport } from './routes/app.persona.$personaId'
 import { Route as AppAdminPersonasIndexRouteImport } from './routes/app.admin.personas.index'
@@ -74,6 +75,12 @@ const AppMeRoute = AppMeRouteImport.update({
   path: '/me',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiPublicCompanionDailyDecayRoute =
+  ApiPublicCompanionDailyDecayRouteImport.update({
+    id: '/api/public/companion-daily-decay',
+    path: '/api/public/companion-daily-decay',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppChatCompanionIdRoute = AppChatCompanionIdRouteImport.update({
   id: '/chat/$companionId',
   path: '/chat/$companionId',
@@ -107,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/app/history': typeof AppHistoryRoute
   '/app/me': typeof AppMeRoute
   '/app/': typeof AppIndexRoute
+  '/api/public/companion-daily-decay': typeof ApiPublicCompanionDailyDecayRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
   '/app/history': typeof AppHistoryRoute
   '/app/me': typeof AppMeRoute
   '/app': typeof AppIndexRoute
+  '/api/public/companion-daily-decay': typeof ApiPublicCompanionDailyDecayRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
@@ -139,6 +148,7 @@ export interface FileRoutesById {
   '/app/history': typeof AppHistoryRoute
   '/app/me': typeof AppMeRoute
   '/app/': typeof AppIndexRoute
+  '/api/public/companion-daily-decay': typeof ApiPublicCompanionDailyDecayRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/app/history'
     | '/app/me'
     | '/app/'
+    | '/api/public/companion-daily-decay'
     | '/app/chat/$companionId'
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/app/history'
     | '/app/me'
     | '/app'
+    | '/api/public/companion-daily-decay'
     | '/app/chat/$companionId'
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
@@ -188,6 +200,7 @@ export interface FileRouteTypes {
     | '/app/history'
     | '/app/me'
     | '/app/'
+    | '/api/public/companion-daily-decay'
     | '/app/chat/$companionId'
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
@@ -201,6 +214,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  ApiPublicCompanionDailyDecayRoute: typeof ApiPublicCompanionDailyDecayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -275,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/companion-daily-decay': {
+      id: '/api/public/companion-daily-decay'
+      path: '/api/public/companion-daily-decay'
+      fullPath: '/api/public/companion-daily-decay'
+      preLoaderRoute: typeof ApiPublicCompanionDailyDecayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/chat/$companionId': {
       id: '/app/chat/$companionId'
       path: '/chat/$companionId'
@@ -337,6 +358,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  ApiPublicCompanionDailyDecayRoute: ApiPublicCompanionDailyDecayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -62,19 +62,23 @@ export function ChatScreen({ companionId }: { companionId: string }) {
   useOverlayFlag("memory-sheet", memoryOpen);
   useOverlayFlag("paywall", paywall);
 
-  const showBubbles = useCallback(async (reply: string) => {
-    const lines = reply.split("\n").map((line) => line.trim()).filter(Boolean);
-    for (let index = 0; index < lines.length; index += 1) {
-      const line = lines[index]!;
+  const showBubbles = useCallback(async (bubbles: { text: string; delay_ms?: number; image_url?: string; caption_hint?: string }[]) => {
+    for (const bubble of bubbles) {
+      const line = bubble.text.trim();
+      if (!line) continue;
       setTyping(true);
-      await wait(typingTime(line));
+      await wait(bubble.delay_ms ?? typingTime(line));
       setTyping(false);
       const id = crypto.randomUUID();
-      setMessages((list) => [...list, { id, from: "her", text: line, createdAt: new Date().toISOString() }]);
+      setMessages((list) => [...list, {
+        id, from: "her", text: line, createdAt: new Date().toISOString(),
+        ...(bubble.image_url ? { image: bubble.image_url } : {}),
+      }]);
       await wait(gap());
     }
     setTyping(false);
   }, []);
+
 
   useEffect(() => {
     let active = true;
@@ -105,7 +109,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
       welcomedRef.current = true;
       try {
         const result = await companionReply({ data: { companion_id: companionId, mode: "welcome_back" } });
-        if (active && result.reply.trim()) await showBubbles(result.reply);
+        if (active && result.messages?.length) await showBubbles(result.messages);
       } catch { /* im lặng, không làm phiền người dùng */ }
     })();
     return () => { active = false; };
@@ -181,10 +185,11 @@ export function ChatScreen({ companionId }: { companionId: string }) {
     if (fileRef.current) fileRef.current.value = "";
     setTyping(true);
 
-    let reply = "";
+    let bubbles: { text: string; delay_ms?: number; image_url?: string; caption_hint?: string }[] = [];
     try {
       const result = await companionReply({ data: { companion_id: companionId, message: text, ...(image ? { image_data: image } : {}) } });
-      reply = result.reply;
+      bubbles = result.messages ?? [];
+
     } catch (error) {
       setTyping(false);
       const raw = error instanceof Error ? error.message : String(error);
@@ -197,7 +202,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
     }
 
     setMessages((list) => list.map((item) => (item.id === mine.id ? { ...item, status: "seen" } : item)));
-    await showBubbles(reply);
+    await showBubbles(bubbles);
   }
 
   const vi = lang === "vi";

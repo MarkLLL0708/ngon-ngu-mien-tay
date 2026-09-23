@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      companion_emotional_state: {
+        Row: {
+          affection: number
+          companion_id: string
+          energy: number
+          last_updated: string
+          mood: string
+        }
+        Insert: {
+          affection?: number
+          companion_id: string
+          energy?: number
+          last_updated?: string
+          mood?: string
+        }
+        Update: {
+          affection?: number
+          companion_id?: string
+          energy?: number
+          last_updated?: string
+          mood?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companion_emotional_state_companion_id_fkey"
+            columns: ["companion_id"]
+            isOneToOne: true
+            referencedRelation: "companions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companion_memories: {
         Row: {
           category: string
@@ -21,6 +53,7 @@ export type Database = {
           created_at: string
           fact: string
           id: string
+          importance_score: number
           pinned: boolean
           updated_at: string
           user_id: string
@@ -31,6 +64,7 @@ export type Database = {
           created_at?: string
           fact: string
           id?: string
+          importance_score?: number
           pinned?: boolean
           updated_at?: string
           user_id: string
@@ -41,6 +75,7 @@ export type Database = {
           created_at?: string
           fact?: string
           id?: string
+          importance_score?: number
           pinned?: boolean
           updated_at?: string
           user_id?: string
@@ -101,6 +136,7 @@ export type Database = {
           chat_language: string
           city: string
           created_at: string
+          emoji_signature: string
           gallery_urls: string[]
           id: string
           intro_video_url: string
@@ -116,6 +152,9 @@ export type Database = {
           personality: string
           published: boolean
           region: string
+          relationship_score: number
+          relationship_stage: number
+          texting_habits: Json
           user_id: string
           voice_profile_id: string | null
           welcome_enabled: boolean
@@ -127,6 +166,7 @@ export type Database = {
           chat_language?: string
           city?: string
           created_at?: string
+          emoji_signature?: string
           gallery_urls?: string[]
           id?: string
           intro_video_url?: string
@@ -142,6 +182,9 @@ export type Database = {
           personality: string
           published?: boolean
           region: string
+          relationship_score?: number
+          relationship_stage?: number
+          texting_habits?: Json
           user_id: string
           voice_profile_id?: string | null
           welcome_enabled?: boolean
@@ -153,6 +196,7 @@ export type Database = {
           chat_language?: string
           city?: string
           created_at?: string
+          emoji_signature?: string
           gallery_urls?: string[]
           id?: string
           intro_video_url?: string
@@ -168,6 +212,9 @@ export type Database = {
           personality?: string
           published?: boolean
           region?: string
+          relationship_score?: number
+          relationship_stage?: number
+          texting_habits?: Json
           user_id?: string
           voice_profile_id?: string | null
           welcome_enabled?: boolean
@@ -199,6 +246,57 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      persona_image_moments: {
+        Row: {
+          caption_hint: string
+          category: string
+          companion_id: string | null
+          created_at: string
+          id: string
+          image_url: string
+          last_shown_at: string | null
+          persona_id: string | null
+          times_shown: number
+        }
+        Insert: {
+          caption_hint?: string
+          category?: string
+          companion_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          last_shown_at?: string | null
+          persona_id?: string | null
+          times_shown?: number
+        }
+        Update: {
+          caption_hint?: string
+          category?: string
+          companion_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          last_shown_at?: string | null
+          persona_id?: string | null
+          times_shown?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "persona_image_moments_companion_id_fkey"
+            columns: ["companion_id"]
+            isOneToOne: false
+            referencedRelation: "companions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "persona_image_moments_persona_id_fkey"
+            columns: ["persona_id"]
+            isOneToOne: false
+            referencedRelation: "personas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       personas: {
         Row: {
@@ -444,7 +542,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decay_companion_emotional_state: { Args: never; Returns: number }
       is_persona_admin: { Args: { _user_id: string }; Returns: boolean }
+      mark_image_moment_shown: {
+        Args: { _moment_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

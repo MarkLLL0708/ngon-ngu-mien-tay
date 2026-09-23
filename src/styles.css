@@ -252,3 +252,9 @@ input,textarea,select{font-size:16px;max-width:100%}
 .gallery-order button{min-width:32px;min-height:32px;border:0;background:transparent;color:#fff}
 .gallery-order button:disabled{opacity:.35}
 .admin-video{width:100%;border-radius:18px;background:#000;max-height:320px}
+
+/* Ảnh khoảnh khắc (admin) */
+.moment-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.moment-card { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 12px; background: rgba(255,255,255,0.04); }
+.moment-card small { display: block; color: hsl(var(--muted-foreground)); font-size: 12px; }
+.moment-thumb { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; background: rgba(255,255,255,0.06); flex: none; }
