@@ -24,7 +24,8 @@ export type RizzInput = {
   image_data?: string;
 };
 export type RizzOption = { style: string; text: string; why: string };
-export type RizzPayload = { options: RizzOption[]; tip: string };
+export type RizzRead = { signal: string; confidence: string; explanation: string; move: string };
+export type RizzPayload = { options: RizzOption[]; tip: string; read?: RizzRead };
 
 const FREE_DAILY_LIMIT = 5;
 const TEST_DAILY_LIMIT = 50;
@@ -79,6 +80,17 @@ function clean(text: string) {
     .trim();
 }
 
+function parseRead(value: unknown): RizzRead | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const raw = value as Record<string, unknown>;
+  const signal = clean(String(raw["signal"] ?? ""));
+  const confidence = clean(String(raw["confidence"] ?? ""));
+  const explanation = clean(String(raw["explanation"] ?? ""));
+  const move = clean(String(raw["move"] ?? ""));
+  if (!signal && !explanation) return undefined;
+  return { signal, confidence, explanation, move };
+}
+
 function parsePayload(raw: string): RizzPayload | null {
   const stripped = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
   const start = stripped.indexOf("{");
@@ -87,9 +99,11 @@ function parsePayload(raw: string): RizzPayload | null {
   try {
     const parsed = JSON.parse(stripped.slice(start, end + 1)) as RizzPayload;
     if (!Array.isArray(parsed.options) || parsed.options.length === 0) return null;
+    const read = parseRead(parsed.read);
     return {
       options: parsed.options.map((option) => ({ style: clean(String(option.style ?? "")), text: clean(String(option.text ?? "")), why: clean(String(option.why ?? "")) })),
       tip: clean(String(parsed.tip ?? "")),
+      ...(read ? { read } : {}),
     };
   } catch {
     return null;

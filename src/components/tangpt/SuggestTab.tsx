@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ImagePlus, Lightbulb, LoaderCircle, RefreshCw, Send, X } from "lucide-react";
+import { ImagePlus, Lightbulb, LoaderCircle, RefreshCw, ScanSearch, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatBubble } from "./ChatBubble";
 import { Paywall } from "./Paywall";
@@ -186,6 +186,15 @@ export function SuggestTab() {
       {loading ? <><LoaderCircle className="animate-spin" />{t("Đang nghĩ câu duyên...", "Thinking of something charming...")}</> : <><Send />{t("Gợi ý cho tôi", "Give me ideas")}</>}
     </Button>
     {result && <div className="results fade-up">
+      {result.read && mode === "reply" && <aside className="read-box">
+        <div className="read-head">
+          <ScanSearch />
+          <b>{t("Đọc vị tình huống", "Reading the situation")}</b>
+          {result.read.signal && <span className="read-signal">{result.read.signal}{result.read.confidence ? ` · ${result.read.confidence}` : ""}</span>}
+        </div>
+        {result.read.explanation && <p>{result.read.explanation}</p>}
+        {result.read.move && <p className="read-move"><b>{t("Nước đi:", "Next move:")}</b> {result.read.move}</p>}
+      </aside>}
       <div className="result-heading">
         <div><span>{t("3 CÁCH TRẢ LỜI", "3 WAYS TO REPLY")}</span><h2>{t("Chọn câu hợp bạn nhất", "Pick the one that feels like you")}</h2></div>
         <Button variant="ghost" size="sm" onClick={generate}><RefreshCw />{t("Tạo lại", "Regenerate")}</Button>
