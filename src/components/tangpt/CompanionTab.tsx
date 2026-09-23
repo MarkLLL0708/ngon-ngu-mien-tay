@@ -78,7 +78,7 @@ export function CompanionTab() {
       <div className="persona-grid">{filtered.map((p) => <PersonaCard key={p.id} persona={p} selected={selected?.id === p.id} onSelect={() => setSelected(p)} />)}</div>
     </>}
 
-    {showPicker && selected && <div className="confirm-sheet fade-up">
+    {showPicker && selected && <div className="confirm-sheet">
       <div className="confirm-sheet-body">
       <div className="sheet-handle" />
       <div className="flex items-center gap-3"><div className="avatar-orbit small"><span>{selected.name[0]}</span></div><div><h2>{selected.name}, {selected.age}</h2><p>{selected.job} · {selected.city}</p></div></div>
