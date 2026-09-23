@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Sparkle, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RegionPicker } from "./RegionPicker";
+import { RegionChipBar } from "./RegionChipBar";
 import { useRegionTheme } from "./RegionTheme";
 import { LangToggle, useLang } from "./Language";
 import { BackButton } from "./BackButton";
@@ -117,6 +118,7 @@ export function OnboardingFlow() {
       <div className="progress-dots">{Array.from({ length: STEPS }, (_, i) => <i key={i} className={i <= step ? "active" : ""} />)}</div>
       <LangToggle />
     </header>
+    <RegionChipBar onSelect={() => { if (step === 1) void pickRegion(); }} />
     <section className="onboarding-card fade-up">
       {step === 0 && <>
         <div className="line-illustration"><UserRound /></div>
@@ -127,7 +129,7 @@ export function OnboardingFlow() {
           <input type="checkbox" checked={ageConfirmed} onChange={(e) => setAgeConfirmed(e.target.checked)} />
           <span><b>{t("Tôi xác nhận tôi đủ 18 tuổi", "I confirm I am 18 or older")}</b><small>{t("Mình cần bạn xác nhận để giữ trải nghiệm phù hợp.", "We need this to keep the experience appropriate.")}</small></span>
         </label>
-        <Button variant="gradient" size="lg" disabled={!ageConfirmed || busy} onClick={confirmAge}>{t("Tiếp tục", "Continue")}</Button>
+        <div className="anchored-actions"><Button variant="gradient" size="lg" disabled={!ageConfirmed || busy} onClick={confirmAge}>{t("Tiếp tục", "Continue")}</Button></div>
       </>}
       {step === 1 && <>
         <span className="step-label">{t("BƯỚC 2/5", "STEP 2/5")}</span>
@@ -140,7 +142,7 @@ export function OnboardingFlow() {
         <h1>{t("Thành phố nào?", "Which city?")}</h1>
         <p>{t("Chọn thành phố để giọng điệu sát hơn nữa.", "Pick a city so the tone fits even better.")}</p>
         <RegionPicker />
-        <Button variant="gradient" size="lg" disabled={busy} onClick={saveCity}>{t(`Tiếp tục với ${city}`, `Continue with ${city}`)}</Button>
+        <div className="anchored-actions"><Button variant="gradient" size="lg" disabled={busy} onClick={saveCity}>{t(`Tiếp tục với ${city}`, `Continue with ${city}`)}</Button></div>
       </>}
       {step === 3 && <>
         <div className="line-illustration"><Sparkle /></div>
@@ -148,7 +150,7 @@ export function OnboardingFlow() {
         <h1>{t("Em ấy khoảng bao nhiêu tuổi?", "Roughly how old is she?")}</h1>
         <p>{t("Mỗi lứa tuổi có một nhịp trò chuyện khác nhau.", "Every age group has its own rhythm of conversation.")}</p>
         <div className="age-grid">{(["18-26", "27-35", "36+"] as AgeGroup[]).map((value) => <button type="button" key={value} className={age === value ? "active" : ""} onClick={() => setAge(value)}>{value}</button>)}</div>
-        <Button variant="gradient" size="lg" disabled={busy} onClick={saveAge}>{t("Tiếp tục", "Continue")}</Button>
+        <div className="anchored-actions"><Button variant="gradient" size="lg" disabled={busy} onClick={saveAge}>{t("Tiếp tục", "Continue")}</Button></div>
       </>}
       {step === 4 && <>
         <div className="line-illustration"><UserRound /></div>
@@ -169,8 +171,10 @@ export function OnboardingFlow() {
           <input className="chip flex-1" maxLength={12} value={addressSelf} onChange={(e) => setAddressSelf(e.target.value)} placeholder={t("Bạn xưng", "You say")} />
           <input className="chip flex-1" maxLength={12} value={addressOther} onChange={(e) => setAddressOther(e.target.value)} placeholder={t("Gọi người ấy", "Call them")} />
         </div>
-        <Button variant="gradient" size="lg" disabled={busy} onClick={() => finish(true)}>{t("Bắt đầu", "Start")}</Button>
-        <button type="button" className="chip" disabled={busy} onClick={() => finish(false)}>{t("Bỏ qua bước này", "Skip this step")}</button>
+        <div className="anchored-actions">
+          <Button variant="gradient" size="lg" disabled={busy} onClick={() => finish(true)}>{t("Bắt đầu", "Start")}</Button>
+          <button type="button" className="chip" disabled={busy} onClick={() => finish(false)}>{t("Bỏ qua bước này", "Skip this step")}</button>
+        </div>
       </>}
     </section>
   </main>;

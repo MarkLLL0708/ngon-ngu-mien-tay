@@ -76,8 +76,10 @@ export function SaveAccountModal({ open, onClose, onSaved }: { open: boolean; on
       <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@vidu.com" />
       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("Mật khẩu", "Password")} />
       {error && <small className="form-error">{error}</small>}
-      <Button variant="gradient" size="lg" disabled={busy} onClick={() => void save()}>{t("Lưu tài khoản", "Save account")}</Button>
-      <button type="button" className="link-btn" onClick={() => void signInInstead()}>{t("Đã có tài khoản? Đăng nhập", "Already have an account? Log in")}</button>
+      <div className="anchored-actions">
+        <Button variant="gradient" size="lg" disabled={busy} onClick={() => void save()}>{t("Lưu tài khoản", "Save account")}</Button>
+        <button type="button" className="link-btn" onClick={() => void signInInstead()}>{t("Đã có tài khoản? Đăng nhập", "Already have an account? Log in")}</button>
+      </div>
     </div>
   </div>;
 }

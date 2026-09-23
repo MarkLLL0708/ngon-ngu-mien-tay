@@ -222,7 +222,7 @@ export function CallScreen({ companion, onClose }: { companion: Companion; onClo
       </div>}
       {micIssue && <div className="call-notice">
         <p>{t("Trình duyệt này chặn micro. Hãy mở link bằng Safari hoặc Chrome.", "This browser blocks the microphone. Open the link in Safari or Chrome.")}</p>
-        <div className="flex gap-2">
+        <div className="anchored-actions flex gap-2">
           <Button variant="outline" size="sm" onClick={copyLink}><Copy />{t("Sao chép link", "Copy link")}</Button>
           <Button variant="outline" size="sm" onClick={hangUp}>{t("Nhắn tin", "Send a message")}</Button>
         </div>

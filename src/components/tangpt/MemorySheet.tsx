@@ -136,7 +136,7 @@ export function MemorySheet({ companionId, personaGender, onClose, onWiped }: {
         <p>{confirm === "memories"
           ? t("Xóa toàn bộ ký ức? Không thể hoàn tác.", "Delete all memories? This cannot be undone.")
           : t("Xóa toàn bộ lịch sử trò chuyện? Không thể hoàn tác.", "Delete the whole chat history? This cannot be undone.")}</p>
-        <div className="flex gap-2">
+        <div className="anchored-actions flex gap-2">
           <Button variant="ghost" onClick={() => setConfirm(null)}>{t("Hủy", "Cancel")}</Button>
           <Button variant="gradient" onClick={() => void (confirm === "memories" ? wipeMemories() : wipeMessages())}>{t("Xóa", "Delete")}</Button>
         </div>
