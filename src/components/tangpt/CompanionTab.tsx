@@ -8,6 +8,8 @@ import { useRegionTheme } from "./RegionTheme";
 import { useLang } from "./Language";
 import { SaveAccountBanner, SaveAccountModal, useGuestAccount } from "./SaveAccount";
 import { usePublishedPersonas } from "@/lib/tangpt-personas";
+import { useProfile } from "@/lib/tangpt-profile";
+import { personaGenderFilter } from "@/lib/tangpt-gender";
 import { companionGenderMix, listTitle, relativeTime, useCompanions } from "@/lib/tangpt-companions";
 
 export function CompanionTab() {
@@ -18,7 +20,9 @@ export function CompanionTab() {
   const guest = useGuestAccount();
   const [saveOpen, setSaveOpen] = useState(false);
   const [adding, setAdding] = useState(false);
-  const personas = usePublishedPersonas(region);
+  const profile = useProfile();
+  // Persona list follows the combined choice: a specific gender, or everyone when open/unspecified.
+  const personas = usePublishedPersonas(region, profile ? personaGenderFilter(profile.targetGender) : null);
 
   const list = rows ?? [];
   const hasCompanions = list.length > 0;

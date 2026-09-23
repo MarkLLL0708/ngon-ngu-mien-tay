@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useLang } from "./Language";
 import { startCompanion, type PersonaRow } from "@/lib/tangpt-personas";
 import { readReplyLanguage, saveReplyLanguage, useProfile } from "@/lib/tangpt-profile";
+import { defaultAddress } from "@/lib/tangpt-gender";
 import type { ReplyLanguage } from "@/lib/tangpt-api";
 
 export function PersonaCustomizeSheet({ persona, preview, onClose }: { persona: PersonaRow; preview?: boolean; onClose: () => void }) {
@@ -17,6 +18,7 @@ export function PersonaCustomizeSheet({ persona, preview, onClose }: { persona: 
   const [busy, setBusy] = useState(false);
 
   useEffect(() => { setChatLanguage(readReplyLanguage()); }, []);
+  useEffect(() => { if (profile) setPair(defaultAddress(profile.gender, profile.targetGender)); }, [profile]);
 
   async function start() {
     if (preview || busy || !profile?.userId) return;
@@ -25,6 +27,7 @@ export function PersonaCustomizeSheet({ persona, preview, onClose }: { persona: 
     try {
       const id = await startCompanion(profile.userId, persona, {
         personality, personaStyle, chatLanguage, addressSelf: pair[0], addressOther: pair[1],
+        userGender: profile.gender, targetGender: profile.targetGender,
       });
       navigate({ to: "/app/chat/$companionId", params: { companionId: id } });
     } finally { setBusy(false); }
