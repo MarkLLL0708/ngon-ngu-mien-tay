@@ -99,10 +99,11 @@ function parsePayload(raw: string): RizzPayload | null {
   try {
     const parsed = JSON.parse(stripped.slice(start, end + 1)) as RizzPayload;
     if (!Array.isArray(parsed.options) || parsed.options.length === 0) return null;
+    const read = parseRead(parsed.read);
     return {
       options: parsed.options.map((option) => ({ style: clean(String(option.style ?? "")), text: clean(String(option.text ?? "")), why: clean(String(option.why ?? "")) })),
       tip: clean(String(parsed.tip ?? "")),
-      read: parseRead(parsed.read),
+      ...(read ? { read } : {}),
     };
   } catch {
     return null;
