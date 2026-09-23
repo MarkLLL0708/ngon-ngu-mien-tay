@@ -11,7 +11,9 @@ import { useLang } from "./Language";
 import { regions, type AgeGroup, type RegionKey } from "@/lib/tangpt-data";
 import { ACCEPTED_IMAGE_TYPES, imageErrorText, prepareImage } from "@/lib/tangpt-image";
 import { generateRizz, type RizzPayload, type RizzRegion } from "@/lib/rizz.functions";
-import { readReplyLanguage, saveReplyLanguage, saveUserGender, useProfile, type UserGender } from "@/lib/tangpt-profile";
+import { readReplyLanguage, saveReplyLanguage, useProfile, type UserGender } from "@/lib/tangpt-profile";
+import { defaultAddress } from "@/lib/tangpt-gender";
+
 import type { RizzRelativeAge, RizzTargetGender } from "@/lib/rizz.functions";
 
 type ReplyLanguage = "vi" | "en" | "mix";
