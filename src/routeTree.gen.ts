@@ -19,7 +19,6 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppMeRouteImport } from './routes/app.me'
-import { Route as AppVoiceLabRouteImport } from './routes/app.voice-lab'
 import { Route as AppChatCompanionIdRouteImport } from './routes/app.chat.$companionId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -72,11 +71,6 @@ const AppMeRoute = AppMeRouteImport.update({
   path: '/me',
   getParentRoute: () => AppRoute,
 } as any)
-const AppVoiceLabRoute = AppVoiceLabRouteImport.update({
-  id: '/voice-lab',
-  path: '/voice-lab',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppChatCompanionIdRoute = AppChatCompanionIdRouteImport.update({
   id: '/chat/$companionId',
   path: '/chat/$companionId',
@@ -93,7 +87,6 @@ export interface FileRoutesByFullPath {
   '/app/ai': typeof AppAiRoute
   '/app/history': typeof AppHistoryRoute
   '/app/me': typeof AppMeRoute
-  '/app/voice-lab': typeof AppVoiceLabRoute
   '/app/': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
 }
@@ -106,7 +99,6 @@ export interface FileRoutesByTo {
   '/app/ai': typeof AppAiRoute
   '/app/history': typeof AppHistoryRoute
   '/app/me': typeof AppMeRoute
-  '/app/voice-lab': typeof AppVoiceLabRoute
   '/app': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
 }
@@ -121,7 +113,6 @@ export interface FileRoutesById {
   '/app/ai': typeof AppAiRoute
   '/app/history': typeof AppHistoryRoute
   '/app/me': typeof AppMeRoute
-  '/app/voice-lab': typeof AppVoiceLabRoute
   '/app/': typeof AppIndexRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
 }
@@ -137,7 +128,6 @@ export interface FileRouteTypes {
     | '/app/ai'
     | '/app/history'
     | '/app/me'
-    | '/app/voice-lab'
     | '/app/'
     | '/app/chat/$companionId'
   fileRoutesByTo: FileRoutesByTo
@@ -150,7 +140,6 @@ export interface FileRouteTypes {
     | '/app/ai'
     | '/app/history'
     | '/app/me'
-    | '/app/voice-lab'
     | '/app'
     | '/app/chat/$companionId'
   id:
@@ -164,7 +153,6 @@ export interface FileRouteTypes {
     | '/app/ai'
     | '/app/history'
     | '/app/me'
-    | '/app/voice-lab'
     | '/app/'
     | '/app/chat/$companionId'
   fileRoutesById: FileRoutesById
@@ -250,13 +238,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMeRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/voice-lab': {
-      id: '/app/voice-lab'
-      path: '/voice-lab'
-      fullPath: '/app/voice-lab'
-      preLoaderRoute: typeof AppVoiceLabRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/chat/$companionId': {
       id: '/app/chat/$companionId'
       path: '/chat/$companionId'
@@ -271,7 +252,6 @@ interface AppRouteChildren {
   AppAiRoute: typeof AppAiRoute
   AppHistoryRoute: typeof AppHistoryRoute
   AppMeRoute: typeof AppMeRoute
-  AppVoiceLabRoute: typeof AppVoiceLabRoute
   AppIndexRoute: typeof AppIndexRoute
   AppChatCompanionIdRoute: typeof AppChatCompanionIdRoute
 }
@@ -280,7 +260,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppAiRoute: AppAiRoute,
   AppHistoryRoute: AppHistoryRoute,
   AppMeRoute: AppMeRoute,
-  AppVoiceLabRoute: AppVoiceLabRoute,
   AppIndexRoute: AppIndexRoute,
   AppChatCompanionIdRoute: AppChatCompanionIdRoute,
 }

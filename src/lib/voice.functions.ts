@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { buildStyleInstruction, regionFallbacks, type PersonaGender, type Region } from "./voice-style";
-import { ACTIVE_VOICE_PROVIDERS } from "./tangpt-config";
+import { ACTIVE_VOICE_PROVIDERS, VOICE_FEATURE_ENABLED } from "./tangpt-config";
 
 export type VoiceTtsInput = {
   text: string;
@@ -22,7 +22,7 @@ export type VoiceTtsPayload = {
 };
 
 export class VoiceTtsError extends Error {
-  constructor(public code: "missing_key" | "no_profile" | "bad_voice_id" | "provider_failed" | "empty_text") {
+  constructor(public code: "voice_disabled" | "missing_key" | "no_profile" | "bad_voice_id" | "provider_failed" | "empty_text") {
     super(code);
   }
 }
@@ -58,6 +58,7 @@ export const voiceTts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: VoiceTtsInput) => input)
   .handler(async ({ data, context }): Promise<VoiceTtsPayload> => {
+    if (!VOICE_FEATURE_ENABLED) throw new VoiceTtsError("voice_disabled");
     const text = (data.text ?? "").trim().slice(0, 900);
     if (!text) throw new VoiceTtsError("empty_text");
 
