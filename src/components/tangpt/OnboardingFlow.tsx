@@ -20,10 +20,11 @@ export function OnboardingFlow() {
   const [step, setStep] = useState(0);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [age, setAge] = useState<AgeGroup>("18-26");
-  const [gender, setGender] = useState<UserGender>("unspecified");
+  const [pair, setPair] = useState<GenderPair | null>(null);
   const [addressSelf, setAddressSelf] = useState("mình");
   const [addressOther, setAddressOther] = useState("bạn");
   const [busy, setBusy] = useState(false);
+
   const { region, city } = useRegionTheme();
   const { t } = useLang();
   const navigate = useNavigate();
