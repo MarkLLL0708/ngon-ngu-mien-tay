@@ -258,3 +258,12 @@ input,textarea,select{font-size:16px;max-width:100%}
 .moment-card { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 12px; background: rgba(255,255,255,0.04); }
 .moment-card small { display: block; color: hsl(var(--muted-foreground)); font-size: 12px; }
 .moment-thumb { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; background: rgba(255,255,255,0.06); flex: none; }
+
+/* Tồn kho ảnh khoảnh khắc (admin) */
+.stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
+.stock-cell { padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.04); min-width: 0; }
+.stock-cell strong { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stock-cell small { color: hsl(var(--muted-foreground)); font-size: 12px; }
+.stock-low { outline: 1px solid rgba(255,180,80,0.5); }
+.stock-banner { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 12px; border-radius: 12px;
+  background: rgba(255,180,80,0.12); color: #ffca7a; font-size: 13px; }
