@@ -162,7 +162,7 @@ function parseEngine(raw: string): EngineOutput | null {
     affectionDelta: small(parsed.mood_delta?.affection),
     imageCategory: typeof parsed.image_moment === "string" && parsed.image_moment.trim() ? parsed.image_moment.trim() : null,
     relationshipDelta: clamp(Number(parsed.relationship_delta ?? 0), 0, 2),
-    romanceIntensityDelta: clamp(Number(parsed.romance_intensity_delta ?? 0), -1, 1),
+    romanceIntensityDelta: clamp(Math.round(Number(parsed.romance_intensity_delta ?? 0)), -1, 2),
   };
 }
 
