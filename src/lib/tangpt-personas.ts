@@ -80,7 +80,7 @@ const signedCache = new Map<string, { promise: Promise<string>; expires: number 
 /** Resolve a stored object path into a temporary readable URL (cached per path). */
 export function mediaUrl(path: string): Promise<string> {
   if (!path) return Promise.resolve("");
-  if (path.startsWith("http")) return Promise.resolve(path);
+  if (path.startsWith("http") || path.startsWith("/")) return Promise.resolve(path);
   const cached = signedCache.get(path);
   if (cached && cached.expires > Date.now()) return cached.promise;
   const promise = supabase.storage.from(PERSONA_BUCKET).createSignedUrl(path, 3600)
@@ -145,7 +145,7 @@ export async function uploadPersonaMedia(
 }
 
 export async function deletePersonaMedia(path: string) {
-  if (!path || path.startsWith("http")) return;
+  if (!path || path.startsWith("http") || path.startsWith("/")) return;
   await supabase.storage.from(PERSONA_BUCKET).remove([path]);
   signedCache.delete(path);
 }
