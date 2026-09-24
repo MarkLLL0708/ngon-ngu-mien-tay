@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { PersonaThumb } from "./PersonaThumb";
 import { ImagePoolPanel } from "./ImagePoolPanel";
+import { MediaUploadPanel } from "./MediaUploadPanel";
 
 import { listAllPersonas, type PersonaRow } from "@/lib/tangpt-personas";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +36,8 @@ export function PersonaAdminList() {
       <div className="page-title"><span>QUẢN TRỊ</span><h1>Nhân vật</h1></div>
       <Button variant="gradient" size="icon" aria-label="Tạo nhân vật" onClick={createPersona}><Plus /></Button>
     </div>
+
+    {rows && rows.length > 0 && <MediaUploadPanel personas={rows} onUpdated={(next) => setRows((current) => (current ?? []).map((item) => (item.id === next.id ? next : item)))} />}
 
     <ImagePoolPanel />
 

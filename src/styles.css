@@ -278,3 +278,5 @@ input,textarea,select{font-size:16px;max-width:100%}
 .gender-pair-card:active { transform: scale(0.99); }
 .gender-pair-card.active { border-color: hsl(var(--primary)); background: hsl(var(--primary) / 0.14); }
 .gender-pair-note { margin-top: 12px; font-size: 13px; line-height: 1.5; color: hsl(var(--muted-foreground)); }
+
+.admin-select { width: 100%; min-height: 2.5rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--card); color: var(--foreground); padding: 0 0.75rem; font-size: 0.9rem; }
