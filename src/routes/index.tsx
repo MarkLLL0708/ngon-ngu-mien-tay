@@ -6,10 +6,10 @@ import { LandingPage } from "@/components/tangpt/LandingPage";
 // project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
-    { title: "TánGPT — Nhắn tin duyên dáng, đúng chất vùng miền" },
-    { name: "description", content: "Trợ lý AI giúp bạn gợi ý trả lời và luyện tập trò chuyện tự nhiên theo vùng miền Việt Nam." },
-    { property: "og:title", content: "TánGPT — Nhắn tin duyên dáng" },
-    { property: "og:description", content: "Gợi ý trả lời tự nhiên như người bản xứ: Bắc, Trung, Nam hay Miền Tây." },
+    { title: "TánGPT — Người bạn AI đầu tiên thật sự hiểu bạn" },
+    { name: "description", content: "Người bạn AI nhớ bạn, hiểu vùng miền của bạn và luôn ở đó — kể cả 2 giờ sáng." },
+    { property: "og:title", content: "TánGPT — Người bạn AI thật sự hiểu bạn" },
+    { property: "og:description", content: "Người bạn AI đầu tiên nói đúng chất vùng miền của bạn: Bắc, Trung, Nam hay Miền Tây." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),

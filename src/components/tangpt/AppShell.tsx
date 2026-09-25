@@ -1,16 +1,19 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { History, Lightbulb, MessageCircle, UserRound } from "lucide-react";
+import { MessageCircle, UserRound } from "lucide-react";
 import { LangToggle, useLang } from "./Language";
 import { BackButton } from "./BackButton";
 import { companionGenderMix, navLabel, useCompanions } from "@/lib/tangpt-companions";
+import { REPLY_HELPER_ENABLED } from "@/lib/tangpt-config";
 
-const items = [
-  { to: "/app", icon: Lightbulb, vi: "Gợi ý", en: "Ideas", exact: true },
+const companionItems = [
   { to: "/app/ai", icon: MessageCircle, vi: "Bạn gái AI", en: "AI girlfriend", exact: false },
-  { to: "/app/history", icon: History, vi: "Lịch sử", en: "History", exact: false },
   { to: "/app/me", icon: UserRound, vi: "Tôi", en: "Me", exact: false },
 ] as const;
+
+const items = REPLY_HELPER_ENABLED
+  ? [{ to: "/app", icon: MessageCircle, vi: "Gợi ý", en: "Ideas", exact: true } as const, ...companionItems]
+  : companionItems;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { lang } = useLang();
