@@ -1,9 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { WELCOME_BACK_HOURS } from "./tangpt-config";
+import { COMPARE_MODELS, TEST_MODEL_OVERRIDE, WELCOME_BACK_HOURS } from "./tangpt-config";
+import { ADMIN_USER_IDS } from "./tangpt-admin";
 import { buildSystemPrompt, IMAGE_CAPTION_PROMPT, IMAGE_TURN_INSTRUCTION, type Continuity, type CompanionPersona, type EngineState, type TextingHabits } from "./companion.prompt";
 
-export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back"; image_data?: string };
+export type CompanionInput = { companion_id: string; message?: string; mode?: "chat" | "welcome_back"; image_data?: string; model_override?: string };
+
+const DEFAULT_MODEL = "openai/gpt-6-astra";
 export type CompanionBubble = { text: string; delay_ms: number; image_url?: string; caption_hint?: string };
 export type CompanionPayload = { reply: string; messages: CompanionBubble[] };
 
@@ -34,12 +37,72 @@ function safeImage(value: unknown): string | null {
   return raw;
 }
 
-async function askModel(apiKey: string, system: string, turns: Turn[]): Promise<string> {
+/** Claude via native /v1/messages; same inputs, same errors, returns raw text. */
+async function askClaude(apiKey: string, model: string, system: string, turns: Turn[]): Promise<string> {
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}`, "X-Lovable-AIG-SDK": "fetch" },
+    body: JSON.stringify({
+      model,
+      max_tokens: 4000,
+      stream: true,
+      system,
+      messages: turns.map((turn) => {
+        if (turn.role === "user" && turn.image) {
+          const match = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/.exec(turn.image);
+          return {
+            role: "user",
+            content: [
+              ...(match ? [{ type: "image", source: { type: "base64", media_type: match[1], data: match[2] } }] : []),
+              { type: "text", text: turn.content || "(người dùng gửi ảnh, không kèm chữ)" },
+            ],
+          };
+        }
+        return { role: turn.role, content: turn.content || "..." };
+      }),
+    }),
+  });
+  if (!response.ok || !response.body) {
+    const detail = response.body ? await response.text() : "";
+    console.error("companion gateway error (claude)", model, response.status, detail);
+    if (response.status === 429) throw new CompanionError("rate_limited");
+    if (response.status === 402 || response.status === 403) throw new CompanionError("credits");
+    throw new CompanionError("ai_unavailable");
+  }
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let text = "";
+  let refused = false;
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.startsWith("data:")) continue;
+      const payload = line.slice(5).trim();
+      if (!payload) continue;
+      try {
+        const event = JSON.parse(payload) as { type?: string; delta?: { type?: string; text?: string; stop_reason?: string } };
+        if (event.type === "content_block_delta" && event.delta?.type === "text_delta") text += event.delta.text ?? "";
+        else if (event.type === "message_delta" && event.delta?.stop_reason === "refusal") refused = true;
+        else if (event.type === "error") throw new CompanionError("ai_unavailable");
+      } catch (error) { if (error instanceof CompanionError) throw error; }
+    }
+  }
+  if (refused) throw new CompanionError("ai_unavailable");
+  return text;
+}
+
+async function askModel(apiKey: string, system: string, turns: Turn[], model: string = DEFAULT_MODEL): Promise<string> {
+  if (model.startsWith("anthropic/")) return askClaude(apiKey, model, system, turns);
   const response = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: "openai/gpt-6-astra",
+      model,
       instructions: system,
       input: turns.map((turn) => ({
         role: turn.role,
@@ -368,7 +431,17 @@ export const companionReply = createServerFn({ method: "POST" })
       engine,
     );
     const system = image ? `${baseSystem}\n\n${IMAGE_TURN_INSTRUCTION}` : baseSystem;
-    const rawReply = await askModel(apiKey, system, turns);
+    // Model comparison: admin's own session override first, then the global config flag, else default.
+    let replyModel = TEST_MODEL_OVERRIDE || DEFAULT_MODEL;
+    if (data.model_override && COMPARE_MODELS.includes(data.model_override)) {
+      let isAdmin = ADMIN_USER_IDS.includes(userId);
+      if (!isAdmin) {
+        const { data: adminRow } = await supabase.from("persona_admins").select("user_id").eq("user_id", userId).maybeSingle();
+        isAdmin = Boolean(adminRow);
+      }
+      if (isAdmin) replyModel = data.model_override;
+    }
+    const rawReply = await askModel(apiKey, system, turns, replyModel);
     const parsedEngine = parseEngine(rawReply);
     const bubbles: CompanionBubble[] = parsedEngine?.messages ?? bubblesFromText(clean(rawReply));
     if (!bubbles.length) throw new CompanionError("ai_unavailable");
