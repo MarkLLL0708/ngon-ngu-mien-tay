@@ -280,3 +280,18 @@ input,textarea,select{font-size:16px;max-width:100%}
 .gender-pair-note { margin-top: 12px; font-size: 13px; line-height: 1.5; color: hsl(var(--muted-foreground)); }
 
 .admin-select { width: 100%; min-height: 2.5rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--card); color: var(--foreground); padding: 0 0.75rem; font-size: 0.9rem; }
+.top-actions{display:flex;align-items:center;gap:6px}
+.side-nav .side-home{margin-top:auto}
+.chat-desktop-list,.chat-desktop>.side-nav{display:none}
+.chat-desktop-list .chat-list>a{min-height:72px;padding:10px;border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--foreground);display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px}
+.chat-desktop-list .chat-list>a.active{border-color:var(--primary);background:color-mix(in oklab,var(--primary) 10%,var(--surface))}
+@media(min-width:1024px){
+.app-content{padding:32px 28px}
+.chat-desktop{display:grid;grid-template-columns:220px 320px minmax(0,1fr);max-width:1440px;margin:auto;height:100dvh}
+.chat-desktop>.side-nav{display:flex}
+.chat-desktop-list{display:flex;flex-direction:column;gap:14px;padding:26px 14px;border-right:1px solid var(--border);overflow-y:auto;height:100dvh}
+.chat-desktop-list h2{font-size:1.1rem;margin:0 4px}
+.chat-desktop-main{min-width:0;height:100dvh;overflow-y:auto;border-right:1px solid var(--border)}
+.chat-desktop-main .chat-screen{min-height:100%}
+.chat-desktop-main .chat-header .avatar-orbit+div{min-width:0}
+}

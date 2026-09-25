@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Sparkle, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RegionPicker } from "./RegionPicker";
@@ -131,7 +131,7 @@ export function OnboardingFlow() {
 
   return <main className="onboarding-shell">
     <header>
-      <div className="nav-side"><BackButton onBack={goBack} /><span className="brand"><span>Tán</span>GPT<i /></span></div>
+      <div className="nav-side"><BackButton onBack={goBack} /><Link to="/" className="brand"><span>Tán</span>GPT<i /></Link></div>
       <div className="progress-dots">{Array.from({ length: STEPS }, (_, i) => <i key={i} className={i <= step ? "active" : ""} />)}</div>
       <LangToggle />
     </header>
