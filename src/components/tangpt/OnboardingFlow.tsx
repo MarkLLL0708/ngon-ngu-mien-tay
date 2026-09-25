@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logDebug } from "@/lib/debug-bus";
 import type { AgeGroup } from "@/lib/tangpt-data";
 import { defaultAddress, type GenderPair } from "@/lib/tangpt-gender";
+import { LegalFooter } from "./LegalFooter";
 
 const STEPS = 6;
 
@@ -196,5 +197,6 @@ export function OnboardingFlow() {
         </div>
       </>}
     </section>
+    <LegalFooter />
   </main>;
 }

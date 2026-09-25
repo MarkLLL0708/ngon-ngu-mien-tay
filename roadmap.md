@@ -18,3 +18,7 @@
 - [x] Secure server-side "rizz" generator (Claude, daily free limit, cleanup, history save)
 - [x] Gợi ý page uses real generator only; paywall on limit, toast on errors
 - [x] Uses built-in Lovable AI (no external key needed)
+- [x] Publish bilingual Terms and Privacy drafts with lawyer-review notices
+- [x] Require legal consent before account signup
+- [x] Add legal links across landing and app screens
+- [x] Add confirmed permanent account and data deletion
