@@ -295,3 +295,12 @@ input,textarea,select{font-size:16px;max-width:100%}
 .chat-desktop-main .chat-screen{min-height:100%}
 .chat-desktop-main .chat-header .avatar-orbit+div{min-width:0}
 }
+.app-top>.nav-side{display:flex;align-items:center;gap:8px;min-width:0}
+.app-top>.top-actions{display:flex;align-items:center;gap:6px}
+.side-nav a.brand{background:none;min-height:auto;font-size:1.4rem;color:var(--foreground)}
+@media(min-width:1024px){
+.app-layout{max-width:1280px}
+.app-shell{max-width:900px;width:100%}
+.app-top>.nav-side .brand{display:none}
+.persona-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
