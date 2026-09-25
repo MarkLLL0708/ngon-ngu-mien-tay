@@ -87,7 +87,7 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
           <label htmlFor="legal-consent">{t("Tôi đồng ý với", "I agree to the")} <Link to="/terms" target="_blank">{t("Điều khoản sử dụng", "Terms of Service")}</Link> {t("và", "and")} <Link to="/privacy" target="_blank">{t("Chính sách bảo mật", "Privacy Policy")}</Link></label>
         </div>}
         {error && <p className="form-message">{error}</p>}
-        <div className="anchored-actions"><Button variant="gradient" size="lg" className="w-full" disabled={busy}>{busy && <LoaderCircle className="animate-spin" />}{mode === "login" ? t("Đăng nhập", "Log in") : t("Tạo tài khoản", "Create account")}</Button></div>
+        <div className="anchored-actions"><Button variant="gradient" size="lg" className="w-full" disabled={busy || (mode === "signup" && !accepted)}>{busy && <LoaderCircle className="animate-spin" />}{mode === "login" ? t("Đăng nhập", "Log in") : t("Tạo tài khoản", "Create account")}</Button></div>
       </form>
       <div className="divider"><span>{t("hoặc", "or")}</span></div>
       <Button variant="outline" size="lg" className="w-full" onClick={google} disabled={mode === "signup" && !accepted}><b className="google-g">G</b> {t("Tiếp tục với Google", "Continue with Google")}</Button>
