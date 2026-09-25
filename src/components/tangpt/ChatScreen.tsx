@@ -10,6 +10,7 @@ import { companionReply } from "@/lib/companion.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { dayLabel, personaPronoun } from "@/lib/tangpt-companions";
 import { toast } from "sonner";
+import { readModelOverride } from "@/lib/tangpt-config";
 import { useOverlayFlag } from "@/lib/debug-bus";
 import { ACCEPTED_IMAGE_TYPES, imageErrorText, prepareImage } from "@/lib/tangpt-image";
 
@@ -108,7 +109,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
       if (welcomedRef.current) return;
       welcomedRef.current = true;
       try {
-        const result = await companionReply({ data: { companion_id: companionId, mode: "welcome_back" } });
+        const result = await companionReply({ data: { companion_id: companionId, mode: "welcome_back", ...(readModelOverride() ? { model_override: readModelOverride()! } : {}) } });
         if (active && result.messages?.length) await showBubbles(result.messages);
       } catch { /* im lặng, không làm phiền người dùng */ }
     })();
@@ -187,7 +188,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
 
     let bubbles: { text: string; delay_ms?: number; image_url?: string; caption_hint?: string }[] = [];
     try {
-      const result = await companionReply({ data: { companion_id: companionId, message: text, ...(image ? { image_data: image } : {}) } });
+      const result = await companionReply({ data: { companion_id: companionId, message: text, ...(image ? { image_data: image } : {}), ...(readModelOverride() ? { model_override: readModelOverride()! } : {}) } });
       bubbles = result.messages ?? [];
 
     } catch (error) {
