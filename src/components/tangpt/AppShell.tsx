@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { MessageCircle, UserRound } from "lucide-react";
+import { History, Lightbulb, MessageCircle, UserRound } from "lucide-react";
 import { LangToggle, useLang } from "./Language";
 import { BackButton } from "./BackButton";
 import { companionGenderMix, navLabel, useCompanions } from "@/lib/tangpt-companions";
@@ -12,7 +12,12 @@ const companionItems = [
 ] as const;
 
 const items = REPLY_HELPER_ENABLED
-  ? [{ to: "/app", icon: MessageCircle, vi: "Gợi ý", en: "Ideas", exact: true } as const, ...companionItems]
+  ? [
+      { to: "/app", icon: Lightbulb, vi: "Gợi ý", en: "Ideas", exact: true } as const,
+      companionItems[0],
+      { to: "/app/history", icon: History, vi: "Lịch sử", en: "History", exact: false } as const,
+      companionItems[1],
+    ]
   : companionItems;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -39,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <div className="app-content">{children}</div>
-      <nav className="bottom-nav">
+      <nav className="bottom-nav" data-item-count={items.length}>
         {items.map((item) => {
           const Icon = item.icon;
           return <Link key={item.to} to={item.to} activeOptions={{ exact: item.exact }} activeProps={{ className: "active" }}><Icon /><span>{label(item)}</span></Link>;
