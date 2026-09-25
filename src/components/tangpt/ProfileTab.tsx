@@ -92,6 +92,6 @@ export function ProfileTab() {
         : <button type="button" onClick={logout}><LogOut />{t("Đăng xuất", "Log out")}</button>}
     </div>
     <button type="button" className="link-btn" onClick={() => void signInInstead()}>{t("Đã có tài khoản? Đăng nhập", "Already have an account? Log in")}</button>
-    <div className="legal-links"><Link to="/terms">{t("Điều khoản", "Terms")}</Link><Link to="/privacy">{t("Quyền riêng tư", "Privacy")}</Link></div>
+    <div className="legal-links"><Link to="/">{t("Trang chủ", "Home")}</Link><Link to="/terms">{t("Điều khoản", "Terms")}</Link><Link to="/privacy">{t("Quyền riêng tư", "Privacy")}</Link></div>
   </section>;
 }
