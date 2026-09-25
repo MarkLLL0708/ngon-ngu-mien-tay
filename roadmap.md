@@ -10,6 +10,8 @@
 - [x] Lưu lựa chọn kết nối ngay khi chạm và cập nhật bộ lọc tức thì
 - [x] Hiện đồng thời danh sách trò chuyện và nhân vật mới chưa bắt đầu
 - [x] Nâng cấp hội thoại đồng hành trưởng thành với cường độ lãng mạn động và phong cách riêng
+- [x] Chuyển trải nghiệm hiển thị sang companion-only, lưu trữ bộ gợi ý sau cờ tính năng
+- [x] Cập nhật nội dung trang giới thiệu và thêm nhịp cảm xúc giữa trang
 
 ## Rizz suggestion engine
 - [x] Migration: profiles.ui_language/reply_language, companions.city/chat_language

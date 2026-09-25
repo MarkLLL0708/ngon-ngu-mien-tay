@@ -2,6 +2,9 @@
 // Set to false to restore the full login flow (login page, route guards, normal limits).
 export const TEST_GUEST_MODE = true;
 
+// Archived reply-helper experience. Keep false for the companion-only product.
+export const REPLY_HELPER_ENABLED = false;
+
 // Temporary on-screen debug panel (errors, route, session, overlays, navigation).
 export const DEBUG = TEST_GUEST_MODE;
 

@@ -1,7 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { HistoryTab } from "@/components/tangpt/HistoryTab";
+import { REPLY_HELPER_ENABLED } from "@/lib/tangpt-config";
 
 export const Route = createFileRoute("/app/history")({
+  beforeLoad: () => {
+    if (!REPLY_HELPER_ENABLED) throw redirect({ to: "/app/ai" });
+  },
   head: () => ({ meta: [
     { title: "Lịch sử gợi ý — TánGPT" },
     { name: "description", content: "Xem lại những câu trả lời TánGPT từng gợi ý cho bạn." },
