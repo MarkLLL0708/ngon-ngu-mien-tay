@@ -5,6 +5,7 @@ import { LangToggle, useLang } from "./Language";
 import { Button } from "@/components/ui/button";
 import { companionGenderMix, navLabel, relativeTime, useCompanions } from "@/lib/tangpt-companions";
 import { REPLY_HELPER_ENABLED } from "@/lib/tangpt-config";
+import { LegalFooter } from "./LegalFooter";
 
 const companionItems = [
   { to: "/app/ai", icon: MessageCircle, vi: "Bạn gái AI", en: "AI girlfriend", exact: false },
@@ -77,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <LangToggle />
         </div>
       </header>
-      <div className="app-content">{children}</div>
+      <div className="app-content">{children}<LegalFooter /></div>
       <nav className="bottom-nav" data-item-count={items.length}>
         {items.map((item) => {
           const Icon = item.icon;

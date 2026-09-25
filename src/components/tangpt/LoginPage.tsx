@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { needsOnboarding } from "@/lib/tangpt-session";
@@ -15,6 +16,7 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const navigate = useNavigate();
   const { t } = useLang();
 
@@ -34,6 +36,7 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
     setError("");
     if (!email.includes("@")) return setError(t("Email này chưa đúng rồi bạn ơi.", "That email doesn't look right."));
     if (password.length < 6) return setError(t("Mật khẩu cần ít nhất 6 ký tự nhé.", "Password needs at least 6 characters."));
+    if (mode === "signup" && !accepted) return setError(t("Bạn cần đồng ý với Điều khoản và Chính sách bảo mật để tạo tài khoản.", "You must agree to the Terms and Privacy Policy to create an account."));
     setBusy(true);
     const result = mode === "login"
       ? await supabase.auth.signInWithPassword({ email, password })
@@ -55,6 +58,10 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
 
   async function google() {
     setError("");
+    if (mode === "signup" && !accepted) {
+      setError(t("Bạn cần đồng ý với Điều khoản và Chính sách bảo mật để tạo tài khoản.", "You must agree to the Terms and Privacy Policy to create an account."));
+      return;
+    }
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/login" });
     if (result.error) setError(t("Chưa kết nối được Google. Bạn thử lại nhé.", "Could not connect to Google. Please try again."));
   }
@@ -74,11 +81,15 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
       <form onSubmit={submit} className="space-y-4">
         <label>Email<input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" placeholder="ban@email.com" /></label>
         <label>{t("Mật khẩu", "Password")}<div className="password-field"><input value={password} onChange={(e) => setPassword(e.target.value)} type={show ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} placeholder={t("Ít nhất 6 ký tự", "At least 6 characters")} /><button type="button" aria-label={show ? t("Ẩn mật khẩu", "Hide password") : t("Hiện mật khẩu", "Show password")} onClick={() => setShow(!show)}>{show ? <EyeOff /> : <Eye />}</button></div></label>
+        {mode === "signup" && <div className="legal-consent">
+          <Checkbox id="legal-consent" checked={accepted} onCheckedChange={(value) => setAccepted(value === true)} />
+          <label htmlFor="legal-consent">{t("Tôi đồng ý với", "I agree to the")} <Link to="/terms" target="_blank">{t("Điều khoản sử dụng", "Terms of Service")}</Link> {t("và", "and")} <Link to="/privacy" target="_blank">{t("Chính sách bảo mật", "Privacy Policy")}</Link></label>
+        </div>}
         {error && <p className="form-message">{error}</p>}
         <div className="anchored-actions"><Button variant="gradient" size="lg" className="w-full" disabled={busy}>{busy && <LoaderCircle className="animate-spin" />}{mode === "login" ? t("Đăng nhập", "Log in") : t("Tạo tài khoản", "Create account")}</Button></div>
       </form>
       <div className="divider"><span>{t("hoặc", "or")}</span></div>
-      <Button variant="outline" size="lg" className="w-full" onClick={google}><b className="google-g">G</b> {t("Tiếp tục với Google", "Continue with Google")}</Button>
+      <Button variant="outline" size="lg" className="w-full" onClick={google} disabled={mode === "signup" && !accepted}><b className="google-g">G</b> {t("Tiếp tục với Google", "Continue with Google")}</Button>
       <small>{t("Bằng việc tiếp tục, bạn đồng ý giao tiếp tử tế và tôn trọng.", "By continuing you agree to communicate kindly and respectfully.")}</small>
     </section>
   </main>;

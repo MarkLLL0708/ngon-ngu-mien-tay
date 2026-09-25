@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { readModelOverride } from "@/lib/tangpt-config";
 import { useOverlayFlag } from "@/lib/debug-bus";
 import { ACCEPTED_IMAGE_TYPES, imageErrorText, prepareImage } from "@/lib/tangpt-image";
+import { LegalFooter } from "./LegalFooter";
 
 type Message = { id: string; from: "me" | "her"; text: string; status?: "sent" | "seen"; createdAt: string; image?: string };
 type Companion = {
@@ -269,6 +270,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
         </div>;
       })}
       {typing && <div className="typing"><i /><i /><i /></div>}
+      <LegalFooter compact />
       <div ref={endRef} />
     </div>
     <div className="chat-composer">

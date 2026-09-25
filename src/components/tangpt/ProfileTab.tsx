@@ -15,6 +15,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { TEST_GUEST_MODE } from "@/lib/tangpt-config";
 import { resetGuestSession } from "@/lib/tangpt-guest";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { deleteMyAccount } from "@/lib/account.functions";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function ProfileTab() {
   const { region, city } = useRegionTheme();
@@ -27,6 +34,8 @@ export function ProfileTab() {
   const [replyLanguage, setReplyLanguage] = useState<ReplyLanguage>("vi");
   const [cleared, setCleared] = useState(false);
   const [pairKey, setPairKey] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const deleteAccount = useServerFn(deleteMyAccount);
 
   useEffect(() => { setReplyLanguage(readReplyLanguage()); }, []);
   useEffect(() => { if (profile) setPairKey(pairOf(profile.gender, profile.targetGender)?.key ?? null); }, [profile]);
@@ -63,6 +72,22 @@ export function ProfileTab() {
     setCleared(true); window.setTimeout(() => setCleared(false), 2000);
   }
 
+  async function permanentlyDeleteAccount() {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      await supabase.auth.signOut();
+      for (const key of Object.keys(window.localStorage)) {
+        if (key.startsWith("tangpt-")) window.localStorage.removeItem(key);
+      }
+      navigate({ to: "/", replace: true });
+      toast.success(t("Tài khoản và dữ liệu đã được xóa", "Account and data deleted"));
+    } catch {
+      setDeleting(false);
+      toast.error(t("Chưa thể xóa tài khoản. Vui lòng thử lại.", "Could not delete the account. Please try again."));
+    }
+  }
+
   function pickLanguage(value: ReplyLanguage) { setReplyLanguage(value); saveReplyLanguage(value); }
 
   const plan = profile?.plan === "pro" ? "Pro" : t("Miễn phí", "Free");
@@ -90,6 +115,19 @@ export function ProfileTab() {
       {TEST_GUEST_MODE && guest.anonymous
         ? <button type="button" onClick={resetSession}><LogOut />{t("Đặt lại phiên thử nghiệm", "Reset test session")}</button>
         : <button type="button" onClick={logout}><LogOut />{t("Đăng xuất", "Log out")}</button>}
+      <AlertDialog>
+        <AlertDialogTrigger asChild><button type="button" className="danger-setting"><Trash2 />{t("Xóa tài khoản và dữ liệu", "Delete account and data")}</button></AlertDialogTrigger>
+        <AlertDialogContent className="glass-sheet">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("Xóa vĩnh viễn tài khoản?", "Permanently delete your account?")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("Hồ sơ, nhân vật đồng hành, lịch sử trò chuyện và ký ức của bạn sẽ bị xóa vĩnh viễn. Không thể hoàn tác.", "Your profile, companions, chat history, and memories will be permanently deleted. This cannot be undone.")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>{t("Hủy", "Cancel")}</AlertDialogCancel>
+            <AlertDialogAction asChild><Button variant="destructive" disabled={deleting} onClick={() => void permanentlyDeleteAccount()}>{deleting ? t("Đang xóa...", "Deleting...") : t("Xóa tài khoản và dữ liệu", "Delete account and data")}</Button></AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
     <button type="button" className="link-btn" onClick={() => void signInInstead()}>{t("Đã có tài khoản? Đăng nhập", "Already have an account? Log in")}</button>
     <div className="legal-links"><Link to="/">{t("Trang chủ", "Home")}</Link><Link to="/terms">{t("Điều khoản", "Terms")}</Link><Link to="/privacy">{t("Quyền riêng tư", "Privacy")}</Link></div>
