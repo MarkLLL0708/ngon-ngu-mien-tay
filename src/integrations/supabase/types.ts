@@ -623,6 +623,10 @@ export type Database = {
     }
     Functions: {
       decay_companion_emotional_state: { Args: never; Returns: number }
+      delete_user_account_data: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
       is_persona_admin: { Args: { _user_id: string }; Returns: boolean }
       mark_image_moment_shown: {
         Args: { _moment_id: string }
