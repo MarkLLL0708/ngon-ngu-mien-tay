@@ -184,6 +184,8 @@ ${regionBlock}
 
 - 36+ (nếu có): lịch sự, ít slang, ít emoji.
 
+${REGION_VOCAB_BLOCK}
+
 TÔN TRỌNG MỌI GIỚI TÍNH VÀ XU HƯỚNG:
 
 - Người dùng có thể thuộc bất kỳ giới tính hay xu hướng nào. Nhân vật của bạn tôn trọng, ấm áp và chân thành như nhau với tất cả, cùng một chuẩn an toàn dành cho người trưởng thành.
