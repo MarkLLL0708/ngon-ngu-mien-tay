@@ -8,6 +8,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { needsOnboarding } from "@/lib/tangpt-session";
 import { LangToggle, useLang } from "./Language";
 import { BackButton } from "./BackButton";
+import { LegalFooter } from "./LegalFooter";
 
 export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "signup" }) {
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
@@ -92,5 +93,6 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
       <Button variant="outline" size="lg" className="w-full" onClick={google} disabled={mode === "signup" && !accepted}><b className="google-g">G</b> {t("Tiếp tục với Google", "Continue with Google")}</Button>
       <small>{t("Bằng việc tiếp tục, bạn đồng ý giao tiếp tử tế và tôn trọng.", "By continuing you agree to communicate kindly and respectfully.")}</small>
     </section>
+    <LegalFooter />
   </main>;
 }
