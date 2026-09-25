@@ -33,10 +33,10 @@ function parentOf(pathname: string): string {
 export function AppShell({ children }: { children: ReactNode }) {
   const { lang, t } = useLang();
   const router = useRouter();
-  const { rows } = useCompanions();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { rows } = useCompanions(pathname.startsWith("/app/chat") ? pathname : "list");
   const mix = companionGenderMix((rows ?? []).map((row) => row.persona_gender));
   const label = (item: (typeof items)[number]) => (item.to === "/app/ai" ? navLabel(mix, lang === "vi") : lang === "vi" ? item.vi : item.en);
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const chat = pathname.startsWith("/app/chat");
   const homeLabel = t("Trang chủ", "Home");
   const sideNav = <aside className="side-nav">

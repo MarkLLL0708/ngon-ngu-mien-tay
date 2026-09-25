@@ -81,7 +81,7 @@ export function personaPronoun(gender: string | undefined, vi: boolean) {
   return "Cô ấy";
 }
 
-export function useCompanions() {
+export function useCompanions(refreshKey?: string) {
   const [rows, setRows] = useState<CompanionRow[] | null>(null);
   useEffect(() => {
     let active = true;
@@ -89,6 +89,6 @@ export function useCompanions() {
       if (active) setRows(sortCompanions((data ?? []) as CompanionRow[]));
     });
     return () => { active = false; };
-  }, []);
+  }, [refreshKey]);
   return { rows, setRows };
 }
