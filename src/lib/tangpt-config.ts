@@ -5,8 +5,8 @@ export const TEST_GUEST_MODE = true;
 // Archived reply-helper experience. Keep false for the companion-only product.
 export const REPLY_HELPER_ENABLED = false;
 
-// Temporary on-screen debug panel (errors, route, session, overlays, navigation).
-export const DEBUG = TEST_GUEST_MODE;
+// On-screen debug panel (errors, route, session, overlays, navigation) — hidden.
+export const DEBUG = false;
 
 // Minimum hours since the last message before a welcome-back greeting is sent.
 // Lower this (e.g. 0.02) to test the greeting quickly.
