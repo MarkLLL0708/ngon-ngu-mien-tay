@@ -183,13 +183,15 @@ export const generateRizz = createServerFn({ method: "POST" })
       const since = new Date();
       since.setHours(0, 0, 0, 0);
       const { count } = await supabase
-        .from("reply_generations")
+        .from("usage_events")
         .select("id", { count: "exact", head: true })
         .eq("user_id", userId)
+        .eq("kind", "rizz")
         .gte("created_at", since.toISOString());
       const dailyLimit = process.env["TEST_MODE"] === "true" ? TEST_DAILY_LIMIT : FREE_DAILY_LIMIT;
       if ((count ?? 0) >= dailyLimit) throw new RizzError("limit_reached");
     }
+    await supabase.rpc("record_usage", { _kind: "rizz" });
 
     const image = safeImage(data.image_data);
     const baseMessage = buildUserMessage(data);

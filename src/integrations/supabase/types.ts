@@ -537,6 +537,27 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_events: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       voice_profiles: {
         Row: {
           active: boolean
@@ -632,6 +653,7 @@ export type Database = {
         Args: { _moment_id: string }
         Returns: undefined
       }
+      record_usage: { Args: { _kind: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

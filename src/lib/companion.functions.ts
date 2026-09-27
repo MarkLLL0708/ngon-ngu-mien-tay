@@ -314,17 +314,21 @@ export const companionReply = createServerFn({ method: "POST" })
     }
 
 
-    if (!welcomeBack && (profile.subscription_status ?? "free") !== "pro") {
-      const since = new Date();
-      since.setHours(0, 0, 0, 0);
-      const { count } = await supabase
-        .from("companion_messages")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("role", "user")
-        .gte("created_at", since.toISOString());
-      const dailyMessages = process.env["TEST_MODE"] === "true" ? TEST_DAILY_MESSAGES : FREE_DAILY_MESSAGES;
-      if ((count ?? 0) >= dailyMessages) throw new CompanionError("limit_reached");
+    if (!welcomeBack) {
+      if ((profile.subscription_status ?? "free") !== "pro") {
+        const since = new Date();
+        since.setHours(0, 0, 0, 0);
+        // Counted from the tamper-proof usage log (users cannot delete rows to reset it).
+        const { count } = await supabase
+          .from("usage_events")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", userId)
+          .eq("kind", "companion")
+          .gte("created_at", since.toISOString());
+        const dailyMessages = process.env["TEST_MODE"] === "true" ? TEST_DAILY_MESSAGES : FREE_DAILY_MESSAGES;
+        if ((count ?? 0) >= dailyMessages) throw new CompanionError("limit_reached");
+      }
+      await supabase.rpc("record_usage", { _kind: "companion" });
     }
 
     const { data: history } = await supabase

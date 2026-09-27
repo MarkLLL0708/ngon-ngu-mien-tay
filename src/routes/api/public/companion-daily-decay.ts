@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/public/companion-daily-decay")({
         if (denied) return denied;
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabaseAdmin.rpc("decay_companion_emotional_state");
-        if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        if (error) { console.error("decay failed", error.message); return new Response(JSON.stringify({ error: "internal_error" }), { status: 500 }); }
         return new Response(JSON.stringify({ updated: data ?? 0 }), {
           headers: { "Content-Type": "application/json" },
         });
