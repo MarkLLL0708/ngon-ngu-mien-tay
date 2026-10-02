@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Zalo sign-in is a custom server route pair under /api/public/auth/zalo (PKCE + state cookies); sessions are minted via admin magic-link token redeemed with verifyOtp — Zalo's non-standard OAuth can't use managed providers.
