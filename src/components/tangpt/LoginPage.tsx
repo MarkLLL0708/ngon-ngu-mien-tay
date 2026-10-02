@@ -23,9 +23,34 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
 
   useEffect(() => {
     let active = true;
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    const zaloToken = hash.get("zalo_token");
+    const zaloError = hash.get("zalo_error");
+    if (zaloToken || zaloError) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    if (zaloError) setError(t("Chưa đăng nhập được bằng Zalo. Bạn thử lại nhé.", "Could not sign in with Zalo. Please try again."));
+    if (zaloToken) {
+      setBusy(true);
+      supabase.auth.verifyOtp({ token_hash: zaloToken, type: "magiclink" }).then(async ({ data, error: err }) => {
+        if (!active) return;
+        setBusy(false);
+        if (err || !data.user) return setError(t("Chưa đăng nhập được bằng Zalo. Bạn thử lại nhé.", "Could not sign in with Zalo. Please try again."));
+        await goAfterAuth(data.user.id);
+      });
+      return () => { active = false; };
+    }
     supabase.auth.getUser().then(({ data }) => { if (active && data.user) navigate({ to: "/app", replace: true }); });
     return () => { active = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
+
+  function zalo() {
+    setError("");
+    if (mode === "signup" && !accepted) {
+      setError(t("Bạn cần đồng ý với Điều khoản và Chính sách bảo mật để tạo tài khoản.", "You must agree to the Terms and Privacy Policy to create an account."));
+      return;
+    }
+    window.location.href = "/api/public/auth/zalo/start";
+  }
 
   async function goAfterAuth(userId: string) {
     const onboard = await needsOnboarding(userId);
@@ -91,6 +116,7 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
       </form>
       <div className="divider"><span>{t("hoặc", "or")}</span></div>
       <Button variant="outline" size="lg" className="w-full" onClick={google} disabled={mode === "signup" && !accepted}><b className="google-g">G</b> {t("Tiếp tục với Google", "Continue with Google")}</Button>
+      <Button variant="outline" size="lg" className="w-full mt-3" onClick={zalo} disabled={busy || (mode === "signup" && !accepted)}><b className="google-g">Z</b> {t("Đăng nhập với Zalo", "Sign in with Zalo")}</Button>
       <small>{t("Bằng việc tiếp tục, bạn đồng ý giao tiếp tử tế và tôn trọng.", "By continuing you agree to communicate kindly and respectfully.")}</small>
     </section>
     <LegalFooter />
