@@ -24,6 +24,8 @@ import { Route as AppChatCompanionIdRouteImport } from './routes/app.chat.$compa
 import { Route as AppPersonaPersonaIdRouteImport } from './routes/app.persona.$personaId'
 import { Route as AppAdminPersonasIndexRouteImport } from './routes/app.admin.personas.index'
 import { Route as AppAdminPersonasPersonaIdRouteImport } from './routes/app.admin.personas.$personaId'
+import { Route as ApiPublicAuthZaloCallbackRouteImport } from './routes/api/public/auth/zalo/callback'
+import { Route as ApiPublicAuthZaloStartRouteImport } from './routes/api/public/auth/zalo/start'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -102,6 +104,17 @@ const AppAdminPersonasPersonaIdRoute =
     path: '/admin/personas/$personaId',
     getParentRoute: () => AppRoute,
   } as any)
+const ApiPublicAuthZaloCallbackRoute =
+  ApiPublicAuthZaloCallbackRouteImport.update({
+    id: '/api/public/auth/zalo/callback',
+    path: '/api/public/auth/zalo/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicAuthZaloStartRoute = ApiPublicAuthZaloStartRouteImport.update({
+  id: '/api/public/auth/zalo/start',
+  path: '/api/public/auth/zalo/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -119,6 +132,8 @@ export interface FileRoutesByFullPath {
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
   '/app/admin/personas/': typeof AppAdminPersonasIndexRoute
+  '/api/public/auth/zalo/callback': typeof ApiPublicAuthZaloCallbackRoute
+  '/api/public/auth/zalo/start': typeof ApiPublicAuthZaloStartRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -135,6 +150,8 @@ export interface FileRoutesByTo {
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
   '/app/admin/personas': typeof AppAdminPersonasIndexRoute
+  '/api/public/auth/zalo/callback': typeof ApiPublicAuthZaloCallbackRoute
+  '/api/public/auth/zalo/start': typeof ApiPublicAuthZaloStartRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -153,6 +170,8 @@ export interface FileRoutesById {
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
   '/app/admin/personas/': typeof AppAdminPersonasIndexRoute
+  '/api/public/auth/zalo/callback': typeof ApiPublicAuthZaloCallbackRoute
+  '/api/public/auth/zalo/start': typeof ApiPublicAuthZaloStartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -172,6 +191,8 @@ export interface FileRouteTypes {
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
     | '/app/admin/personas/'
+    | '/api/public/auth/zalo/callback'
+    | '/api/public/auth/zalo/start'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,6 +209,8 @@ export interface FileRouteTypes {
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
     | '/app/admin/personas'
+    | '/api/public/auth/zalo/callback'
+    | '/api/public/auth/zalo/start'
   id:
     | '__root__'
     | '/'
@@ -205,6 +228,8 @@ export interface FileRouteTypes {
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
     | '/app/admin/personas/'
+    | '/api/public/auth/zalo/callback'
+    | '/api/public/auth/zalo/start'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,6 +240,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   ApiPublicCompanionDailyDecayRoute: typeof ApiPublicCompanionDailyDecayRoute
+  ApiPublicAuthZaloCallbackRoute: typeof ApiPublicAuthZaloCallbackRoute
+  ApiPublicAuthZaloStartRoute: typeof ApiPublicAuthZaloStartRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -324,6 +351,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPersonasPersonaIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/auth/zalo/callback': {
+      id: '/api/public/auth/zalo/callback'
+      path: '/api/public/auth/zalo/callback'
+      fullPath: '/api/public/auth/zalo/callback'
+      preLoaderRoute: typeof ApiPublicAuthZaloCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/auth/zalo/start': {
+      id: '/api/public/auth/zalo/start'
+      path: '/api/public/auth/zalo/start'
+      fullPath: '/api/public/auth/zalo/start'
+      preLoaderRoute: typeof ApiPublicAuthZaloStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -359,6 +400,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   ApiPublicCompanionDailyDecayRoute: ApiPublicCompanionDailyDecayRoute,
+  ApiPublicAuthZaloCallbackRoute: ApiPublicAuthZaloCallbackRoute,
+  ApiPublicAuthZaloStartRoute: ApiPublicAuthZaloStartRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
