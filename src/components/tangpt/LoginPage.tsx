@@ -38,7 +38,7 @@ export function LoginPage({ initialMode = "login" }: { initialMode?: "login" | "
       });
       return () => { active = false; };
     }
-    supabase.auth.getUser().then(({ data }) => { if (active && data.user) navigate({ to: "/app", replace: true }); });
+    supabase.auth.getUser().then(({ data }) => { if (active && data.user && !data.user.is_anonymous) navigate({ to: "/app", replace: true }); });
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
