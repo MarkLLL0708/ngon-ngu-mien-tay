@@ -1,5 +1,8 @@
 # Tán Hợp
 
+> Synced from Lovable to GitHub — live two-way sync test: 2026-10-04 07:32 UTC.
+
+
 Build (or fully redesign) the mobile-first web app "TánGPT" with ALL UI text in Vietnamese. Target users: Vietnamese men aged 20-35 who live in cities, use Zalo, TikTok, Instagram and Facebook daily, and want to (1) get help writing charming replies to women and (2) chat with a realistic AI companion. The look must feel like a modern Vietnamese Gen Z / young-professional app: Sài Gòn night energy meets Hà Nội café cool. NOT corporate, NOT childish, NOT generic Western dating-app. Think Zalo/Momo/TikTok polish with a premium dark mood.
 
 === DESIGN SYSTEM ===
