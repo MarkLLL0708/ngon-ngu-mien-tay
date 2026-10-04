@@ -29,8 +29,8 @@ export function useIsPersonaAdmin(): AdminState {
       const userId = data.user?.id ?? null;
       if (!userId) { if (active) setState({ loading: false, isAdmin: false, userId: null }); return; }
       if (ADMIN_USER_IDS.includes(userId)) { if (active) setState({ loading: false, isAdmin: true, userId }); return; }
-      const { data: row } = await supabase.from("persona_admins").select("user_id").eq("user_id", userId).maybeSingle();
-      if (active) setState({ loading: false, isAdmin: Boolean(row), userId });
+      const { data: ok } = await supabase.rpc("is_persona_admin", { _user_id: userId });
+      if (active) setState({ loading: false, isAdmin: Boolean(ok), userId });
     })();
     return () => { active = false; };
   }, []);

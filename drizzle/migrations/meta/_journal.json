@@ -120,6 +120,13 @@
       "when": 1790518594478,
       "tag": "0016_security_hardening_usage_and_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1791105758862,
+      "tag": "0017_owner_email_persona_admin",
+      "breakpoints": true
     }
   ]
 }

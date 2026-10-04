@@ -440,8 +440,8 @@ export const companionReply = createServerFn({ method: "POST" })
     if (data.model_override && COMPARE_MODELS.includes(data.model_override)) {
       let isAdmin = ADMIN_USER_IDS.includes(userId);
       if (!isAdmin) {
-        const { data: adminRow } = await supabase.from("persona_admins").select("user_id").eq("user_id", userId).maybeSingle();
-        isAdmin = Boolean(adminRow);
+        const { data: ok } = await supabase.rpc("is_persona_admin", { _user_id: userId });
+        isAdmin = Boolean(ok);
       }
       if (isAdmin) replyModel = data.model_override;
     }
