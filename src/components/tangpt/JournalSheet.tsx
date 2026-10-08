@@ -23,12 +23,12 @@ export function JournalSheet({ companionId, name, onClose }: { companionId: stri
     return () => { active = false; };
   }, [companionId, fetchJournal]);
 
-  return <div className="sheet-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
-    <div className="sheet fade-up" onClick={(e) => e.stopPropagation()} style={{ maxHeight: "85dvh", overflowY: "auto" }}>
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <strong className="flex items-center gap-2"><BookHeart size={18} />{vi ? `Nhật ký của ${name}` : `${name}'s journal`}</strong>
-        <button type="button" className="chip" aria-label={t("Đóng", "Close")} onClick={onClose}><X size={14} /></button>
-      </div>
+  return <div className="memory-sheet fade-up" role="dialog" aria-modal="true">
+    <header>
+      <h2 className="flex items-center gap-2"><BookHeart size={18} />{vi ? `Nhật ký của ${name}` : `${name}'s journal`}</h2>
+      <button type="button" className="chip" aria-label={t("Đóng", "Close")} onClick={onClose}><X size={14} /></button>
+    </header>
+    <div style={{ overflowY: "auto", padding: "16px", maxWidth: 680, width: "100%", margin: "0 auto" }}>
       {entries === null && <div className="thread-loader"><LoaderCircle className="animate-spin" /></div>}
       {entries?.length === 0 && <p className="chat-hint">{vi
         ? `Nhật ký của ${name} sẽ xuất hiện sau tuần đầu trò chuyện.`
