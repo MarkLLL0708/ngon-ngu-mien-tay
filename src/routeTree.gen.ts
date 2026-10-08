@@ -20,6 +20,7 @@ import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppMeRouteImport } from './routes/app.me'
 import { Route as ApiPublicCompanionDailyDecayRouteImport } from './routes/api/public/companion-daily-decay'
+import { Route as ApiPublicCompanionWeeklyJournalRouteImport } from './routes/api/public/companion-weekly-journal'
 import { Route as AppChatCompanionIdRouteImport } from './routes/app.chat.$companionId'
 import { Route as AppPersonaPersonaIdRouteImport } from './routes/app.persona.$personaId'
 import { Route as AppAdminPersonasIndexRouteImport } from './routes/app.admin.personas.index'
@@ -83,6 +84,12 @@ const ApiPublicCompanionDailyDecayRoute =
     path: '/api/public/companion-daily-decay',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCompanionWeeklyJournalRoute =
+  ApiPublicCompanionWeeklyJournalRouteImport.update({
+    id: '/api/public/companion-weekly-journal',
+    path: '/api/public/companion-weekly-journal',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppChatCompanionIdRoute = AppChatCompanionIdRouteImport.update({
   id: '/chat/$companionId',
   path: '/chat/$companionId',
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/app/me': typeof AppMeRoute
   '/app/': typeof AppIndexRoute
   '/api/public/companion-daily-decay': typeof ApiPublicCompanionDailyDecayRoute
+  '/api/public/companion-weekly-journal': typeof ApiPublicCompanionWeeklyJournalRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
@@ -146,6 +154,7 @@ export interface FileRoutesByTo {
   '/app/me': typeof AppMeRoute
   '/app': typeof AppIndexRoute
   '/api/public/companion-daily-decay': typeof ApiPublicCompanionDailyDecayRoute
+  '/api/public/companion-weekly-journal': typeof ApiPublicCompanionWeeklyJournalRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
@@ -166,6 +175,7 @@ export interface FileRoutesById {
   '/app/me': typeof AppMeRoute
   '/app/': typeof AppIndexRoute
   '/api/public/companion-daily-decay': typeof ApiPublicCompanionDailyDecayRoute
+  '/api/public/companion-weekly-journal': typeof ApiPublicCompanionWeeklyJournalRoute
   '/app/chat/$companionId': typeof AppChatCompanionIdRoute
   '/app/persona/$personaId': typeof AppPersonaPersonaIdRoute
   '/app/admin/personas/$personaId': typeof AppAdminPersonasPersonaIdRoute
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/app/me'
     | '/app/'
     | '/api/public/companion-daily-decay'
+    | '/api/public/companion-weekly-journal'
     | '/app/chat/$companionId'
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/app/me'
     | '/app'
     | '/api/public/companion-daily-decay'
+    | '/api/public/companion-weekly-journal'
     | '/app/chat/$companionId'
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
     | '/app/me'
     | '/app/'
     | '/api/public/companion-daily-decay'
+    | '/api/public/companion-weekly-journal'
     | '/app/chat/$companionId'
     | '/app/persona/$personaId'
     | '/app/admin/personas/$personaId'
@@ -240,6 +253,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   ApiPublicCompanionDailyDecayRoute: typeof ApiPublicCompanionDailyDecayRoute
+  ApiPublicCompanionWeeklyJournalRoute: typeof ApiPublicCompanionWeeklyJournalRoute
   ApiPublicAuthZaloCallbackRoute: typeof ApiPublicAuthZaloCallbackRoute
   ApiPublicAuthZaloStartRoute: typeof ApiPublicAuthZaloStartRoute
 }
@@ -323,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCompanionDailyDecayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/companion-weekly-journal': {
+      id: '/api/public/companion-weekly-journal'
+      path: '/api/public/companion-weekly-journal'
+      fullPath: '/api/public/companion-weekly-journal'
+      preLoaderRoute: typeof ApiPublicCompanionWeeklyJournalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/chat/$companionId': {
       id: '/app/chat/$companionId'
       path: '/chat/$companionId'
@@ -400,6 +421,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   ApiPublicCompanionDailyDecayRoute: ApiPublicCompanionDailyDecayRoute,
+  ApiPublicCompanionWeeklyJournalRoute: ApiPublicCompanionWeeklyJournalRoute,
   ApiPublicAuthZaloCallbackRoute: ApiPublicAuthZaloCallbackRoute,
   ApiPublicAuthZaloStartRoute: ApiPublicAuthZaloStartRoute,
 }
