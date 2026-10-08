@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Brain, Check, ImagePlus, LoaderCircle, MoreVertical, SendHorizontal, Trash2, X } from "lucide-react";
+import { ArrowLeft, BookHeart, Brain, Check, ImagePlus, LoaderCircle, MoreVertical, SendHorizontal, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Paywall } from "./Paywall";
 import { useLang } from "./Language";
 import { MemorySheet } from "./MemorySheet";
+import { JournalSheet } from "./JournalSheet";
 import { companionReply } from "@/lib/companion.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { dayLabel, personaPronoun } from "@/lib/tangpt-companions";
@@ -52,6 +53,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
   const [paywall, setPaywall] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
+  const [journalOpen, setJournalOpen] = useState(false);
   const [pending, setPending] = useState<{ dataUrl: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [loadingOlder, setLoadingOlder] = useState(false);
@@ -62,6 +64,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
 
   useOverlayFlag("chat-menu", menuOpen);
   useOverlayFlag("memory-sheet", memoryOpen);
+  useOverlayFlag("journal-sheet", journalOpen);
   useOverlayFlag("paywall", paywall);
 
   const showBubbles = useCallback(async (bubbles: { text: string; delay_ms?: number; image_url?: string; caption_hint?: string }[]) => {
@@ -246,6 +249,9 @@ export function ChatScreen({ companionId }: { companionId: string }) {
       <button type="button" className="menu-item" onClick={() => { setMenuOpen(false); setMemoryOpen(true); }}>
         <Brain />{vi ? `${who} nhớ gì về bạn` : "What they remember about you"}
       </button>
+      <button type="button" className="menu-item" onClick={() => { setMenuOpen(false); setJournalOpen(true); }}>
+        <BookHeart />{t("Nhật ký", "Journal")}
+      </button>
       <button type="button" className="menu-item" onClick={() => void deleteCompanion()}>
         <Trash2 />{t("Xóa nhân vật", "Delete companion")}
       </button>
@@ -286,6 +292,7 @@ export function ChatScreen({ companionId }: { companionId: string }) {
     </div>
     {memoryOpen && companion && <MemorySheet companionId={companion.id} personaGender={companion.persona_gender}
       onClose={() => setMemoryOpen(false)} onWiped={() => { setMessages([]); setHasMore(false); }} />}
+    {journalOpen && companion && <JournalSheet companionId={companion.id} name={companion.name} onClose={() => setJournalOpen(false)} />}
     <Paywall open={paywall} onOpenChange={setPaywall} />
   </main>;
 }

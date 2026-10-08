@@ -78,6 +78,50 @@ export type Database = {
           },
         ]
       }
+      companion_journal_entries: {
+        Row: {
+          companion_id: string
+          content: string
+          created_at: string
+          entry_date: string
+          id: string
+          image_id: string | null
+          image_source: string | null
+          mood_tag: string
+          user_id: string
+        }
+        Insert: {
+          companion_id: string
+          content: string
+          created_at?: string
+          entry_date?: string
+          id?: string
+          image_id?: string | null
+          image_source?: string | null
+          mood_tag?: string
+          user_id: string
+        }
+        Update: {
+          companion_id?: string
+          content?: string
+          created_at?: string
+          entry_date?: string
+          id?: string
+          image_id?: string | null
+          image_source?: string | null
+          mood_tag?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companion_journal_entries_companion_id_fkey"
+            columns: ["companion_id"]
+            isOneToOne: false
+            referencedRelation: "companions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companion_memories: {
         Row: {
           category: string

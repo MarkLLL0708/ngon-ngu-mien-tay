@@ -327,3 +327,7 @@ input,textarea,select{font-size:16px;max-width:100%}
 .danger-setting svg{color:var(--destructive)!important}
 [role="alertdialog"].glass-sheet{background:var(--surface-raised)!important;border:1px solid var(--border)!important;box-shadow:0 28px 80px color-mix(in oklab,var(--background) 80%,transparent)}
 [role="alertdialog"].glass-sheet>div:last-child{gap:10px}
+
+.journal-card{display:grid;gap:10px;padding:14px;border:1px solid var(--border);border-radius:18px;background:var(--card)}
+.journal-card small{color:var(--muted-foreground)}
+.journal-card p{line-height:1.6;margin:0}

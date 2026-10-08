@@ -22,3 +22,4 @@
 - [x] Require legal consent before account signup
 - [x] Add legal links across landing and app screens
 - [x] Add confirmed permanent account and data deletion
+- [x] Weekly companion journal (table, job, Journal screen) — sample blocked by AI credits
