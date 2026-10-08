@@ -99,8 +99,8 @@ async function pickImage(admin: SupabaseClient, companion: Companion, content: s
   return list[Math.floor(Math.random() * list.length)]!;
 }
 
-export async function runWeeklyJournal(admin: SupabaseClient, apiKey: string, opts: { companionId?: string } = {}) {
-  const since = new Date(Date.now() - 7 * 86400000).toISOString();
+export async function runWeeklyJournal(admin: SupabaseClient, apiKey: string, opts: { companionId?: string; windowDays?: number } = {}) {
+  const since = new Date(Date.now() - (opts.windowDays ?? 7) * 86400000).toISOString();
   const today = new Date().toISOString().slice(0, 10);
   const weekAgo = since.slice(0, 10);
 
