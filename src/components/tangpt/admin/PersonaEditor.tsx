@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { GalleryEditor } from "./GalleryEditor";
 import { VideoEditor } from "./VideoEditor";
 import { ImageMomentsEditor } from "./ImageMomentsEditor";
+import { PersonaMomentsEditor } from "./PersonaMomentsEditor";
 
 import { PersonaIntro } from "../PersonaIntro";
 import { supabase } from "@/integrations/supabase/client";
@@ -123,6 +124,11 @@ export function PersonaEditor({ personaId }: { personaId: string }) {
     <div className="filter-block">
       <div className="admin-section-head"><strong>Ảnh khoảnh khắc</strong></div>
       <ImageMomentsEditor personaId={personaId} />
+    </div>
+
+    <div className="filter-block">
+      <div className="admin-section-head"><strong>Khoảnh khắc (Moments)</strong></div>
+      <PersonaMomentsEditor personaId={personaId} />
     </div>
 
     <div className="filter-block">
