@@ -386,6 +386,44 @@ export type Database = {
           },
         ]
       }
+      persona_moments: {
+        Row: {
+          caption: string
+          id: string
+          image_id: string
+          image_source: string
+          persona_id: string
+          posted_at: string
+          published: boolean
+        }
+        Insert: {
+          caption?: string
+          id?: string
+          image_id: string
+          image_source: string
+          persona_id: string
+          posted_at?: string
+          published?: boolean
+        }
+        Update: {
+          caption?: string
+          id?: string
+          image_id?: string
+          image_source?: string
+          persona_id?: string
+          posted_at?: string
+          published?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "persona_moments_persona_id_fkey"
+            columns: ["persona_id"]
+            isOneToOne: false
+            referencedRelation: "personas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       personas: {
         Row: {
           age_vibe: string

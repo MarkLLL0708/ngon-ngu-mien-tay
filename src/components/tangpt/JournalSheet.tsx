@@ -9,6 +9,16 @@ const MOOD_EN: Record<string, string> = {
   "bình yên": "peaceful", "phấn khích": "excited", "suy tư": "thoughtful",
 };
 
+function relativeTime(iso: string, vi: boolean) {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (mins < 60) return vi ? `${Math.max(1, mins)} phút trước` : `${Math.max(1, mins)}m ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return vi ? `${hours} giờ trước` : `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 30) return vi ? `${days} ngày trước` : `${days}d ago`;
+  return new Date(iso).toLocaleDateString(vi ? "vi-VN" : "en-GB");
+}
+
 export function JournalSheet({ companionId, name, onClose }: { companionId: string; name: string; onClose: () => void }) {
   const { t, lang } = useLang();
   const vi = lang === "vi";
@@ -34,7 +44,15 @@ export function JournalSheet({ companionId, name, onClose }: { companionId: stri
         ? `Nhật ký của ${name} sẽ xuất hiện sau tuần đầu trò chuyện.`
         : `${name}'s journal will appear after your first week chatting.`}</p>}
       <div className="flex flex-col gap-3">
-        {entries?.map((entry) => <article key={entry.id} className="journal-card">
+        {entries?.map((entry) => entry.kind === "moment"
+          ? <article key={`m-${entry.id}`} className="moment-post">
+              {entry.image_url && <img src={entry.image_url} alt={t("Khoảnh khắc", "Moment")} />}
+              <div className="moment-post-body">
+                <p>{entry.caption}</p>
+                <small>{relativeTime(entry.date, vi)}</small>
+              </div>
+            </article>
+          : <article key={entry.id} className="journal-card">
           <div className="flex items-center justify-between gap-2">
             <small>{new Date(entry.entry_date).toLocaleDateString(vi ? "vi-VN" : "en-GB")}</small>
             <span className="chip chip-active">{vi ? entry.mood_tag : (MOOD_EN[entry.mood_tag] ?? entry.mood_tag)}</span>
