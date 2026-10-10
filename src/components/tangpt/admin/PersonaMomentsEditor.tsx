@@ -21,7 +21,7 @@ export function PersonaMomentsEditor({ personaId }: { personaId: string }) {
   const suggest = useServerFn(suggestMomentCaption);
   const [rows, setRows] = useState<MomentRow[]>([]);
   const [pool, setPool] = useState<PoolImage[]>([]);
-  const [form, setForm] = useState<{ id?: string; caption: string; pick?: PoolImage } | null>(null);
+  const [form, setForm] = useState<{ id?: string; caption: string; pick?: PoolImage | undefined } | null>(null);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [confirm, setConfirm] = useState<{ id: string; action: "delete" | "toggle" } | null>(null);
@@ -68,7 +68,7 @@ export function PersonaMomentsEditor({ personaId }: { personaId: string }) {
     if (!form) return;
     setBusy("suggest"); setError("");
     try {
-      const { caption } = await suggest({ data: { persona_id: personaId, hint: form.pick?.caption_hint } });
+      const { caption } = await suggest({ data: { persona_id: personaId, hint: form.pick?.caption_hint ?? "" } });
       setForm((f) => (f ? { ...f, caption } : f));
     } catch (e) {
       setError(String(e).includes("no_credits") ? "Hết AI credits, viết caption tay nhé." : "Chưa gợi ý được, thử lại nhé.");
