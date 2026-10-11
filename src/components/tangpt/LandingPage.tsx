@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Bot, CheckCircle2, HeartHandshake, MapPin, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Bot, CheckCircle2, HeartHandshake, MapPin, MessageCircle, ShieldCheck,} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { regions, type RegionKey } from "@/lib/tangpt-data";
 import { useRegionTheme } from "./RegionTheme";
